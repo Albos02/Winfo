@@ -1,4 +1,5 @@
 # Welcome to Winfo
+An application (for water sports) that uses values measured by weather stations.
 
 To make this app work directly in python you need to install those packages :
 
