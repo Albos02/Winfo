@@ -1,6 +1,7 @@
 # Welcome to Winfo
 
 To make this app work directly in python you need to install those packages :
+
 'pip install customtkinter tkintermapview ctktable windows-toasts keyboard'
 
 For the background tasks, you need to run the "double_clickez_ici_pour....bat" file.
