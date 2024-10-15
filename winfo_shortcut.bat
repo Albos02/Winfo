@@ -1,0 +1,1 @@
+start /d winfo_shortcut.exe
