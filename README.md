@@ -1,4 +1,5 @@
-#Welcome to Winfo
+# Welcome to Winfo
+
 To make this app work directly in python you need to install those packages :
 'pip install customtkinter tkintermapview ctktable windows-toasts keyboard'
 
