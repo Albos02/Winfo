@@ -1,0 +1,8 @@
+customtkinter
+tkintermapview
+ctktable
+geocoder
+windows-toasts
+matplotlib
+tzlocal
+pytz

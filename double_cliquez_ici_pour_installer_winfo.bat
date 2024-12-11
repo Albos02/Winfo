@@ -3,20 +3,17 @@ setlocal enabledelayedexpansion
 
 set "current_dir=%cd%"
 
-set "winfo_dir_file=%current_dir%\winfo_dir"
+set "filename1=winfo_shortcut.exe"
+set "filename2=winfo_wind_limit.exe"
 
-set "filename1=winfo_file_exists.bat"
-set "filename2=winfo_shortcut.bat"
-set "filename3=winfo_wind_limit.bat"
-
-
+cd "%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\"
 (
     echo @echo off
     echo cd "%current_dir%" 
-    echo start /MIN %filename1%
-    echo start /MIN %filename2%
-    echo start /MIN %filename3%
-) > "%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\winfo_startup.bat"
+    echo start /MIN "winfo background tasks : shortcut" %filename1%
+    echo start /MIN "winfo background tasks : wind limit" %filename2%
 
-cd "%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\"
-start /MIN winfo_startup.bat
+    echo exit
+) > "winfo_startup.bat"
+
+start /MIN "winfo_startup.bat" "winfo_startup.bat"
