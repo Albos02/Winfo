@@ -1,7 +1,9 @@
-# Welcome to Winfo
-An application (for water sports) that uses values measured by weather stations (in french).
-
 # English
+## Welcome to Winfo
+An application (for water sports) that uses and displayes values measured by weather stations
+and a little more.
+(in french)
+
 ## Set up
 To make this app work directly in python you need to install python and the requirements.txt packages
 
@@ -15,6 +17,10 @@ Then you're good to go (hopefully).
 If you want the .exe version, visit my [Website](https://louse-proud-raven.ngrok-free.app)
 
 # Français
+## Bienvenue sur Winfo
+Une application (pour les sports nautiques) qui utilise et affiche des valeurs mesurées par les stations météorologiques
+et un peu plus.
+
 ## Installation
 Pour faire fonctionner cette application directement en python, vous devez installer python et les paquets requirements.txt.
 
