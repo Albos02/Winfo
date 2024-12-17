@@ -6,7 +6,7 @@ import geocoder
 from math import sqrt
 from winfo_import import *
 
-# from windows_toasts import Toast, WindowsToaster, ToastDisplayImage
+from windows_toasts import Toast, WindowsToaster, ToastDisplayImage
 from PIL import Image
 from PIL import ImageTk
 from cosmo_parser import cosmo_parser
@@ -694,7 +694,7 @@ def get_prevision_matrix(station_id: int, raw: bool):
 
 
 
-def chart_setup(frame, station_id, history_bool):
+def chart_setup(frame, station_id, history_bool, unit: str):
     plt.style.use('_mpl-gallery')
     fig, ax = plt.subplots(figsize=(10, 6))
     plt.subplots_adjust(left=0.06, right=0.94, bottom=0.2, top=0.97)
@@ -702,7 +702,7 @@ def chart_setup(frame, station_id, history_bool):
     ax2 = ax.twinx()
     
     ax.set_xlabel('Date', fontsize=10)
-    ax.set_ylabel('Vitesse du vent', fontsize=10)
+    ax.set_ylabel(f'Vitesse du vent ({unit})', fontsize=10)
     ax2.set_ylabel('Direction (°)', fontsize=10)
     ax2.grid(False)
     
@@ -733,7 +733,7 @@ def chart_setup(frame, station_id, history_bool):
         lines.append(rafale_line)
         labels.append('Rafale')
         
-        direction_line = ax2.plot(x_numeric, y_values[2], label='Direction', linewidth=1.0, color='red', linestyle='--')[0]
+        direction_line = ax2.plot(x_numeric, y_values[2], label='Direction', linewidth=0.5, color='red', linestyle='--')[0]
         lines.append(direction_line)
         labels.append('Direction')
         
@@ -744,17 +744,24 @@ def chart_setup(frame, station_id, history_bool):
         fill_between = ax.fill_between(x_numeric, y_values[1], y_values[2], alpha=0.5, label='Min / Max')
         lines.append(fill_between)
         labels.append('Min / Max')
+
+        ax2.set_ylabel('')
+        ax2.set_visible(False)
     
     ax.legend(lines, labels, loc='best')
     
     if history_bool:
-        tick_positions = list(range(len(x_values)-1, -1, -6))
+        tick_positions = list(range(len(x_values)-1, 1, -6))
         ax.set_xticks(tick_positions)
-        ax.set_xticklabels([x_values[i] for i in tick_positions][::-1], rotation=45, ha='right')
+        ax.set_xticklabels([x_values[i] for i in tick_positions][::1], rotation=45, ha='right')
     else:
         ax.set_xticks(range(len(x_values)-1, -1, -1))
         ax.set_xticklabels(x_values[::-1], rotation=45, ha='right')
     
+    if len(x_numeric) > 1:
+        x_padding = (x_numeric[-1] - x_numeric[0]) * 0.01  # 5% padding on the x-ax
+        ax.set_xlim(x_numeric[0] - x_padding, x_numeric[-1] + x_padding)
+
     # Create hover line
     hover_line = ax.axvline(x=0, color='gray', alpha=0.8, visible=False)
     hover_text = ax.text(0.02, 0.98, '', transform=ax.transAxes,
@@ -762,18 +769,39 @@ def chart_setup(frame, station_id, history_bool):
                          verticalalignment='top')
     
     def motion_notify_event(event):
-        if event.inaxes in (ax, ax2) and event.xdata is not None:
+        if event.inaxes in (ax, ax2) and event.xdata is not None and event.ydata is not None:
             idx = min(range(len(x_numeric)), key=lambda i: abs(x_numeric[i] - event.xdata))
             if history_bool:
                 text = (f"Date: {x_values[idx]}\n"
                         f"Moyenne: {y_values[0][idx]:.1f}\n"
                         f"Rafale: {y_values[1][idx]:.1f}\n"
-                        f"Direction: {y_values[2][idx]}°")
+                        f"Direction: {y_values[2][idx]:.0f}°")
+                main_ydata = ax.transData.inverted().transform((event.x, event.y))[1]
+                if 3 > abs(main_ydata - y_values[0][idx]):
+                    moyenne_line.set_linewidth(4.0)
+                    rafale_line.set_linewidth(2.0)
+                    direction_line.set_linewidth(0.5)
+                elif 3 > abs(main_ydata - y_values[1][idx]):
+                    rafale_line.set_linewidth(4.0)
+                    moyenne_line.set_linewidth(2.0)
+                    direction_line.set_linewidth(0.5)
+                elif 20 > abs(event.ydata - y_values[2][idx]):
+                    direction_line.set_linewidth(2.0)
+                    moyenne_line.set_linewidth(2.0)
+                    rafale_line.set_linewidth(2.0)
+                else:
+                    moyenne_line.set_linewidth(2.0)
+                    rafale_line.set_linewidth(2.0)
+                    direction_line.set_linewidth(0.5)
             else:
                 text = (f"Date: {x_values[idx]}\n"
                         f"Moyenne: {y_values[0][idx]:.1f}\n"
                         f"Min: {y_values[1][idx]:.1f}\n"
                         f"Max: {y_values[2][idx]:.1f}")
+                if 3 > abs(event.ydata - y_values[0][idx]):
+                    moyenne_line.set_linewidth(4.0)
+                else:
+                    moyenne_line.set_linewidth(2.0)
             
             hover_line.set_xdata([x_numeric[idx]])
             hover_line.set_visible(True)
@@ -782,12 +810,20 @@ def chart_setup(frame, station_id, history_bool):
         else:
             hover_line.set_visible(False)
             hover_text.set_visible(False)
+            moyenne_line.set_linewidth(2.0)
+            if history_bool:
+                rafale_line.set_linewidth(2.0)
+                direction_line.set_linewidth(0.5)
         
         fig.canvas.draw_idle()
     
     def handle_figure_leave(event):
         hover_line.set_visible(False)
         hover_text.set_visible(False)
+        moyenne_line.set_linewidth(2.0)
+        if history_bool:
+            rafale_line.set_linewidth(2.0)        
+            direction_line.set_linewidth(0.5)
         fig.canvas.draw_idle()
     
     canvas = FigureCanvasTkAgg(fig, master=frame)
@@ -901,7 +937,7 @@ def station_frame_setup(pack: bool, station_id: int):
         CTkLabel(prevision_frame, text="Previsions", font=h2_font).pack(pady=20)
 
         print('\nHistorique :')
-        chart_setup(history_frame, station_id, True)
+        chart_setup(history_frame, station_id, True, unit=unit)
         history_table_showed = False
         table_history = CTkTable(history_frame, values=get_history_matrix(station_id, raw=False), header_color=BUTTON_NOT_PRESSED_COLOR)
         history_btn = CTkButton(history_frame, text='Toutes les données  ∨', command=show_history_table)
@@ -909,7 +945,7 @@ def station_frame_setup(pack: bool, station_id: int):
 
 
         print('\nPrévisions :')
-        chart_setup(prevision_frame, station_id, False)
+        chart_setup(prevision_frame, station_id, False, unit=unit)
         prevision_table_showed = False
         table_prevision = CTkTable(prevision_frame, values=get_prevision_matrix(station_id, raw=False), header_color=BUTTON_NOT_PRESSED_COLOR)
         prevision_btn = CTkButton(prevision_frame, text='Toutes les données  ∨', command=show_prevision_table)
@@ -1026,12 +1062,15 @@ def settings_frame_setup(pack:bool):
             dump_preferences()
 
         def empty_location_entry(*e):
+            location_entry.delete(0, END)
+            '''
             text = location_entry.get()
             last_space = text.rstrip().rfind(' ')  # find the last space
             if last_space != -1:  # if there is a space
                 location_entry.delete(last_space, END)
             else:  # if there is only one word
                 location_entry.delete(0, END)
+                '''
         wind_speed_unit_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
         wind_speed_unit_frame.pack(pady=20)
         CTkLabel(wind_speed_unit_frame, text='Unité de mesure').pack(padx=10, side=LEFT)

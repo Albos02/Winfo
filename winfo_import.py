@@ -1,5 +1,5 @@
 import json, csv, time, pytz, subprocess
-# from windows_toasts import Toast, WindowsToaster, ToastDisplayImage
+from windows_toasts import Toast, WindowsToaster, ToastDisplayImage
 from datetime import datetime
 import tzlocal
 from PIL import Image
@@ -103,7 +103,10 @@ def strafe_date_from_csv(local_time: str):
     gmt_time = datetime.strptime(local_time, '%Y%m%d%H%M')
     gmt_time = pytz.timezone('GMT').localize(gmt_time)
 
-    local_tz = pytz.timezone(str(tzlocal.get_localzone()))
+    try: 
+        local_tz = pytz.timezone(str(tzlocal.get_localzone()))
+    except:
+        local_tz = pytz.timezone('UTC')
     local_time = gmt_time.astimezone(local_tz)
 
     date = local_time
