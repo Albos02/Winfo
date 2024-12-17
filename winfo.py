@@ -724,11 +724,12 @@ def chart_setup(frame, station_id, history_bool, unit: str):
     lines = []
     labels = []
     
-    moyenne_line = ax.plot(x_numeric, y_values[0], label='Moyenne', linewidth=2.0)[0]
-    lines.append(moyenne_line)
-    labels.append('Moyenne')
     
     if history_bool:
+        moyenne_line = ax.plot(x_numeric, y_values[0], label='Moyenne', linewidth=2.0)[0]
+        lines.append(moyenne_line)
+        labels.append('Moyenne')
+
         rafale_line = ax.plot(x_numeric, y_values[1], label='Rafale', linewidth=1.0)[0]
         lines.append(rafale_line)
         labels.append('Rafale')
@@ -741,9 +742,13 @@ def chart_setup(frame, station_id, history_bool, unit: str):
         ax2.set_yticks([0, 90, 180, 270, 360])
         ax2.tick_params(axis='y', which='both', length=0)
     else:
+        moyenne_line = ax.plot(x_numeric, y_values[0], label='Médiane', linewidth=2.0)[0]
+        lines.append(moyenne_line)
+        labels.append('Médiane')
+
         fill_between = ax.fill_between(x_numeric, y_values[1], y_values[2], alpha=0.5, label='Min / Max')
         lines.append(fill_between)
-        labels.append('Min / Max')
+        labels.append('Min / Max (80% des possibilités)')
 
         ax2.set_ylabel('')
         ax2.set_visible(False)
@@ -777,11 +782,11 @@ def chart_setup(frame, station_id, history_bool, unit: str):
                         f"Rafale: {y_values[1][idx]:.1f}\n"
                         f"Direction: {y_values[2][idx]:.0f}°")
                 main_ydata = ax.transData.inverted().transform((event.x, event.y))[1]
-                if 3 > abs(main_ydata - y_values[0][idx]):
+                if 2 > abs(main_ydata - y_values[0][idx]):
                     moyenne_line.set_linewidth(4.0)
                     rafale_line.set_linewidth(2.0)
                     direction_line.set_linewidth(0.5)
-                elif 3 > abs(main_ydata - y_values[1][idx]):
+                elif 2 > abs(main_ydata - y_values[1][idx]):
                     rafale_line.set_linewidth(4.0)
                     moyenne_line.set_linewidth(2.0)
                     direction_line.set_linewidth(0.5)
@@ -795,7 +800,7 @@ def chart_setup(frame, station_id, history_bool, unit: str):
                     direction_line.set_linewidth(0.5)
             else:
                 text = (f"Date: {x_values[idx]}\n"
-                        f"Moyenne: {y_values[0][idx]:.1f}\n"
+                        f"Médiane: {y_values[0][idx]:.1f}\n"
                         f"Min: {y_values[1][idx]:.1f}\n"
                         f"Max: {y_values[2][idx]:.1f}")
                 if 3 > abs(event.ydata - y_values[0][idx]):

@@ -54,24 +54,28 @@ def cosmo_parser(station_abr: str, wind_speed_coef: float, raw: bool):
     csv_reader = csv.DictReader(content, delimiter=';')
 
     if not raw:
-        data = [['Heure', 'moyenne', 'mediane', 'min', 'max']]
+        data = [['Date', 'Moyenne', 'Médiane', 'Minimum', 'Maximum']]
     else:
         data = []
     for row in csv_reader:
-        if row['stn'] == station_abr:
+        if row['stn'].upper() == station_abr.upper():
             values = []
             for i in range(20):
                 i = str(i).zfill(2)
                 values.append(float(row[f'FF_10M_{i}'])*3.6)
             time = datetime.datetime.strptime(row['time'], '%Y%m%d %H:%M')
+            values.sort()
+            mean = numpy.mean(values)
+            median = numpy.median(values)
+            # print(f'{time}    median: {round(median*wind_speed_coef)}  min: {round(min(values)*wind_speed_coef, 1)}  max: {round(max(values)*wind_speed_coef, 1)}')
             if not raw:
                 time = time.strftime('%d/%m/%Y %Hh')
-                data.append([time, round(numpy.mean(values)*wind_speed_coef, 1), round(numpy.median(values)*wind_speed_coef, 1), round(min(values)*wind_speed_coef, 1), str(round(max(values)*wind_speed_coef, 1)) + unit])
+                data.append([time, round(mean*wind_speed_coef, 1), round(median*wind_speed_coef, 1), round(min(values)*wind_speed_coef, 1), str(round(max(values)*wind_speed_coef, 1)) + unit])
             else:
+                values = values[2:-2]
                 time = time.strftime('%d/%m %Hh')
-                data.append([time, round(numpy.mean(values)*wind_speed_coef, 1), round(min(values)*wind_speed_coef, 1), round(max(values)*wind_speed_coef, 1)])
-            print(f'{time}    moy: {round(numpy.mean(values), 1)}  median: {round(numpy.median(values), 1)}  min: {round(min(values), 1)}  max: {round(max(values), 1)}')
-    
+                data.append([time, round(median*wind_speed_coef, 1), round(min(values)*wind_speed_coef, 1), round(max(values)*wind_speed_coef, 1)])
+            print(f'{time}    moy: {round(mean*wind_speed_coef, 1)}  median: {round(median*wind_speed_coef, 1)}  min: {round(min(values)*wind_speed_coef, 1)}  max: {round(max(values)*wind_speed_coef, 1)}')
     return data
 
 if __name__ == '__main__':
