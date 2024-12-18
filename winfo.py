@@ -6,7 +6,8 @@ import geocoder
 from math import sqrt
 from winfo_import import *
 
-from windows_toasts import Toast, WindowsToaster, ToastDisplayImage
+from windows_toasts import Toast, InteractableWindowsToaster, WindowsToaster, ToastDisplayImage, ToastActivatedEventArgs, ToastImagePosition
+# from windows_toasts import *
 from PIL import Image
 from PIL import ImageTk
 from cosmo_parser import cosmo_parser
@@ -1254,7 +1255,7 @@ def add_alert_frame(*args):
             if event.keysym not in shortcut:
                 shortcut.append(event.keysym)
         else:
-            for i in range(len(shortcut)):
+            for _ in range(len(shortcut)):
                 shortcut.pop(0)
         entry.delete(0, 'end')
         entry.insert(0, ' + '.join(shortcut))
@@ -1285,6 +1286,7 @@ def add_alert_frame(*args):
 
         newToast = Toast()
         newToast.AddImage(ToastDisplayImage.fromPath('wind_arrow_alert.png'))
+        # ToastImagePosition('appLogoOverride')
 
         checkmark_img = CTkImage(light_image=Image.open('images/checkmark.png'), dark_image=Image.open('images/checkmark.png'), size=(20, 20))
         checkmark_img_label = CTkLabel(test_btn_frame, image=checkmark_img, text='')
@@ -1292,10 +1294,30 @@ def add_alert_frame(*args):
             newToast.text_fields = [combobox.get(), content[station_dict[combobox.get()]][0] + unit + '     ' + date, content[station_dict[combobox.get()]][1]]
         except KeyError:
             newToast.text_fields = ['Veuillez selectionner une station', 'pour obtenir les données']
-        newToast.on_activated = lambda _: checkmark_img_label.pack(side=LEFT, padx=10, pady=10)
+        #check.pack() in def activated_callback()
 
-        WindowsToaster('Winfo').show_toast(newToast)
-        print('notification sent to ', station)
+        # toaster = InteractableWindowsToaster('Winfo') # for the btns but very high
+        toaster = WindowsToaster('Winfo') # without btn but nicer
+
+        def activated_callback(activatedEventArgs: ToastActivatedEventArgs):
+            print(activatedEventArgs.arguments)
+            if activatedEventArgs.arguments == 'delete':
+                toaster.remove_toast(newToast)
+            elif activatedEventArgs.arguments == 'snooze':
+                print('snooze (TODO)') # TODO
+            else:
+                checkmark_img_label.pack(side=LEFT, padx=10, pady=10)
+        
+        '''
+        # needs to be InteractableWindowsToaster()
+        newToast.AddAction(ToastButton('Supprimer', 'delete'))
+        newToast.AddAction(ToastButton('Bloquer pour 1h', 'snooze'))
+        '''
+
+        newToast.on_activated = activated_callback
+
+        toaster.show_toast(newToast)
+        print('notification sent to', combobox.get())#station)
     def remove_alert_frame():
         global frame_len
         if str(combobox.get()) in station_dict.keys():
