@@ -330,7 +330,7 @@ def changed_wind_sorted():
         table_frame_setup(pack=True, fav_bool=fav_bool_, wind_sorted=False)
         wind_sorted_btn_activated = False
 
-def calculate_distance(pos_lat, pos_lon, station_lat, station_lon, abr):
+def calculate_distance(pos_lat, pos_lon, station_lat, station_lon):
     position = (pos_lat, pos_lon)
     station_pos = (station_lat, station_lon)
     distance = geopy.distance.distance(position, station_pos).km
