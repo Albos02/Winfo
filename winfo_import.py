@@ -111,7 +111,7 @@ def strafe_date_from_csv(local_time: str):
 
     date = local_time
     hour = str(int(local_time.strftime('%H'))) 
-    minute = local_time.strftime('%M')  # Keep minutes with leading zero
+    minute = local_time.strftime('%M')
     date = local_time.strftime('%d/%m/%Y')
     return hour, minute, date
 def send_alert(station, *args):

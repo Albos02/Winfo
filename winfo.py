@@ -3,11 +3,11 @@ from CTkTable import CTkTable
 import tkintermapview
 import requests, urllib.request, csv, json, webbrowser
 import geocoder
+import geopy.distance
 from math import sqrt
 from winfo_import import *
 
 from windows_toasts import Toast, InteractableWindowsToaster, WindowsToaster, ToastDisplayImage, ToastActivatedEventArgs, ToastImagePosition
-# from windows_toasts import *
 from PIL import Image
 from PIL import ImageTk
 from cosmo_parser import cosmo_parser
@@ -330,11 +330,13 @@ def changed_wind_sorted():
         table_frame_setup(pack=True, fav_bool=fav_bool_, wind_sorted=False)
         wind_sorted_btn_activated = False
 
-def calculate_distance(pos_lat, pos_lon, station_lat, station_lon):
-    pos_lat, pos_lon, station_lat, station_lon = float(pos_lat), float(pos_lon), float(station_lat), float(station_lon)
-    distance = sqrt(((pos_lat - station_lat) ** 2) + ((pos_lon - station_lon) ** 2))
-    output = round(distance * 91.8855029586, 5)
-    return output
+def calculate_distance(pos_lat, pos_lon, station_lat, station_lon, abr):
+    position = (pos_lat, pos_lon)
+    station_pos = (station_lat, station_lon)
+    distance = geopy.distance.distance(position, station_pos).km
+    distance = round(distance, 5)
+    return distance
+
 def get_station_matrix(fav_bool: bool, wind_sorted: bool):
     already_direction = False
     with open("VQHA80.csv", "r") as f_csv:
@@ -346,7 +348,7 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
             coord_reader = json.load(f_json)
             print(LOCATION_COORDINATES[0], '|', LOCATION_COORDINATES[1])
             for ligne, coord in zip(reader, coord_reader):
-                if ligne['Station/Location'] == 'MRP':
+                if ligne['Station/Location'] == 'MRP':  # exists in meteoswiss but always empty 
                     continue
                 distance = calculate_distance(LOCATION_COORDINATES[0], LOCATION_COORDINATES[1], coord[1], coord[2])
                 try:
