@@ -31,14 +31,17 @@ while True:
                                 try:
                                     with open(f'notification_sent_{station}.txt', 'r') as f:
                                         content = f.read()
-                                        print(f'{content != str(station_data_dict['Date']) = }')
-                                        if content != str(station_data_dict['Date']):
-                                            print('sending it through here with the condition being ', (content != str(station_data_dict['Date'])))
-                                        send_alert(station, station_data_dict['Date'])
-                                except Exception as error:
-                                    print(error)
-                                    print('never saved the date => no notif sent yet')
+                                        if content == str(station_data_dict['Date']): # a notif has been sent before (because file exists) and the csv file hasn't changed since
+                                            print(f"file 'notification_sent_{station}.txt' exists and the date is the same ({content}) so not sending notif")
+                                        else: # a notif has been sent before (because file exists) but it's a new file
+                                            print(f"file 'notification_sent_{station}.txt' exists, but the date is not the same (file.txt != VQHA80.csv) : ({content} != {station_data_dict['Date']}")
+                                            send_alert(station, station_data_dict['Date'])
+                                except FileNotFoundError as error: # file 'notification_sent_{station}.txt' doesn't exist => fileNotFound when opening it
+                                    # no file => never saved the date => no notif sent yet => must send notif
+                                    print(f"Expected and normal error : {error}")
                                     send_alert(station, station_data_dict['Date'])
+                                except Exception as error:
+                                    print(f"Unexpected error : {error}")
                             else:
                                 print('not enough wind station', station, station_data_dict['fu3010z0'])
     time.sleep(120)
