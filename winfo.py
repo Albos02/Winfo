@@ -1191,14 +1191,19 @@ def add_alert_frame(*args):
             if unit == 'km/h':
                 value_entry.insert(0, '25  km/h')
             else:
-                value_entry.insert(0, f'{int(25/1.852)}  noeuds')
+                value_entry.insert(0, f'{round(25/1.852, 1)}  noeuds')
         else:
             alert_frame_1.pack(expand=True, fill='both')
             alert_visible = True
             try:
-                slider.set(round(preferences['notification'][str(station_dict[combobox.get()])]['wind_limit']*wind_speed_coef, 1))
+                wind = preferences['notification'][str(station_dict[combobox.get()])]['wind_limit']*wind_speed_coef
+                if wind == int(wind):
+                    wind = int(wind)
+                else:
+                    wind = round(wind, 1)
+                slider.set(wind)
                 value_entry.delete(0, 'end')
-                value_entry.insert(0, str(round(float(slider.get()), 1))+'  '+unit)
+                value_entry.insert(0, str(wind)+'  '+unit)
             except:
                 pass
             if str(combobox.get()) in station_dict.keys():
