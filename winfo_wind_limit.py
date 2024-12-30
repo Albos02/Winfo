@@ -26,7 +26,7 @@ while True:
                         except ValueError:
                             vent = None
                         if vent is not None:
-                            if vent*wind_speed_coef >= preferences['notification'][str(station)]['wind_limit']:
+                            if vent >= preferences['notification'][str(station)]['wind_limit']:
                                 print('enough wind station', station, station_data_dict['fu3010z0'])
                                 try:
                                     with open(f'notification_sent_{station}.txt', 'r') as f:
