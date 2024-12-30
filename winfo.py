@@ -5,6 +5,7 @@ import requests, urllib.request, csv, json, webbrowser
 import geocoder
 import geopy.distance
 from math import sqrt
+from win32com.client import Dispatch
 from winfo_import import *
 
 from windows_toasts import Toast, InteractableWindowsToaster, WindowsToaster, ToastDisplayImage, ToastActivatedEventArgs, ToastImagePosition
@@ -51,6 +52,33 @@ def ne_plus_afficher():
     reload_preferences()
     preferences['not_show_update'] = True
     dump_preferences()
+def create_shortcut_top_level():
+    def top_level_focus():
+        toplevel.focus_set()
+        toplevel.after(5000, top_level_focus)
+    def create_shortcut_lnk():
+        current_dir = os.getcwd()
+        target_path = os.path.join(current_dir, 'winfo.py')
+
+        shell = Dispatch('WScript.Shell')
+        desktop = shell.SpecialFolders("Desktop")
+        lnk_path = os.path.join(desktop, "Winfo.lnk")
+
+        shortcut = shell.CreateShortCut(lnk_path)
+        shortcut.Targetpath = target_path
+        shortcut.WorkingDirectory = current_dir
+        shortcut.save()
+        toplevel.destroy()
+
+    toplevel = CTkToplevel(window)
+
+    CTkLabel(toplevel, font=h1_font, text='Ajouter un raccourci sur le bureau ?').pack(padx=20, pady=20)
+    yes_no_frame = CTkFrame(toplevel, fg_color='transparent')
+    yes_no_frame.pack(padx=20, pady=10)
+    CTkButton(yes_no_frame, text='Oui', command=create_shortcut_lnk).pack(padx=10, pady=10, side=LEFT)
+    CTkButton(yes_no_frame, text='Non', command=toplevel.destroy).pack(padx=10, pady=10, side=RIGHT)
+
+    toplevel.after(500, top_level_focus)
 def button1_pressed():
     map_frame.pack_forget()
     settings_scrollable_frame.pack_forget()
@@ -1469,6 +1497,9 @@ def launch_customtkinter(*args):
     wind_sorted_btn_activated = False
     station_id_active = 1
     reload_preferences()
+    start_shortcut_top_level = False
+    if preferences == []:
+        start_shortcut_top_level = True
     dump_preferences()
     def set_location_by_ip():
         preferences['location'] = []
@@ -1521,6 +1552,7 @@ def launch_customtkinter(*args):
     except Exception as error:
         print(error)
         LATEST_VERSION = 'error'
+    start_version_top_level = False
     print('\nVersion check :')
     if CURRENT_VERSION == LATEST_VERSION:
         print("you're on the latest version")
@@ -1529,10 +1561,13 @@ def launch_customtkinter(*args):
     else:
         print('not the last version', 'you are on version ' + str(CURRENT_VERSION) + ' and the latest version is ' + str(LATEST_VERSION))
         if 'not_show_update' not in preferences.keys():
-            new_version_top_level()
-
+            start_version_top_level = True
     get_csv()
     button1_pressed()
+    if start_shortcut_top_level:
+        create_shortcut_top_level()
+    if start_version_top_level:
+        new_version_top_level()
     window.mainloop()
 
 window = CTk()
