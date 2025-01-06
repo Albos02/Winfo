@@ -5,10 +5,9 @@ import requests, urllib.request, csv, json, webbrowser
 import geocoder
 import geopy.distance
 from math import sqrt
-from win32com.client import Dispatch
 from winfo_import import *
 
-from windows_toasts import Toast, InteractableWindowsToaster, WindowsToaster, ToastDisplayImage, ToastActivatedEventArgs, ToastImagePosition
+
 from PIL import Image
 from PIL import ImageTk
 from cosmo_parser import cosmo_parser
@@ -16,7 +15,12 @@ from cosmo_parser import cosmo_parser
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+import subprocess
+import platform
 
+if platform.system().lower() == 'windows':
+    from win32com.client import Dispatch
+    from windows_toasts import Toast, InteractableWindowsToaster, WindowsToaster, ToastDisplayImage, ToastActivatedEventArgs, ToastImagePosition
 def new_version_top_level():
     def top_level_focus():
             toplevel.focus_set()
@@ -715,7 +719,7 @@ def get_history_matrix(station_id: int, raw: bool):
             else:
                 matrix.append([f'{date[:-5]} {hour}h{minute}', wind, wind_gusts, direction])
     if not raw:
-        matrix.append(['Date', 'Vent | Rafale', 'Direction'])
+        matrix.append(['Date', 'Vent moyen | rafale', 'Direction'])
         matrix.reverse()
     return matrix
 def get_prevision_matrix(station_id: int, raw: bool):
@@ -1319,20 +1323,28 @@ def add_alert_frame(*args):
         background.paste(img, position, img)
         background.save('wind_arrow_alert.png', 'PNG')
 
-        newToast = Toast()
-        newToast.AddImage(ToastDisplayImage.fromPath('wind_arrow_alert.png'))
-        # ToastImagePosition('appLogoOverride')
-
         checkmark_img = CTkImage(light_image=Image.open('images/checkmark.png'), dark_image=Image.open('images/checkmark.png'), size=(20, 20))
         checkmark_img_label = CTkLabel(test_btn_frame, image=checkmark_img, text='')
-        try:
-            newToast.text_fields = [combobox.get(), content[station_dict[combobox.get()]][0] + unit + '     ' + date, content[station_dict[combobox.get()]][1]]
-        except KeyError:
-            newToast.text_fields = ['Veuillez selectionner une station', 'pour obtenir les données']
-        #check.pack() in def activated_callback()
 
-        # toaster = InteractableWindowsToaster('Winfo') # for the btns but very high
-        toaster = WindowsToaster('Winfo') # without btn but nicer
+        try:
+            text_fields = [combobox.get(), content[station_dict[combobox.get()]][0] + unit + '     ' + date, content[station_dict[combobox.get()]][1]]
+        except:
+            text_fields = ['Veuillez selectionner une station', 'pour obtenir les données']
+
+        if platform.system().lower() == 'windows':
+            newToast = Toast()
+            newToast.AddImage(ToastDisplayImage.fromPath('wind_arrow_alert.png'))
+            # ToastImagePosition('appLogoOverride')
+
+            newToast.text_fields = text_fields
+            #check.pack() in def activated_callback()
+
+            # toaster = InteractableWindowsToaster('Winfo') # for the btns but very high
+            toaster = WindowsToaster('Winfo') # without btn but nicer
+        elif platform.system().lower() == 'linux':
+            subprocess.Popen(['notify-send', 'Winfo', '\n'.join(text_fields)])
+        elif platform.system().lower() == 'darwin':
+            subprocess.run(["osascript", "-e", '\n'.join(text_fields)], check=True)
 
         def activated_callback(activatedEventArgs: ToastActivatedEventArgs):
             print(activatedEventArgs.arguments)

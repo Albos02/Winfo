@@ -1,5 +1,6 @@
-import json, csv, time, pytz, subprocess
-from windows_toasts import Toast, WindowsToaster, ToastDisplayImage
+import json, csv, time, pytz, subprocess, platform
+if platform.system() == 'windows':
+    from windows_toasts import Toast, WindowsToaster, ToastDisplayImage
 from datetime import datetime
 import tzlocal
 from PIL import Image
@@ -149,13 +150,26 @@ def send_alert(station, *args):
     background.paste(img, position, img)
     background.save('wind_arrow_alert.png', 'PNG')
     
-    newToast = Toast()
-    newToast.AddImage(ToastDisplayImage.fromPath('wind_arrow_alert.png'))
-    newToast.text_fields = [station_name, content[int(station)][0] + unit + '     ' + date, content[int(station)][1]]
-    newToast.on_activated = lambda _: launch_winfo()
-        
-    WindowsToaster('Winfo').show_toast(newToast)
+    try:
+        text_fields = [station_name, content[station_dict[station_name]][0] + unit + '     ' + date, content[station_dict[station_name]][1]]
+    except:
+        text_fields = ['Veuillez selectionner une station', 'pour obtenir les données']
+
+    if platform.system().lower() == 'windows':
+        newToast = Toast()
+        newToast.text_fields = text_fields
+        newToast.AddImage(ToastDisplayImage.fromPath('wind_arrow_alert.png'))
+        newToast.on_activated = lambda _: launch_winfo()
+            
+        WindowsToaster('Winfo').show_toast(newToast)
+
+    elif platform.system().lower() == 'linux':
+        subprocess.Popen(['notify-send', 'Winfo', '\n'.join(text_fields)])
+    elif platform.system().lower() == 'darwin':
+        subprocess.run(["osascript", "-e", '\n'.join(text_fields)], check=True)
+
     print('notification sent to ', station)
+
 def launch_winfo():
     subprocess.Popen(['Winfo.exe'])
 def set_icon(moyenne, rafale):
