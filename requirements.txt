@@ -5,4 +5,5 @@ geocoder
 matplotlib
 tzlocal
 pytz
+geopy
 windows-toasts
