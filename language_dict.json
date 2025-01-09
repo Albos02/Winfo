@@ -1,0 +1,29 @@
+{
+    "Stations": {
+        "stations": ["Stations", "Stations"],
+        "title": ["Stations table", "Tableau des stations"],
+        "favorites_segmented_btn": ["Starred", "Favoris"],
+        "all_stations_segmented_btn": ["All the stations", "Toutes les stations"],
+        "sorted_box": ["Alphabetical order", "Ordre alphabetique"],
+        "displaying_radius": ["Display radius around : ", "Rayon d'affichage autour de : "],
+        "search_placeholder": ["Enter a station", "Rechercher une station"],
+        "table_title_station": ["Station/Location", "Station/Location"],
+        "table_title_wind-gust": ["Average wind | gust", "Vent moyen | rafale"],
+        "table_title_direction": ["Direction", "Direction"],
+        "table_title_county": ["County", "Canton"],
+        "table_title_favorites": ["Starred", "Favoris"]
+    },
+    "Map": {
+        "map": ["Map", "Carte"],
+        "title": ["Stations map", "Carte des Stations"],
+        "display_value_switch": ["Display the values", "Afficher les valeurs"],
+        "unit_info_label": ["Wind unit : ", "Unité du vent : "]
+    },
+    "Settings": {
+        "settings": ["Settings", "Paramètres"],
+        "titles": ["Settings", "Paramètres"],
+        "notif_title": ["Notifications", "Notifications"],
+        "notif_card_title": ["Notification", "Notification"],
+        "combobox_title": ["Select a station", "Sélectionner une station"]
+    }
+}
