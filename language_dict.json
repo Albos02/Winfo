@@ -24,6 +24,23 @@
         "titles": ["Settings", "Paramètres"],
         "notif_title": ["Notifications", "Notifications"],
         "notif_card_title": ["Notification", "Notification"],
-        "combobox_title": ["Select a station", "Sélectionner une station"]
+        "notif_card_combobox_title": ["Select a station", "Sélectionner une station"],
+        "notif_card_option_1_title": ["Add a wind alert", "Créer une alerte de vent"],
+        "notif_card_option_1_label": ["Choose a minimum average wind", "Déterminez un vent moyen minimum"],
+        "notif_card_option_2_title_1": ["Add a keyboard shortcut", "Ajouter un raccourci clavier"],
+        "notif_card_option_2_title_2": ["to send a notification", "pour envoyer une notification"],
+        "notif_card_test_btn": ["Send a test notification", "Tester la notification"],
+        "wind_unit_label": ["Wind unit", "Unité de vent"],
+        "location_label": ["Enter your location for more precision", "Entrez votre localistation pour plus de précision"],
+        "tile_server_label": ["Default tile server", "Tile server par défaut"],
+        "language_label": ["Set your language", "Sélectionner la langue"],
+        "app_theme_label": ["App theme", "Thème de l'application"],
+        "web_site_btn": ["Link to website", "Accéder au site web"],
+        "meteosuisse_credit_label": ["All data is provided by MeteoSwiss", "Toutes les données sont mises à disposition par MétéoSuisse"],
+        "app_version_label": ["App version : ", "Version de l'application : "]
+    },
+    "Infos": {
+        "kph": ["kph", "km/h"],
+        "knots": ["knots", "noeuds"]
     }
 }
