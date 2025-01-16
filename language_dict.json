@@ -41,6 +41,8 @@
     },
     "Infos": {
         "kph": ["kph", "km/h"],
-        "knots": ["knots", "noeuds"]
+        "knots": ["knots", "noeuds"],
+        "text_loading": ["Loading ...", "Chargement ..."]
+
     }
 }
