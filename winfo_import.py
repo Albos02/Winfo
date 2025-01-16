@@ -230,6 +230,16 @@ station_list = []
 for station in station_dict.keys(): station_list.append(str(station))
 
 reload_preferences()
+
+with open('language_dict.json', 'r') as file:
+    language_dict = json.load(file)
+    try:
+        if preferences['language'] == 'English':
+            lang_index = 0
+        elif preferences['language'] == 'Français':
+            lang_index = 1
+    except:
+        lang_index = 1
 try:
     if preferences['wind_speed_unit'] == 'km/h':
         wind_speed_coef = 1
