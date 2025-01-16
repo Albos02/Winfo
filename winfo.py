@@ -162,7 +162,7 @@ def change_theme(theme):
 
 def display_loading(root):
     global loading_img_label
-    loading_img_label = CTkLabel(root, text='Chargement...', font=('roboto mono', 30))
+    loading_img_label = CTkLabel(root, text=language_dict['Infos']['text_loading'][lang_index], font=('roboto mono', 30))
     loading_img_label.pack(expand=True, fill='both')
 
 def change_default_tile_server(tile_server):
@@ -264,7 +264,7 @@ def map_frame_setup(pack: bool, displaying_values : bool):
         map_frame.pack(fill='both', expand=True, padx=20, pady=10)
         map_options_frame = CTkFrame(map_frame, bg_color='transparent', fg_color='transparent')
         map_options_frame.pack(fill="x", expand=False, padx=10, pady=0)
-        titre_carte = CTkLabel(map_options_frame, text="Carte des Stations", font=h1_font)
+        titre_carte = CTkLabel(map_options_frame, text=language_dict['Map']['title'], font=h1_font)
         titre_carte.pack(pady=20)
         display_loading(map_frame)
         map_widget = tkintermapview.TkinterMapView(map_frame, width=1000, height=700, corner_radius=20)
@@ -1111,6 +1111,14 @@ def settings_frame_setup(pack:bool):
             else:  # if there is only one word
                 location_entry.delete(0, END)
                 '''
+        def language_menu_callback(choice):
+            global lang_index
+            preferences['language'] = choice
+            dump_preferences()
+            if choice == 'English':
+                lang_index = 0
+            elif choice == 'Français':
+                lang_index = 1
         wind_speed_unit_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
         wind_speed_unit_frame.pack(pady=20)
         CTkLabel(wind_speed_unit_frame, text='Unité de mesure').pack(padx=10, side=LEFT)
@@ -1160,6 +1168,12 @@ def settings_frame_setup(pack:bool):
         except:
             theme_color_option_menu.set('Système')
         theme_color_option_menu.pack(padx=10)
+        language_option_menu = CTkOptionMenu(settings_scrollable_frame, values=['Français', 'English'], command=language_menu_callback)
+        try:
+            language_option_menu.set(preferences['language'])
+        except:
+            pass
+        language_option_menu.pack()
         CTkButton(settings_scrollable_frame, text='Accédez au site web', command=open_website).pack(padx=20, pady=20)
         CTkLabel(settings_scrollable_frame, text='Toutes les données affichées sont mises à disposition par MétéoSuisse').pack(pady=20)
         CTkLabel(settings_scrollable_frame, text=f"Version de l'application : {CURRENT_VERSION}").pack(pady=20)
@@ -1342,7 +1356,7 @@ def add_alert_frame(*args):
             # toaster = InteractableWindowsToaster('Winfo') # for the btns but very high
             toaster = WindowsToaster('Winfo') # without btn but nicer
         elif platform.system().lower() == 'linux':
-            subprocess.Popen(['notify-send', 'Winfo', '\n'.join(text_fields), '-i wind_arrow_alert.png'])
+            subprocess.Popen(['notify-send', 'Winfo', '\n'.join(text_fields)], '-i wind_arrow_alert.png')
         elif platform.system().lower() == 'darwin':
             subprocess.run(["osascript", "-e", '\n'.join(text_fields)], check=True)
 
