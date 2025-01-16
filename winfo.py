@@ -1342,7 +1342,7 @@ def add_alert_frame(*args):
             # toaster = InteractableWindowsToaster('Winfo') # for the btns but very high
             toaster = WindowsToaster('Winfo') # without btn but nicer
         elif platform.system().lower() == 'linux':
-            subprocess.Popen(['notify-send', 'Winfo', '\n'.join(text_fields)])
+            subprocess.Popen(['notify-send', 'Winfo', '\n'.join(text_fields), '-i wind_arrow_alert.png'])
         elif platform.system().lower() == 'darwin':
             subprocess.run(["osascript", "-e", '\n'.join(text_fields)], check=True)
 
