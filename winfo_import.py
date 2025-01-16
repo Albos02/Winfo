@@ -164,7 +164,7 @@ def send_alert(station, *args):
         WindowsToaster('Winfo').show_toast(newToast)
 
     elif platform.system().lower() == 'linux':
-        subprocess.Popen(['notify-send', 'Winfo', '\n'.join(text_fields)])
+        subprocess.Popen(['notify-send', 'Winfo', '\n'.join(text_fields), '-i wind_arrow_alert.png'])
     elif platform.system().lower() == 'darwin':
         subprocess.run(["osascript", "-e", '\n'.join(text_fields)], check=True)
 
