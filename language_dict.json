@@ -6,6 +6,7 @@
         "all_stations_segmented_btn": ["All the stations", "Toutes les stations"],
         "sorted_box": ["Alphabetical order", "Ordre alphabetique"],
         "displaying_radius": ["Display radius around : ", "Rayon d'affichage autour de : "],
+        "no_location_error": ["No location found", "Aucune localis. trouvée"],
         "search_placeholder": ["Enter a station", "Rechercher une station"],
         "table_title_station": ["Station/Location", "Station/Location"],
         "table_title_wind-gust": ["Average wind | gust", "Vent moyen | rafale"],
@@ -75,6 +76,7 @@
         "no": ["No", "Non"],
         "theme_system": ["System", "Système"],
         "theme_light": ["Light", "Clair"],
-        "theme_dark": ["Dark", "Sombre"]
+        "theme_dark": ["Dark", "Sombre"],
+        "request_error": ["Check your internet connection", "Vérifiez votre connection internet"]
     }
 }

@@ -384,14 +384,20 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
             coord_reader = json.load(f_json)
             print(LOCATION_COORDINATES[0], '|', LOCATION_COORDINATES[1])
             for ligne, coord in zip(reader, coord_reader):
+                print('starting with station', ligne['Station/Location'])
+                start_time = time.time()  # Unix timestamp
+                start_datetime = datetime.now()  # Human-readable time
+                print(f"Started at: {start_datetime.strftime('%H:%M:%S')}")
                 if ligne['Station/Location'] == 'MRP':  # exists in meteoswiss but always empty 
                     continue
-                distance = calculate_distance(LOCATION_COORDINATES[0], LOCATION_COORDINATES[1], coord[1], coord[2])
-                try:
-                    if distance > preferences['distance_slider'] and not preferences['distance_slider'] == 500:
-                        continue
-                except KeyError:
-                    pass
+                if LOCATION_COORDINATES[0] is not None and LOCATION_COORDINATES[1] is not None: # if no LOCATION found don't check for distance and display all
+                    distance = calculate_distance(LOCATION_COORDINATES[0], LOCATION_COORDINATES[1], coord[1], coord[2])
+                    try:
+                        if distance > preferences['distance_slider'] and not preferences['distance_slider'] == 500:
+                            continue
+                    except KeyError:
+                        pass
+                #print('mid time 0 is ', round(time.time()-start_time, 3), '----c', round(time.time(), 2), round(start_time, 2))
                 try:
                     if fav_bool and coord[5] in preferences['favorites']:
                         pass
@@ -399,16 +405,26 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                         continue
                 except KeyError:
                     continue
+                #print('mid time 1 is ', round(time.time()-start_time, 3), '----c', round(time.time(), 2), round(start_time, 2))
                 if search_input == '' or search_input in coord[3].lower() or search_input in coord[0].lower():
                     pass
                 else:
                     continue
+                #print('mid time 2 is ', round(time.time()-start_time, 3), '----c', round(time.time(), 2), round(start_time, 2))
                 new_line = []
                 new_line.append(coord[3])
+                print(f"mid time 0 : {time.time() - start_time:.2f} seconds")
                 try:
                     vent, rafale = round(float(ligne['fu3010z0']) * wind_speed_coef, 1), round(float(ligne['fu3010z1']) * wind_speed_coef, 1)
                 except ValueError:
-                    direction, vent, rafale = find_station_data_in_data_geo_files(abr=coord[0])
+                    print(f"mid time 1 : {time.time() - start_time:.2f} seconds")
+                    print(f"{'urlopen error' not in ligne['dkl010z0'] = }")
+                    print(f"{ligne['dkl010z0'] = }")
+                    if 'urlopen error' not in ligne['dkl010z0']:
+                        direction, vent, rafale = find_station_data_in_data_geo_files(abr=coord[0])
+                    else:
+                        direction, vent, rafale = None, None, None
+                    print(f"mid time 2 : {time.time() - start_time:.2f} seconds")
                     print(direction, vent, rafale)
                     already_direction = True
                 if vent is None or rafale is None:
@@ -419,6 +435,7 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                         new_line.append(f"{str(vent)} | {str(rafale)}  {language_dict['Infos']['kph'][lang_index]}")
                     else:
                         new_line.append(f"{str(vent)} | {str(rafale)}  {language_dict['Infos']['knots'][lang_index]}")
+                print(f"mid time 3 : {time.time() - start_time:.2f} seconds")
                 try:
                     if already_direction:
                         already_direction = False
@@ -451,6 +468,8 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                     #new_line.append('x')
                     new_line.append('⬜')
                 values.append(new_line)
+                print(f"finishing time : {time.time() - start_time:.2f} seconds")
+                #print('finishing time is ', round(time.time()-start_time, 3))
             if wind_sorted:
                 values = sorted(values, key=lambda item_in_values: (-5 if item_in_values[1] == '' else float(item_in_values[1].split('|')[0])), reverse=True)
             values.insert(0, [language_dict['Stations']['table_title_station'][lang_index], language_dict['Stations']['table_title_wind-gust'][lang_index], language_dict['Stations']['table_title_direction'][lang_index], language_dict['Stations']['table_title_county'][lang_index], language_dict['Stations']['table_title_favorites'][lang_index]])
@@ -603,7 +622,10 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     scrollframe.pack(expand=True, fill="both", padx=20, pady=20)
     distance_slider_and_search_frame = CTkFrame(scrollframe, fg_color='transparent')
     distance_slider_and_search_frame.pack(pady=10)
-    if len(LOCATION) < 25:
+    print(LOCATION)
+    if LOCATION is None:
+        location_begining = language_dict['Stations']['no_location_error'][lang_index].upper()
+    elif len(LOCATION) < 25:
         location_begining = LOCATION.upper()
     else:
         location_begining = LOCATION[0:23].upper() + '..'
@@ -1076,39 +1098,45 @@ def settings_frame_setup(pack:bool):
             headers = {'User-Agent': f'Winfo/{CURRENT_VERSION}'}#' (winfo.projet@gmail.com)'}
             url_nominatim_OSM = f'https://nominatim.openstreetmap.org/search.php?q={search_term}&format=jsonv2'
             print(f'url {url_nominatim_OSM}')
-            r = requests.get(url_nominatim_OSM, headers=headers)
-            data = json.loads(r.text)
+            try:
+                r = requests.get(url_nominatim_OSM, headers=headers)
+            except:
+                r = None
+                location_entry.delete(0, END)
+                location_entry.insert(0, language_dict['Infos']['request_error'][lang_index])
+            if r is not None:
+                data = json.loads(r.text)
 
-            print('---------------------')
-            best_importance = 0
-            for response in data:
-                place_importance = response['importance']
-                if place_importance > best_importance:
-                    best_importance = place_importance
-                print('----')
-
-            print(f'best importance: {best_importance}')
-
-            print(best_importance)
-            if best_importance != 0:
+                print('---------------------')
+                best_importance = 0
                 for response in data:
-                    print(response['importance'], best_importance)
-                    if response['importance'] == best_importance:
-                        LOCATION = response['display_name']
-                        print('to add', LOCATION)
-                        LOCATION_COORDINATES = (response['lat'], response['lon'])
-                        preferences['location'][0] = LOCATION
-                        preferences['location'][1], preferences['location'][2] = LOCATION_COORDINATES
-                        preferences['location'][3] = 'created_by_user'
-                        dump_preferences()
-                        location_entry.delete(0, END)
-                        location_entry.insert(0, LOCATION)
-                        break
+                    place_importance = response['importance']
+                    if place_importance > best_importance:
+                        best_importance = place_importance
+                    print('----')
 
-            preferences['location'][0] = LOCATION
-            preferences['location'][1], preferences['location'][2] = LOCATION_COORDINATES
-            preferences['location'][3] = 'created_by_user'
-            dump_preferences()
+                print(f'best importance: {best_importance}')
+
+                print(best_importance)
+                if best_importance != 0:
+                    for response in data:
+                        print(response['importance'], best_importance)
+                        if response['importance'] == best_importance:
+                            LOCATION = response['display_name']
+                            print('to add', LOCATION)
+                            LOCATION_COORDINATES = (response['lat'], response['lon'])
+                            preferences['location'][0] = LOCATION
+                            preferences['location'][1], preferences['location'][2] = LOCATION_COORDINATES
+                            preferences['location'][3] = 'created_by_user'
+                            dump_preferences()
+                            location_entry.delete(0, END)
+                            location_entry.insert(0, LOCATION)
+                            break
+
+                preferences['location'][0] = LOCATION
+                preferences['location'][1], preferences['location'][2] = LOCATION_COORDINATES
+                preferences['location'][3] = 'created_by_user'
+                dump_preferences()
 
         def remove_last_word_entry(*e):
             text = location_entry.get()
@@ -1540,12 +1568,17 @@ def launch_customtkinter(*args):
         start_shortcut_top_level = True
     dump_preferences()
     def set_location_by_ip():
-        preferences['location'] = []
-        preferences['location'].append(geocoder.ip('me').city) # index : 0
-        preferences['location'].append(geocoder.ip('me').lat) # index : 1
-        preferences['location'].append(geocoder.ip('me').lng) # index : 2
-        preferences['location'].append('created_by_ip') # index : 3
-        dump_preferences()
+        try:
+            ip_location = geocoder.ip('me')
+            preferences['location'] = []
+            preferences['location'].append(ip_location.city) # index : 0
+            preferences['location'].append(ip_location.lat) # index : 1
+            preferences['location'].append(ip_location.lng) # index : 2
+            preferences['location'].append('created_by_ip') # index : 3
+            dump_preferences()
+
+        except:
+            pass
     try:
         preferences['location'][3]
         if preferences['location'][3] == 'created_by_ip':
