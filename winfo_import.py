@@ -76,7 +76,7 @@ def alert_content():
     with open("VQHA80.csv", "r") as f_csv:
         reader = csv.DictReader(f_csv, delimiter=';')
         reload_preferences()
-        if preferences['wind_speed_unit'] == 'km/h':
+        if preferences['wind_speed_unit'] == 'kph':
             wind_speed_coef = 1
         else:
             wind_speed_coef = 1/1.852
@@ -135,10 +135,10 @@ def send_alert(station, *args):
 
     station_name = reversed_station_dict[int(station)]
     reload_preferences()
-    if preferences['wind_speed_unit'] == 'km/h':
-        unit = 'km/h'
+    if preferences['wind_speed_unit'] == 'kph':
+        unit = language_dict['Infos']['kph'][lang_index]
     else:
-        unit = 'noeuds'
+        unit = language_dict['Infos']['knots'][lang_index]
 
     img = set_icon(float(content[int(station)][0].split('|')[0]), float(content[int(station)][0].split('|')[1]))
     img = img.rotate(-int(content[int(station)][1].split('°')[0]))
@@ -241,10 +241,10 @@ with open('language_dict.json', 'r') as file:
     except:
         lang_index = 1
 try:
-    if preferences['wind_speed_unit'] == 'km/h':
+    if preferences['wind_speed_unit'] == 'kph':
         wind_speed_coef = 1
     else:
         wind_speed_coef = 1/1.852
 except KeyError:
     wind_speed_coef = 1
-    preferences['wind_speed_unit'] = 'km/h'
+    preferences['wind_speed_unit'] = 'kph'

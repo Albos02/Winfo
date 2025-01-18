@@ -27,24 +27,24 @@ def new_version_top_level():
             toplevel.after(5000, top_level_focus)
     global toplevel
     toplevel = CTkToplevel(window)
-    toplevel.title('Nouvelle version de Winfo disponible !')
+    toplevel.title(language_dict['New_Version_Available']['window_title'][lang_index])
     toplevel.geometry('500x400+1900+300')
     toplevel.grid_columnconfigure(0, weight=1)
     toplevel.grid_rowconfigure(3, weight=1)
 
-    CTkLabel(toplevel, text="Nouvelle version disponible !", font=h1_font).grid(row=0, column=0, padx=20, pady=(40,20), sticky="ew")
-    CTkLabel(toplevel, text=f'La dernière version est {LATEST_VERSION}', font=h2_font).grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+    CTkLabel(toplevel, text=language_dict['New_Version_Available']['label_title'][lang_index], font=h1_font).grid(row=0, column=0, padx=20, pady=(40,20), sticky="ew")
+    CTkLabel(toplevel, text=language_dict['New_Version_Available']['latest_is'][lang_index]+LATEST_VERSION, font=h2_font).grid(row=1, column=0, padx=20, pady=10, sticky="ew")
 
     if LATEST_VERSION_INFO != '':
-        CTkLabel(toplevel, text="Améliorations :", font=h2_font).grid(row=2, column=0, padx=20, pady=(20,5), sticky="w")
+        CTkLabel(toplevel, text=language_dict['New_Version_Available']['updates'][lang_index], font=h2_font).grid(row=2, column=0, padx=20, pady=(20,5), sticky="w")
         CTkLabel(toplevel, text=LATEST_VERSION_INFO, font=h2_font, justify="left", wraplength=460).grid(row=3, column=0, padx=20, pady=5, sticky="nw")
 
     button_frame = CTkFrame(toplevel, fg_color="transparent")
     button_frame.grid(row=4, column=0, pady=(20,20), sticky="ew")
     button_frame.grid_columnconfigure((0,1), weight=1)
 
-    CTkButton(button_frame, text="Télécharger", command=open_new_version).grid(row=0, column=0, padx=10, sticky="e")
-    CTkButton(button_frame, text='Ne plus afficher', command=ne_plus_afficher).grid(row=0, column=1, padx=10, sticky="w")
+    CTkButton(button_frame, text=language_dict['New_Version_Available']['download_btn'][lang_index], command=open_new_version).grid(row=0, column=0, padx=10, sticky="e")
+    CTkButton(button_frame, text=language_dict['New_Version_Available']['dont_show_again_btn'][lang_index], command=ne_plus_afficher).grid(row=0, column=1, padx=10, sticky="w")
 
     toplevel.after(500, top_level_focus)
 
@@ -76,11 +76,11 @@ def create_shortcut_top_level():
 
     toplevel = CTkToplevel(window)
 
-    CTkLabel(toplevel, font=h1_font, text='Ajouter un raccourci sur le bureau ?').pack(padx=20, pady=20)
+    CTkLabel(toplevel, font=h1_font, text=language_dict['Infos']['add_desktop_shortcut'][lang_index]).pack(padx=20, pady=20)
     yes_no_frame = CTkFrame(toplevel, fg_color='transparent')
     yes_no_frame.pack(padx=20, pady=10)
-    CTkButton(yes_no_frame, text='Oui', command=create_shortcut_lnk).pack(padx=10, pady=10, side=LEFT)
-    CTkButton(yes_no_frame, text='Non', command=toplevel.destroy).pack(padx=10, pady=10, side=RIGHT)
+    CTkButton(yes_no_frame, text=language_dict['Infos']['yes'][lang_index], command=create_shortcut_lnk).pack(padx=10, pady=10, side=LEFT)
+    CTkButton(yes_no_frame, text=language_dict['Infos']['no'][lang_index], command=toplevel.destroy).pack(padx=10, pady=10, side=RIGHT)
 
     toplevel.after(500, top_level_focus)
 def button1_pressed():
@@ -148,11 +148,11 @@ def update_all_values():
 def change_theme(theme):
     print('theme is ' + theme)
     global active_theme
-    if theme == "Système":
+    if theme == language_dict['Infos']['theme_system'][lang_index]:
         theme = "System"
-    elif theme == "Sombre":
+    elif theme == language_dict['Infos']['theme_dark'][lang_index]:
         theme = "Dark"
-    elif theme == "Clair":
+    elif theme == language_dict['Infos']['theme_light'][lang_index]:
         theme = "Light"
     print(f'theme changed to {theme}')
     set_appearance_mode(theme)
@@ -261,23 +261,28 @@ def map_frame_setup(pack: bool, displaying_values : bool):
         map_frame_setup(pack=True, displaying_values=display_values_switch.get())
 
     if pack:
+        reload_preferences()
         map_frame.pack(fill='both', expand=True, padx=20, pady=10)
         map_options_frame = CTkFrame(map_frame, bg_color='transparent', fg_color='transparent')
         map_options_frame.pack(fill="x", expand=False, padx=10, pady=0)
-        titre_carte = CTkLabel(map_options_frame, text=language_dict['Map']['title'], font=h1_font)
+        titre_carte = CTkLabel(map_options_frame, text=language_dict['Map']['title'][lang_index], font=h1_font)
         titre_carte.pack(pady=20)
         display_loading(map_frame)
         map_widget = tkintermapview.TkinterMapView(map_frame, width=1000, height=700, corner_radius=20)
-        display_values_switch = CTkSwitch(map_options_frame, text="Afficher les valeurs", command=display_values)
+        display_values_switch = CTkSwitch(map_options_frame, text=language_dict['Map']['display_value_switch'][lang_index], command=display_values)
         if displaying_values:
             display_values_switch.select()
         else:
             display_values_switch.deselect()
         display_values_switch.pack(side=LEFT, padx=10, pady=10)
+        if preferences['wind_speed_unit'] == 'kph':
+            unit = language_dict['Infos']['kph'][lang_index]
+        else:
+            unit = language_dict['Infos']['knots'][lang_index]
         try:
-            CTkLabel(map_options_frame, text=f"Unité : {preferences['wind_speed_unit']}", bg_color=BUTTON_NOT_PRESSED_COLOR, corner_radius=100).pack(side=LEFT, padx=40, pady=10)
+            CTkLabel(map_options_frame, text=language_dict['Map']['unit_info_label'][lang_index]+unit, bg_color=BUTTON_NOT_PRESSED_COLOR, corner_radius=100).pack(side=LEFT, padx=40, pady=10)
         except:
-            CTkLabel(map_options_frame, text=f'Unité : km/h', bg_color=BUTTON_NOT_PRESSED_COLOR, corner_radius=100).pack(side=LEFT, padx=40, pady=10)
+            CTkLabel(map_options_frame, text=language_dict['Map']['unit_info_label'][lang_index]+unit, bg_color=BUTTON_NOT_PRESSED_COLOR, corner_radius=100).pack(side=LEFT, padx=40, pady=10)
 
         tile_server_option_menu = CTkOptionMenu(map_options_frame, values=MAP_TILE_SERVER_LIST, command=change_tile_server)
         tile_server_option_menu.pack(side=RIGHT, padx=10, pady=10)
@@ -345,7 +350,6 @@ def map_frame_setup(pack: bool, displaying_values : bool):
         map_widget.set_zoom(9)#7
         loading_img_label.pack_forget()
         map_widget.pack(fill="both", expand=True, padx=10)
-        print('all packed up')
         map_active = True
         station_frame_active, fav_active, all_station_active, settings_active = False, False, False, False
 
@@ -412,9 +416,9 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                     new_line.append('')
                 else:
                     if wind_speed_coef == 1:
-                        new_line.append(f'{str(vent)} | {str(rafale)}  km/h')
+                        new_line.append(f"{str(vent)} | {str(rafale)}  {language_dict['Infos']['kph'][lang_index]}")
                     else:
-                        new_line.append(f'{str(vent)} | {str(rafale)}  noeuds')
+                        new_line.append(f"{str(vent)} | {str(rafale)}  {language_dict['Infos']['knots'][lang_index]}")
                 try:
                     if already_direction:
                         already_direction = False
@@ -449,27 +453,27 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                 values.append(new_line)
             if wind_sorted:
                 values = sorted(values, key=lambda item_in_values: (-5 if item_in_values[1] == '' else float(item_in_values[1].split('|')[0])), reverse=True)
-            values.insert(0, ['Station/Location', 'Vent / Rafale', 'Direction', 'Canton', 'Favoris'])
+            values.insert(0, [language_dict['Stations']['table_title_station'][lang_index], language_dict['Stations']['table_title_wind-gust'][lang_index], language_dict['Stations']['table_title_direction'][lang_index], language_dict['Stations']['table_title_county'][lang_index], language_dict['Stations']['table_title_favorites'][lang_index]])
             return values
 
 def set_segmented_btn(fav_bool: bool):
     global fav_or_all_btn
-    fav_or_all_btn = CTkSegmentedButton(table_frame, values=['Favoris', 'Toutes les stations'], command=change_fav_or_all_from_segbtn)
+    fav_or_all_btn = CTkSegmentedButton(table_frame, values=[language_dict['Stations']['favorites_segmented_btn'][lang_index], language_dict['Stations']['all_stations_segmented_btn'][lang_index],], command=change_fav_or_all_from_segbtn)
     fav_or_all_btn.pack(pady=20)
     if fav_bool == True:
-        fav_or_all_btn.set('Favoris')
+        fav_or_all_btn.set(language_dict['Stations']['favorites_segmented_btn'][lang_index])
     else:
-        fav_or_all_btn.set('Toutes les stations')
+        fav_or_all_btn.set(language_dict['Stations']['all_stations_segmented_btn'][lang_index])
 
 def change_fav_or_all_from_segbtn(value):
     global search_input
     search_input = ''
     print(value)
     table_frame.pack_forget()
-    if value == 'Favoris':
+    if value == language_dict['Stations']['favorites_segmented_btn'][lang_index]:
         table_frame_setup(pack=True, fav_bool=True, wind_sorted=wind_sorted_btn_activated)
         fav_or_all_btn.set('Favoris')
-    if value == 'Toutes les stations':
+    if value == language_dict['Stations']['all_stations_segmented_btn'][lang_index]:
         table_frame_setup(pack=True, fav_bool=False, wind_sorted=wind_sorted_btn_activated)
 
 def search_in_table_T_T(e):
@@ -518,11 +522,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
         return
     else:
         table_frame.pack(fill='both', expand=True, padx=20, pady=20)
-    if fav_bool:
-        text = ['Favoris']
-    else:
-        text = ['Toutes les stations']
-    CTkLabel(table_frame, text=text[0], font=h1_font).pack(pady=20)
+    CTkLabel(table_frame, text=language_dict['Stations']['title'][lang_index], font=h1_font).pack(pady=20)
     def setup_table_stations(e):
         global table
         try:
@@ -595,7 +595,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
         dump_preferences()
 
     set_segmented_btn(fav_bool=fav_bool)
-    alphabetical_sort_box = CTkCheckBox(table_frame, text="Ordre alphabétique", command=changed_wind_sorted)
+    alphabetical_sort_box = CTkCheckBox(table_frame, text=language_dict['Stations']['sorted_box'][lang_index], command=changed_wind_sorted)
     if not wind_sorted: alphabetical_sort_box.select()
     alphabetical_sort_box.pack()
     display_loading(table_frame)
@@ -607,7 +607,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
         location_begining = LOCATION.upper()
     else:
         location_begining = LOCATION[0:23].upper() + '..'
-    CTkLabel(distance_slider_and_search_frame, text=f"Rayon d'affichage autour de : {location_begining}", width=100).pack(side=LEFT, padx=10)
+    CTkLabel(distance_slider_and_search_frame, text=language_dict['Stations']['displaying_radius'][lang_index]+location_begining, width=100).pack(side=LEFT, padx=10)
     entry_as_display = CTkEntry(distance_slider_and_search_frame, placeholder_text="", width=70)
     entry_as_display.bind('<Return>', entry_as_display_changed)
     entry_as_display.bind('<Button-1>', select_entry)
@@ -628,7 +628,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     distance_slider.bind("<ButtonRelease-1>", setup_table_stations)
     distance_slider.pack(padx=0, side=LEFT)
     CTkLabel(distance_slider_and_search_frame, text="", width=10).pack(side=LEFT, padx=20)
-    search_entry = CTkEntry(distance_slider_and_search_frame, placeholder_text="Rechercher une station", width=200)
+    search_entry = CTkEntry(distance_slider_and_search_frame, placeholder_text=language_dict['Stations']['search_placeholder'][lang_index], width=200)
     search_entry.bind('<Control-BackSpace>', empty_search)
     if fav_bool:
         if wind_sorted:
@@ -683,9 +683,9 @@ def get_active_wind(station_id: int):
     return [moyenne, rafale, direction]
 def get_history_matrix(station_id: int, raw: bool):
     if wind_speed_coef == 1:
-        unit = ' km/h'
+        unit = language_dict['Infos']['kph'][lang_index]
     else:
-        unit = ' noeuds'
+        unit = language_dict['Infos']['knots'][lang_index]
     abr = coord_station_meteosuisse[station_id-1][0]
     matrix = []
     urllib.request.urlretrieve(URL_HISTORY_MESUREMENT, 'mesurement_history.csv')
@@ -719,7 +719,13 @@ def get_history_matrix(station_id: int, raw: bool):
             else:
                 matrix.append([f'{date[:-5]} {hour}h{minute}', wind, wind_gusts, direction])
     if not raw:
-        matrix.append(['Date', 'Vent moyen | rafale', 'Direction'])
+        matrix.append([language_dict['Stations']['favorites_segmented_btn'][lang_index]])
+        matrix.append([
+            language_dict['Station_Frame']["history_title_1"][lang_index],
+            language_dict['Station_Frame']["history_title_2"][lang_index],
+            language_dict['Station_Frame']["history_title_3"][lang_index]
+            ]
+            )
         matrix.reverse()
     return matrix
 def get_prevision_matrix(station_id: int, raw: bool):
@@ -736,9 +742,9 @@ def chart_setup(frame, station_id, history_bool, unit: str):
     
     ax2 = ax.twinx()
     
-    ax.set_xlabel('Date', fontsize=10)
-    ax.set_ylabel(f'Vitesse du vent ({unit})', fontsize=10)
-    ax2.set_ylabel('Direction (°)', fontsize=10)
+    ax.set_xlabel(language_dict['Station_Frame']["chart_label_1"][lang_index], fontsize=10)
+    ax.set_ylabel(language_dict['Station_Frame']['chart_label_2'][lang_index]+' ('+unit+')', fontsize=10)
+    ax2.set_ylabel(language_dict['Station_Frame']["chart_label_3"][lang_index], fontsize=10)
     ax2.grid(False)
     
     data = get_history_matrix(station_id, raw=True) if history_bool else get_prevision_matrix(station_id, raw=True)
@@ -761,29 +767,29 @@ def chart_setup(frame, station_id, history_bool, unit: str):
     
     
     if history_bool:
-        moyenne_line = ax.plot(x_numeric, y_values[0], label='Moyenne', linewidth=2.0)[0]
+        moyenne_line = ax.plot(x_numeric, y_values[0], label=language_dict['Station_Frame']['chart_legend_1'][lang_index], linewidth=2.0)[0]
         lines.append(moyenne_line)
-        labels.append('Moyenne')
+        labels.append(language_dict['Station_Frame']['chart_legend_1'][lang_index])
 
-        rafale_line = ax.plot(x_numeric, y_values[1], label='Rafale', linewidth=1.0)[0]
+        rafale_line = ax.plot(x_numeric, y_values[1], label=language_dict['Station_Frame']['chart_legend_2'][lang_index], linewidth=1.0)[0]
         lines.append(rafale_line)
-        labels.append('Rafale')
+        labels.append(language_dict['Station_Frame']['chart_legend_2'][lang_index])
         
-        direction_line = ax2.plot(x_numeric, y_values[2], label='Direction', linewidth=0.5, color='red', linestyle='--')[0]
+        direction_line = ax2.plot(x_numeric, y_values[2], label=language_dict['Station_Frame']['chart_legend_3'][lang_index], linewidth=0.5, color='red', linestyle='--')[0]
         lines.append(direction_line)
-        labels.append('Direction')
+        labels.append(language_dict['Station_Frame']['chart_legend_3'][lang_index])
         
         ax2.set_ylim(0, 360)
         ax2.set_yticks([0, 90, 180, 270, 360])
         ax2.tick_params(axis='y', which='both', length=0)
     else:
-        moyenne_line = ax.plot(x_numeric, y_values[0], label='Médiane', linewidth=2.0)[0]
+        moyenne_line = ax.plot(x_numeric, y_values[0], label=language_dict['Station_Frame']['chart_legend_4'][lang_index], linewidth=2.0)[0]
         lines.append(moyenne_line)
-        labels.append('Médiane')
+        labels.append(language_dict['Station_Frame']['chart_legend_4'][lang_index])
 
-        fill_between = ax.fill_between(x_numeric, y_values[1], y_values[2], alpha=0.5, label='Min / Max')
+        fill_between = ax.fill_between(x_numeric, y_values[1], y_values[2], alpha=0.5, label=language_dict['Station_Frame']['chart_legend_5'][lang_index])
         lines.append(fill_between)
-        labels.append('Min / Max (80% des possibilités)')
+        labels.append(language_dict['Station_Frame']['chart_legend_5'][lang_index])
 
         ax2.set_ylabel('')
         ax2.set_visible(False)
@@ -908,33 +914,33 @@ def station_frame_setup(pack: bool, station_id: int):
         button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
 
         reload_preferences()
-        if preferences['wind_speed_unit'] == 'km/h':
+        if preferences['wind_speed_unit'] == language_dict['Infos']['kph'][lang_index]:
             wind_speed_coef = 1
-            unit = 'km/h'
+            unit = language_dict['Infos']['kph'][lang_index]
         else:
             wind_speed_coef = 1/1.852
-            unit = 'noeuds'
+            unit = language_dict['Infos']['knots'][lang_index]
 
         def show_history_table():
             nonlocal history_table_showed
             if not history_table_showed:
                 table_history.pack(expand=True, fill="both", padx=20, pady=20)
-                history_btn.configure(text='Toutes les données  ∧')
+                history_btn.configure(text=language_dict['Station_Frame']['full_data_up_btn'][lang_index])
                 history_table_showed = True
             else:
                 table_history.pack_forget()
-                history_btn.configure(text='Toutes les données  ∨')
+                history_btn.configure(text=language_dict['Station_Frame']['full_data_down_btn'][lang_index])
                 history_table_showed = False
 
         def show_prevision_table():
             nonlocal prevision_table_showed
             if not prevision_table_showed:
                 table_prevision.pack(expand=True, fill="both", padx=20, pady=20)
-                prevision_btn.configure(text='Toutes les données  ∧')
+                prevision_btn.configure(text=language_dict['Station_Frame']['full_data_up_btn'][lang_index])
                 prevision_table_showed = True
             else:
                 table_prevision.pack_forget()
-                prevision_btn.configure(text='Toutes les données  ∨')
+                prevision_btn.configure(text=language_dict['Station_Frame']['full_data_down_btn'][lang_index])
                 prevision_table_showed = False
 
         quick_info_frame = CTkFrame(station_frame, fg_color='transparent')
@@ -973,14 +979,14 @@ def station_frame_setup(pack: bool, station_id: int):
         prevision_frame = CTkFrame(station_frame, fg_color='transparent')
         prevision_frame.pack(expand=True, fill="both", padx=20, pady=20)#, side=RIGHT)
 
-        CTkLabel(history_frame, text="Historique", font=h2_font).pack(pady=20)
-        CTkLabel(prevision_frame, text="Previsions", font=h2_font).pack(pady=20)
+        CTkLabel(history_frame, text=language_dict['Station_Frame']['history'][lang_index], font=h2_font).pack(pady=20)
+        CTkLabel(prevision_frame, text=language_dict['Station_Frame']['prevision'][lang_index], font=h2_font).pack(pady=20)
 
         print('\nHistorique :')
         chart_setup(history_frame, station_id, True, unit=unit)
         history_table_showed = False
         table_history = CTkTable(history_frame, values=get_history_matrix(station_id, raw=False), header_color=BUTTON_NOT_PRESSED_COLOR)
-        history_btn = CTkButton(history_frame, text='Toutes les données  ∨', command=show_history_table)
+        history_btn = CTkButton(history_frame, text=language_dict['Station_Frame']['full_data_down_btn'][lang_index], command=show_history_table)
         history_btn.pack(pady=10)
 
 
@@ -988,7 +994,7 @@ def station_frame_setup(pack: bool, station_id: int):
         chart_setup(prevision_frame, station_id, False, unit=unit)
         prevision_table_showed = False
         table_prevision = CTkTable(prevision_frame, values=get_prevision_matrix(station_id, raw=False), header_color=BUTTON_NOT_PRESSED_COLOR)
-        prevision_btn = CTkButton(prevision_frame, text='Toutes les données  ∨', command=show_prevision_table)
+        prevision_btn = CTkButton(prevision_frame, text=language_dict['Station_Frame']['full_data_down_btn'][lang_index], command=show_prevision_table)
         prevision_btn.pack(pady=10)
 
         loading_img_label.pack_forget()
@@ -1010,7 +1016,7 @@ def settings_frame_setup(pack:bool):
     if pack:
         alert_frame_dict = {}
         settings_scrollable_frame.pack(fill='both', expand=True, padx=20, pady=20)
-        settings_title = CTkLabel(settings_scrollable_frame, text="Paramètres", font=h1_font)
+        settings_title = CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['settings'][lang_index], font=h1_font)
         settings_title.pack(padx=20, pady=30)
 
         empty = True
@@ -1030,7 +1036,7 @@ def settings_frame_setup(pack:bool):
         left_empty_frame = CTkButton(right_plus_frame, text='', image=empty_img, fg_color='transparent', hover=False)
         left_empty_frame.pack(side=LEFT)
 
-        CTkLabel(right_plus_frame, text="Notifications", font=h2_font).pack(side=LEFT, expand=True, fill='x', padx=20)
+        CTkLabel(right_plus_frame, text=language_dict['Settings']['notif_title'][lang_index], font=h2_font).pack(side=LEFT, expand=True, fill='x', padx=20)
 
         plus_image = CTkImage(light_image=Image.open('images/plus.png'), dark_image=Image.open('images/plus.png'), size=(30, 30))
         right_plus_icon_btn = CTkButton(right_plus_frame, text='', image=plus_image, fg_color='transparent', hover=False, command=add_alert_frame)
@@ -1052,11 +1058,14 @@ def settings_frame_setup(pack:bool):
                 add_alert_frame(station)
         def change_wind_speed_unit(e):
             global wind_speed_coef
-            preferences['wind_speed_unit'] = e
+            if e == language_dict['Infos']['kph'][lang_index]:
+                preferences['wind_speed_unit'] = 'kph'
+            elif e == language_dict['Infos']['knots'][lang_index]:
+                preferences['wind_speed_unit'] = 'knots'
             dump_preferences()
-            if e == 'km/h':
+            if e == language_dict['Infos']['kph'][lang_index]:
                 wind_speed_coef = 1
-            elif e == 'noeuds':
+            elif e == language_dict['Infos']['knots'][lang_index]:
                 wind_speed_coef = 1/1.852
             print(wind_speed_coef)
             button3_pressed()
@@ -1064,7 +1073,7 @@ def settings_frame_setup(pack:bool):
         def update_location(event):
             global LOCATION, LOCATION_COORDINATES
             search_term = location_entry.get()
-            headers = {'User-Agent': f'Winfo/{CURRENT_VERSION} (winfo.projet@gmail.com)'}
+            headers = {'User-Agent': f'Winfo/{CURRENT_VERSION}'}#' (winfo.projet@gmail.com)'}
             url_nominatim_OSM = f'https://nominatim.openstreetmap.org/search.php?q={search_term}&format=jsonv2'
             print(f'url {url_nominatim_OSM}')
             r = requests.get(url_nominatim_OSM, headers=headers)
@@ -1101,16 +1110,15 @@ def settings_frame_setup(pack:bool):
             preferences['location'][3] = 'created_by_user'
             dump_preferences()
 
-        def empty_location_entry(*e):
-            location_entry.delete(0, END)
-            '''
+        def remove_last_word_entry(*e):
             text = location_entry.get()
             last_space = text.rstrip().rfind(' ')  # find the last space
             if last_space != -1:  # if there is a space
                 location_entry.delete(last_space, END)
             else:  # if there is only one word
                 location_entry.delete(0, END)
-                '''
+        def empty_location_entry(*e):
+            location_entry.delete(0, END)
         def language_menu_callback(choice):
             global lang_index
             preferences['language'] = choice
@@ -1119,35 +1127,36 @@ def settings_frame_setup(pack:bool):
                 lang_index = 0
             elif choice == 'Français':
                 lang_index = 1
+            button3_pressed()
         wind_speed_unit_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
         wind_speed_unit_frame.pack(pady=20)
-        CTkLabel(wind_speed_unit_frame, text='Unité de mesure').pack(padx=10, side=LEFT)
-        wind_speed_unit = CTkOptionMenu(wind_speed_unit_frame, values=['km/h', 'noeuds'], command=change_wind_speed_unit)
+        CTkLabel(wind_speed_unit_frame, text=language_dict['Settings']['wind_unit_label'][lang_index]).pack(padx=10, side=LEFT)
+        wind_speed_unit = CTkOptionMenu(wind_speed_unit_frame, values=[language_dict['Infos']['kph'][lang_index], language_dict['Infos']['knots'][lang_index]], command=change_wind_speed_unit)
         try:
             global wind_speed_coef
-            if preferences['wind_speed_unit'] == 'km/h':
+            if preferences['wind_speed_unit'] == language_dict['Infos']['kph'][lang_index]:
                 wind_speed_coef = 1
-                wind_speed_unit.set('km/h')
+                wind_speed_unit.set(language_dict['Infos']['kph'][lang_index])
             else:
                 wind_speed_coef = 1/1.852
-                wind_speed_unit.set('noeuds')
+                wind_speed_unit.set(language_dict['Infos']['knots'][lang_index])
         except:
             pass
         wind_speed_unit.pack(padx=10, side=RIGHT)
         location_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
         location_frame.pack(pady=20)
-        CTkLabel(location_frame, text='Entrez votre localisation pour plus de précision').pack(padx=0, side=LEFT)
-        CTkLabel(location_frame, text='', width=10).pack(padx=10, side=RIGHT)
-        location_entry = CTkEntry(location_frame, placeholder_text='Lieu', width=250)
+        CTkLabel(location_frame, text=language_dict['Settings']['location_label'][lang_index]).pack(padx=10, side=LEFT)
+        #CTkLabel(location_frame, text='', width=10).pack(padx=10, side=RIGHT)
+        location_entry = CTkEntry(location_frame, placeholder_text=language_dict['Settings']['placeholder_location'][lang_index], width=250)
         location_entry.bind('<Return>', update_location)
-        location_entry.bind('<Control-BackSpace>', empty_location_entry)
-        location_entry.pack(padx=20, side=LEFT)
+        location_entry.bind('<Control-BackSpace>', remove_last_word_entry)
+        location_entry.pack(padx=10, side=LEFT)
         bin_img = CTkImage(light_image=Image.open('images/bin.png'), dark_image=Image.open('images/bin.png'), size=(20, 20))
         CTkButton(location_frame, text='', image=bin_img, width=10, command=empty_location_entry).pack(side=RIGHT, padx=0)
 
         default_tile_server_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
         default_tile_server_frame.pack(pady=20)
-        CTkLabel(default_tile_server_frame, text='Tile server par defaut').pack(padx=10, side=LEFT)
+        CTkLabel(default_tile_server_frame, text=language_dict['Settings']['tile_server_label'][lang_index]).pack(padx=10, side=LEFT)
         default_map_tile_server = CTkOptionMenu(default_tile_server_frame, values=MAP_TILE_SERVER_LIST, command=change_default_tile_server)
         default_map_tile_server.pack(padx=10, side=RIGHT)
         try:
@@ -1156,27 +1165,30 @@ def settings_frame_setup(pack:bool):
             pass
         theme_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
         theme_frame.pack(pady=20)
-        CTkLabel(theme_frame, text="Theme de l'application").pack(padx=10, side=LEFT)
-        theme_color_option_menu = CTkOptionMenu(theme_frame, values=["Système", "Clair", "Sombre"], command=change_theme)
+        CTkLabel(theme_frame, text=language_dict['Settings']['app_theme_label'][lang_index]).pack(padx=10, side=LEFT)
+        theme_color_option_menu = CTkOptionMenu(theme_frame, values=[language_dict['Infos']['theme_system'][lang_index], language_dict['Infos']['theme_light'][lang_index], language_dict['Infos']['theme_dark'][lang_index]], command=change_theme)
         try:
             if preferences['theme'] == 'System':
-                theme_color_option_menu.set('Système')
+                theme_color_option_menu.set(language_dict['Infos']['theme_system'][lang_index])
             elif preferences['theme'] == 'Dark':
-                theme_color_option_menu.set('Sombre')
+                theme_color_option_menu.set(language_dict['Infos']['theme_dark'][lang_index])
             elif preferences['theme'] == 'Light':
-                theme_color_option_menu.set('Clair')
+                theme_color_option_menu.set(language_dict['Infos']['theme_light'][lang_index])
         except:
-            theme_color_option_menu.set('Système')
+            theme_color_option_menu.set(language_dict['Infos']['theme_system'][lang_index])
         theme_color_option_menu.pack(padx=10)
-        language_option_menu = CTkOptionMenu(settings_scrollable_frame, values=['Français', 'English'], command=language_menu_callback)
+        language_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
+        language_frame.pack(pady=20)
+        CTkLabel(language_frame, text=language_dict['Settings']['language_label'][lang_index]).pack(side=LEFT, padx=10)
+        language_option_menu = CTkOptionMenu(language_frame, values=['Français', 'English'], command=language_menu_callback)
         try:
             language_option_menu.set(preferences['language'])
         except:
             pass
-        language_option_menu.pack()
-        CTkButton(settings_scrollable_frame, text='Accédez au site web', command=open_website).pack(padx=20, pady=20)
-        CTkLabel(settings_scrollable_frame, text='Toutes les données affichées sont mises à disposition par MétéoSuisse').pack(pady=20)
-        CTkLabel(settings_scrollable_frame, text=f"Version de l'application : {CURRENT_VERSION}").pack(pady=20)
+        language_option_menu.pack(side=RIGHT, padx=10)
+        CTkButton(settings_scrollable_frame, text=language_dict['Settings']['web_site_btn'][lang_index], command=open_website).pack(padx=20, pady=20)
+        CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['meteosuisse_credit_label'][lang_index]).pack(pady=20)
+        CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['app_version_label'][lang_index]+str(CURRENT_VERSION)).pack(pady=20)
 
         station_frame_active = False
         map_active = False
@@ -1234,10 +1246,10 @@ def add_alert_frame(*args):
                 print('No station selected -> cannot remove wind limit')
             slider.set(25)
             value_entry.delete(0, 'end')
-            if unit == 'km/h':
-                value_entry.insert(0, '25  km/h')
+            if unit == language_dict['Infos']['kph'][lang_index]:
+                value_entry.insert(0, str(25)+'  '+language_dict['Infos']['kph'][lang_index])
             else:
-                value_entry.insert(0, f'{round(25/1.852, 1)}  noeuds')
+                value_entry.insert(0, str(round(25/1.852, 1))+'  '+language_dict['Infos']['knots'][lang_index])
         else:
             alert_frame_1.pack(expand=True, fill='both')
             alert_visible = True
@@ -1323,9 +1335,9 @@ def add_alert_frame(*args):
         date = f"{hour}h{minute}  {date}"
 
         if wind_speed_coef == 1:
-            unit = 'km/h'
+            unit = language_dict['Infos']['kph'][lang_index]
         else:
-            unit = 'noeuds'
+            unit = language_dict['Infos']['knots'][lang_index]
         
         img = set_icon(float(content[station_dict[combobox.get()]][0].split('|')[0]), float(content[station_dict[combobox.get()]][0].split('|')[1]))
         img = img.resize((350, 350), Image.Resampling.HAMMING)
@@ -1396,26 +1408,26 @@ def add_alert_frame(*args):
     cross_image = CTkImage(light_image=Image.open('images/cross.png'), dark_image=Image.open('images/cross.png'), size=(30, 30))
     cross_button = CTkButton(cross_frame, text='', width=30, image=cross_image, fg_color='transparent', hover=False, command=remove_alert_frame)
     cross_button.pack(side=RIGHT, fill='y', padx=20)
-    title_lab = CTkLabel(cross_frame, text='Notification ' + str(frame_id))
+    title_lab = CTkLabel(cross_frame, text=language_dict['Settings']['notif_card_title'][lang_index] + str(frame_id))
     title_lab.pack(side=LEFT, expand=True, padx=10)
     values = station_list[:]
-    values.insert(0, 'Sélectionnez une station')
+    values.insert(0, language_dict['Settings']['notif_card_combobox'][lang_index])
 
     combobox = CTkOptionMenu(frame, values=values, width=200, command=select_station_event)
     combobox.pack(padx=10, pady=10)
 
     CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=1).pack(padx=30, pady=10, fill='x') #thin line
-    CTkButton(frame, text='Créer une alerte : ', width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover_color=LIGHT_3, hover=False, command=enable_alert).pack()
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_1_title'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover_color=LIGHT_3, hover=False, command=enable_alert).pack()
     alert_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
     alert_frame.pack()
     alert_frame_1 = CTkFrame(alert_frame, fg_color=(LIGHT_3, DARK_3))
-    if preferences['wind_speed_unit'] == 'km/h':
-        unit = 'km/h'
+    if preferences['wind_speed_unit'] == language_dict['Infos']['kph'][lang_index]:
+        unit = language_dict['Infos']['kph'][lang_index]
         wind_speed_coef = 1
     else:
-        unit = 'noeuds'
+        unit = language_dict['Infos']['knots'][lang_index]
         wind_speed_coef = 1/1.852
-    CTkLabel(alert_frame_1, text='Déterminez un vent moyen minimum :').pack()
+    CTkLabel(alert_frame_1, text=language_dict['Settings']['notif_card_option_1_label'][lang_index]).pack()
     value_and_slider_frame = CTkFrame(alert_frame_1, corner_radius=50)
     value_and_slider_frame.pack(padx=10, pady=5)
     slider = CTkSlider(value_and_slider_frame, from_=0, to=50, number_of_steps=30, command=slider_changed)
@@ -1427,19 +1439,19 @@ def add_alert_frame(*args):
     value_entry.pack(padx=5, pady=5, side=LEFT)
 
     CTkFrame(frame, fg_color=(DARK_1, LIGHT_1), height=1).pack(padx=30, pady=10, fill='x') #thin line
-    CTkButton(frame, text='Ajouter un raccourci clavier', width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, corner_radius=10, command=enable_shortcut).pack()
-    CTkButton(frame, text='pour envoyer une alerte :', width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, command=enable_shortcut).pack()
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_1'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, corner_radius=10, command=enable_shortcut).pack()
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_2'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, command=enable_shortcut).pack()
     shortcut_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
     shortcut_frame.pack()
     shortcut_frame_1 = CTkFrame(shortcut_frame, fg_color=(LIGHT_3, DARK_3))
     CTkLabel(shortcut_frame_1, text='', height=15).pack()
-    entry = CTkEntry(shortcut_frame_1, width=250, placeholder_text="Entrez un raccourci")
+    entry = CTkEntry(shortcut_frame_1, width=250, placeholder_text=language_dict['Settings']['placeholder_option_2'][lang_index])
     entry.bind("<KeyPress>", shortcut_entry_entered)
     entry.pack(padx=10, pady=10)
 
     test_btn_frame = CTkFrame(frame)
     test_btn_frame.place(rely=0.92, relx=0.5, anchor=CENTER)
-    CTkButton(test_btn_frame, text="Testez la notification", width=60, command=send_alert).pack(side=RIGHT, padx=10, pady=10)
+    CTkButton(test_btn_frame, text=language_dict['Settings']['notif_card_test_btn'][lang_index], width=60, command=send_alert).pack(side=RIGHT, padx=10, pady=10)
 
     skip = False
     if args == ():
@@ -1447,7 +1459,7 @@ def add_alert_frame(*args):
     if not skip:
         reload_preferences()
         station_to_add = args[0]
-        title_lab['text'] = 'Alerte '+str(preferences['notification'][station_to_add]['frame_order'])
+        title_lab.configure(text=language_dict['Settings']['notif_card_title'][lang_index]+str(preferences['notification'][station_to_add]['frame_order']))
         print(station_to_add, values[int(station_to_add)], f'\n -> {coord_station_meteosuisse[int(station_to_add)-1] = } ')
         combobox.set(values[int(station_to_add)+1])
         entry.delete(0, 'end')
@@ -1552,13 +1564,13 @@ def launch_customtkinter(*args):
     left_column_frame = CTkFrame(window, width=150, height=window.winfo_screenheight())
     left_column_frame.pack(side="left", fill="y")
 
-    button1 = CTkButton(left_column_frame, text="Stations", command=button1_pressed)
+    button1 = CTkButton(left_column_frame, text=language_dict['Stations']['stations'][lang_index], command=button1_pressed)
     button1.pack(padx=20, pady=10)
 
-    button2 = CTkButton(left_column_frame, text="Carte", command=button2_pressed)
+    button2 = CTkButton(left_column_frame, text=language_dict['Map']['map'][lang_index], command=button2_pressed)
     button2.pack(padx=20, pady=10)
 
-    button3 = CTkButton(left_column_frame, text="Paramètres", command=button3_pressed)
+    button3 = CTkButton(left_column_frame, text=language_dict['Settings']['settings'][lang_index], command=button3_pressed)
     button3.pack(padx=20, pady=10)
 
     if 'theme' in preferences.keys():

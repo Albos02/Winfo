@@ -23,26 +23,58 @@
         "settings": ["Settings", "Paramètres"],
         "titles": ["Settings", "Paramètres"],
         "notif_title": ["Notifications", "Notifications"],
-        "notif_card_title": ["Notification", "Notification"],
-        "notif_card_combobox_title": ["Select a station", "Sélectionner une station"],
+        "notif_card_title": ["Notification ", "Notification "],
+        "notif_card_combobox": ["Select a station", "Sélectionner une station"],
         "notif_card_option_1_title": ["Add a wind alert", "Créer une alerte de vent"],
         "notif_card_option_1_label": ["Choose a minimum average wind", "Déterminez un vent moyen minimum"],
         "notif_card_option_2_title_1": ["Add a keyboard shortcut", "Ajouter un raccourci clavier"],
         "notif_card_option_2_title_2": ["to send a notification", "pour envoyer une notification"],
+        "placeholder_option_2": ["Press a shortcut", "Entrer un raccourci"],
         "notif_card_test_btn": ["Send a test notification", "Tester la notification"],
         "wind_unit_label": ["Wind unit", "Unité de vent"],
         "location_label": ["Enter your location for more precision", "Entrez votre localistation pour plus de précision"],
+        "placeholder_location": ["Location", "Lieu"],
         "tile_server_label": ["Default tile server", "Tile server par défaut"],
-        "language_label": ["Set your language", "Sélectionner la langue"],
         "app_theme_label": ["App theme", "Thème de l'application"],
+        "language_label": ["Set your language", "Sélectionner la langue"],
         "web_site_btn": ["Link to website", "Accéder au site web"],
         "meteosuisse_credit_label": ["All data is provided by MeteoSwiss", "Toutes les données sont mises à disposition par MétéoSuisse"],
         "app_version_label": ["App version : ", "Version de l'application : "]
     },
+    "Station_Frame": {
+        "history": ["History graph", "Historique"],
+        "prevision": ["Prevision graph", "Prévisions"],
+        "history_title_1": ["Date", "Date"],
+        "history_title_2": ["Average wind | gust", "Vent moyen | rafale"],
+        "history_title_3": ["Direction", "Direction"],
+        "chart_label_1": ["Date", "Date"],
+        "chart_label_2": ["Wind speed", "Vitesse du vent"],
+        "chart_label_3": ["Direction (°)", "Direction (°)"],
+        "chart_legend_1": ["Average", "Moyenne"],
+        "chart_legend_2": ["Gust", "Rafale"],
+        "chart_legend_3": ["Direction", "Direction"],
+        "chart_legend_4": ["Median", "Médiane"],
+        "chart_legend_5": ["Min / Max (80% range)", "Min / Max (Intervalle de 80%)"],
+        "full_data_up_btn": ["Full data  ∧", "Toutes les données  ∧"],
+        "full_data_down_btn": ["Full data  ∨", "Toutes les données  ∨"]
+    },
+    "New_Version_Available": {
+        "window_title": ["New Winfo version available!", "Nouvelle version de Winfo disponible !"],
+        "label_title": ["New version available!", "Nouvelle version disponible !"],
+        "latest_is": ["The latest version is ", "La dernière version est "],
+        "updates": ["Updates : ", "Améliorations : "],
+        "download_btn": ["Download", "Télécharger"],
+        "dont_show_again_btn": ["Don't show again", "Ne plus afficher"]
+    },
     "Infos": {
         "kph": ["kph", "km/h"],
         "knots": ["knots", "noeuds"],
-        "text_loading": ["Loading ...", "Chargement ..."]
-
+        "text_loading": ["Loading ...", "Chargement ..."],
+        "add_desktop_shortcut": ["Add a desktop shortcut?", "Ajouter un raccourci sur le bureau ?"],
+        "yes": ["Yes", "Oui"],
+        "no": ["No", "Non"],
+        "theme_system": ["System", "Système"],
+        "theme_light": ["Light", "Clair"],
+        "theme_dark": ["Dark", "Sombre"]
     }
 }
