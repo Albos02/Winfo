@@ -5,7 +5,8 @@
         "favorites_segmented_btn": ["Starred", "Favoris"],
         "all_stations_segmented_btn": ["All the stations", "Toutes les stations"],
         "sorted_box": ["Alphabetical order", "Ordre alphabetique"],
-        "displaying_radius": ["Display radius around : ", "Rayon d'affichage autour de : "],
+        "displaying_radius": ["Max distance around : ", "Distance maximale autour de : "],
+
         "no_location_error": ["No location found", "Aucune localis. trouvée"],
         "search_placeholder": ["Enter a station", "Rechercher une station"],
         "table_title_station": ["Station/Location", "Station/Location"],

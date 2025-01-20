@@ -384,10 +384,6 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
             coord_reader = json.load(f_json)
             print(LOCATION_COORDINATES[0], '|', LOCATION_COORDINATES[1])
             for ligne, coord in zip(reader, coord_reader):
-                print('starting with station', ligne['Station/Location'])
-                start_time = time.time()  # Unix timestamp
-                start_datetime = datetime.now()  # Human-readable time
-                print(f"Started at: {start_datetime.strftime('%H:%M:%S')}")
                 if ligne['Station/Location'] == 'MRP':  # exists in meteoswiss but always empty 
                     continue
                 if LOCATION_COORDINATES[0] is not None and LOCATION_COORDINATES[1] is not None: # if no LOCATION found don't check for distance and display all
@@ -397,7 +393,6 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                             continue
                     except KeyError:
                         pass
-                #print('mid time 0 is ', round(time.time()-start_time, 3), '----c', round(time.time(), 2), round(start_time, 2))
                 try:
                     if fav_bool and coord[5] in preferences['favorites']:
                         pass
@@ -405,26 +400,19 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                         continue
                 except KeyError:
                     continue
-                #print('mid time 1 is ', round(time.time()-start_time, 3), '----c', round(time.time(), 2), round(start_time, 2))
                 if search_input == '' or search_input in coord[3].lower() or search_input in coord[0].lower():
                     pass
                 else:
                     continue
-                #print('mid time 2 is ', round(time.time()-start_time, 3), '----c', round(time.time(), 2), round(start_time, 2))
                 new_line = []
                 new_line.append(coord[3])
-                print(f"mid time 0 : {time.time() - start_time:.2f} seconds")
                 try:
                     vent, rafale = round(float(ligne['fu3010z0']) * wind_speed_coef, 1), round(float(ligne['fu3010z1']) * wind_speed_coef, 1)
                 except ValueError:
-                    print(f"mid time 1 : {time.time() - start_time:.2f} seconds")
-                    print(f"{'urlopen error' not in ligne['dkl010z0'] = }")
-                    print(f"{ligne['dkl010z0'] = }")
                     if 'urlopen error' not in ligne['dkl010z0']:
                         direction, vent, rafale = find_station_data_in_data_geo_files(abr=coord[0])
                     else:
                         direction, vent, rafale = None, None, None
-                    print(f"mid time 2 : {time.time() - start_time:.2f} seconds")
                     print(direction, vent, rafale)
                     already_direction = True
                 if vent is None or rafale is None:
@@ -435,7 +423,6 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                         new_line.append(f"{str(vent)} | {str(rafale)}  {language_dict['Infos']['kph'][lang_index]}")
                     else:
                         new_line.append(f"{str(vent)} | {str(rafale)}  {language_dict['Infos']['knots'][lang_index]}")
-                print(f"mid time 3 : {time.time() - start_time:.2f} seconds")
                 try:
                     if already_direction:
                         already_direction = False
@@ -468,8 +455,6 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                     #new_line.append('x')
                     new_line.append('⬜')
                 values.append(new_line)
-                print(f"finishing time : {time.time() - start_time:.2f} seconds")
-                #print('finishing time is ', round(time.time()-start_time, 3))
             if wind_sorted:
                 values = sorted(values, key=lambda item_in_values: (-5 if item_in_values[1] == '' else float(item_in_values[1].split('|')[0])), reverse=True)
             values.insert(0, [language_dict['Stations']['table_title_station'][lang_index], language_dict['Stations']['table_title_wind-gust'][lang_index], language_dict['Stations']['table_title_direction'][lang_index], language_dict['Stations']['table_title_county'][lang_index], language_dict['Stations']['table_title_favorites'][lang_index]])
@@ -1155,6 +1140,9 @@ def settings_frame_setup(pack:bool):
                 lang_index = 0
             elif choice == 'Français':
                 lang_index = 1
+            button1.configure(text=language_dict['Stations']['stations'][lang_index])
+            button2.configure(text=language_dict['Map']['map'][lang_index])
+            button3.configure(text=language_dict['Settings']['settings'][lang_index])
             button3_pressed()
         wind_speed_unit_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
         wind_speed_unit_frame.pack(pady=20)
