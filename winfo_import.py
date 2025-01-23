@@ -171,7 +171,7 @@ def send_alert(station, *args):
     print('notification sent to ', station)
 
 def launch_winfo():
-    subprocess.Popen(['Winfo.exe'])
+    subprocess.Popen(['winfo.py'])
 def set_icon(moyenne, rafale):
 
     if moyenne <= 3:
