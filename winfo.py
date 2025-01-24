@@ -825,10 +825,10 @@ def chart_setup(frame, station_id, history_bool, unit: str):
         if event.inaxes in (ax, ax2) and event.xdata is not None and event.ydata is not None:
             idx = min(range(len(x_numeric)), key=lambda i: abs(x_numeric[i] - event.xdata))
             if history_bool:
-                text = (f"Date: {x_values[idx]}\n"
-                        f"Moyenne: {y_values[0][idx]:.1f}\n"
-                        f"Rafale: {y_values[1][idx]:.1f}\n"
-                        f"Direction: {y_values[2][idx]:.0f}°")
+                text = (f"{language_dict['Station_Frame']['chart_legend_8'][lang_index]}: {x_values[idx]}\n"
+                        f"{language_dict['Station_Frame']['chart_legend_1'][lang_index]}: {y_values[0][idx]:.1f}\n"
+                        f"{language_dict['Station_Frame']['chart_legend_2'][lang_index]}: {y_values[1][idx]:.1f}\n"
+                        f"{language_dict['Station_Frame']['chart_legend_3'][lang_index]}: {y_values[2][idx]:.0f}°")
                 main_ydata = ax.transData.inverted().transform((event.x, event.y))[1]
                 if 2 > abs(main_ydata - y_values[0][idx]):
                     moyenne_line.set_linewidth(4.0)
@@ -847,10 +847,10 @@ def chart_setup(frame, station_id, history_bool, unit: str):
                     rafale_line.set_linewidth(2.0)
                     direction_line.set_linewidth(0.5)
             else:
-                text = (f"Date: {x_values[idx]}\n"
-                        f"Médiane: {y_values[0][idx]:.1f}\n"
-                        f"Min: {y_values[1][idx]:.1f}\n"
-                        f"Max: {y_values[2][idx]:.1f}")
+                text = (f"{language_dict['Station_Frame']['chart_legend_8'][lang_index]}: {x_values[idx]}\n"
+                        f"{language_dict['Station_Frame']['chart_legend_4'][lang_index]}: {y_values[0][idx]:.1f}\n"
+                        f"{language_dict['Station_Frame']['chart_legend_6'][lang_index]}: {y_values[1][idx]:.1f}\n"
+                        f"{language_dict['Station_Frame']['chart_legend_7'][lang_index]}: {y_values[2][idx]:.1f}")
                 if 3 > abs(event.ydata - y_values[0][idx]):
                     moyenne_line.set_linewidth(4.0)
                 else:

@@ -57,6 +57,9 @@
         "chart_legend_3": ["Direction", "Direction"],
         "chart_legend_4": ["Median", "Médiane"],
         "chart_legend_5": ["Min / Max (80% range)", "Min / Max (Intervalle de 80%)"],
+        "chart_legend_6": ["Min", "Min"],
+        "chart_legend_7": ["Max", "Max"],
+        "chart_legend_8": ["Date", "Date"],
         "full_data_up_btn": ["Full data  ∧", "Toutes les données  ∧"],
         "full_data_down_btn": ["Full data  ∨", "Toutes les données  ∨"]
     },
