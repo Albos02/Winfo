@@ -6,7 +6,7 @@ import tzlocal
 from PIL import Image
 
 
-CURRENT_VERSION = 1.2
+CURRENT_VERSION = 1.3
 URL_WIND_SPEED = 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-windgeschwindigkeit-kmh-10min/ch.meteoschweiz.messwerte-windgeschwindigkeit-kmh-10min_fr.csv'
 URL_WIND_GUST = 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-wind-boeenspitze-kmh-10min/ch.meteoschweiz.messwerte-wind-boeenspitze-kmh-10min_fr.csv'
 URL_VQHA80 = 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/VQHA80.csv'
