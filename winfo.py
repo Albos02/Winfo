@@ -522,7 +522,6 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     except: pass
     table_frame = CTkFrame(window)
     if not pack:
-        table_frame = CTkFrame(window)
         return
     else:
         table_frame.pack(fill='both', expand=True, padx=20, pady=20)
@@ -603,10 +602,10 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     if not wind_sorted: alphabetical_sort_box.select()
     alphabetical_sort_box.pack()
     display_loading(table_frame)
-    scrollframe = CTkScrollableFrame(table_frame)
-    scrollframe.pack(expand=True, fill="both", padx=20, pady=20)
-    distance_slider_and_search_frame = CTkFrame(scrollframe, fg_color='transparent')
+    distance_slider_and_search_frame = CTkFrame(table_frame, fg_color='transparent')
     distance_slider_and_search_frame.pack(pady=10)
+    scrollframe = CTkScrollableFrame(table_frame, fg_color='transparent')
+    scrollframe.pack(expand=True, fill="both", padx=10, pady=10)
     print(LOCATION)
     if LOCATION is None:
         location_begining = language_dict['Stations']['no_location_error'][lang_index].upper()
