@@ -19,21 +19,31 @@ import subprocess
 import platform
 
 if platform.system().lower() == 'windows':
+    os = 'windows'
     from win32com.client import Dispatch
     from windows_toasts import Toast, InteractableWindowsToaster, WindowsToaster, ToastDisplayImage, ToastActivatedEventArgs, ToastImagePosition
+
+    import pywinstyles # CTkwindow with style acrylic
+elif platform.system().lower() == 'linux':
+    os = 'linux'
+elif platform.system().lower() == 'darwin':
+    os = 'macos'
 def new_version_top_level():
     def top_level_focus():
             toplevel.focus_set()
-            toplevel.after(5000, top_level_focus)
+            toplevel.after(10000, top_level_focus)
     global toplevel
     toplevel = CTkToplevel(window)
     toplevel.title(language_dict['New_Version_Available']['window_title'][lang_index])
     toplevel.geometry('500x400+1900+300')
     toplevel.grid_columnconfigure(0, weight=1)
     toplevel.grid_rowconfigure(3, weight=1)
+    # if os == 'windows': # pywinstyles doesn't work well with toplevel
+    #     pywinstyles.apply_style(toplevel, 'acrylic')
+    #     pywinstyles.set_opacity(toplevel, 0.9)
 
     CTkLabel(toplevel, text=language_dict['New_Version_Available']['label_title'][lang_index], font=h1_font).grid(row=0, column=0, padx=20, pady=(40,20), sticky="ew")
-    CTkLabel(toplevel, text=language_dict['New_Version_Available']['latest_is'][lang_index]+LATEST_VERSION, font=h2_font).grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+    CTkLabel(toplevel, text=language_dict['New_Version_Available']['latest_is'][lang_index]+str(LATEST_VERSION), font=h2_font).grid(row=1, column=0, padx=20, pady=10, sticky="ew")
 
     if LATEST_VERSION_INFO != '':
         CTkLabel(toplevel, text=language_dict['New_Version_Available']['updates'][lang_index], font=h2_font).grid(row=2, column=0, padx=20, pady=(20,5), sticky="w")
@@ -46,7 +56,7 @@ def new_version_top_level():
     CTkButton(button_frame, text=language_dict['New_Version_Available']['download_btn'][lang_index], command=open_new_version).grid(row=0, column=0, padx=10, sticky="e")
     CTkButton(button_frame, text=language_dict['New_Version_Available']['dont_show_again_btn'][lang_index], command=ne_plus_afficher).grid(row=0, column=1, padx=10, sticky="w")
 
-    toplevel.after(500, top_level_focus)
+    toplevel.after('idle', top_level_focus)
 
 def open_new_version():
     webbrowser.open("https://louse-proud-raven.ngrok-free.app/versions/")
@@ -59,7 +69,7 @@ def ne_plus_afficher():
 def create_shortcut_top_level():
     def top_level_focus():
         toplevel.focus_set()
-        toplevel.after(5000, top_level_focus)
+        toplevel.after(10000, top_level_focus)
     def create_shortcut_lnk():
         current_dir = os.getcwd()
         target_path = os.path.join(current_dir, 'winfo.py')
@@ -75,6 +85,9 @@ def create_shortcut_top_level():
         toplevel.destroy()
 
     toplevel = CTkToplevel(window)
+    # if os == 'windows': # pywinstyles doesn't work well with toplevel
+    #     pywinstyles.apply_style(toplevel, 'acrylic')
+    #     pywinstyles.set_opacity(toplevel, 0.9)
 
     CTkLabel(toplevel, font=h1_font, text=language_dict['Infos']['add_desktop_shortcut'][lang_index]).pack(padx=20, pady=20)
     yes_no_frame = CTkFrame(toplevel, fg_color='transparent')
@@ -82,7 +95,7 @@ def create_shortcut_top_level():
     CTkButton(yes_no_frame, text=language_dict['Infos']['yes'][lang_index], command=create_shortcut_lnk).pack(padx=10, pady=10, side=LEFT)
     CTkButton(yes_no_frame, text=language_dict['Infos']['no'][lang_index], command=toplevel.destroy).pack(padx=10, pady=10, side=RIGHT)
 
-    toplevel.after(500, top_level_focus)
+    toplevel.after('idle', top_level_focus)
 def button1_pressed():
     map_frame.pack_forget()
     settings_scrollable_frame.pack_forget()
@@ -263,6 +276,8 @@ def map_frame_setup(pack: bool, displaying_values : bool):
     if pack:
         reload_preferences()
         map_frame.pack(fill='both', expand=True, padx=20, pady=10)
+        if os == 'windows':
+            pywinstyles.set_opacity(map_frame, 1)
         map_options_frame = CTkFrame(map_frame, bg_color='transparent', fg_color='transparent')
         map_options_frame.pack(fill="x", expand=False, padx=10, pady=0)
         titre_carte = CTkLabel(map_options_frame, text=language_dict['Map']['title'][lang_index], font=h1_font)
@@ -525,6 +540,8 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
         return
     else:
         table_frame.pack(fill='both', expand=True, padx=20, pady=20)
+        if os == 'windows':
+            pywinstyles.set_opacity(table_frame, 1)
     CTkLabel(table_frame, text=language_dict['Stations']['title'][lang_index], font=h1_font).pack(pady=20)
     def setup_table_stations(e):
         global table
@@ -905,12 +922,12 @@ def station_frame_setup(pack: bool, station_id: int):
     try:
         settings_scrollable_frame.pack_forget()
     except: pass
-    if not pack:
-        station_frame = CTkScrollableFrame(window)
+    station_frame = CTkScrollableFrame(window)
 
-    else:
-        station_frame = CTkScrollableFrame(window)
+    if pack:
         station_frame.pack(fill='both', expand=True, padx=20, pady=20)
+        if os == 'windows':
+            pywinstyles.set_opacity(station_frame, 1)
         station_name = reversed_station_dict[station_id]
         CTkLabel(station_frame, text=station_name, font=h1_font).pack(pady=20)
         display_loading(station_frame)
@@ -1022,6 +1039,8 @@ def settings_frame_setup(pack:bool):
     if pack:
         alert_frame_dict = {}
         settings_scrollable_frame.pack(fill='both', expand=True, padx=20, pady=20)
+        if os == 'windows':
+            pywinstyles.set_opacity(settings_scrollable_frame, 1)
         settings_title = CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['settings'][lang_index], font=h1_font)
         settings_title.pack(padx=20, pady=30)
 
@@ -1583,6 +1602,8 @@ def launch_customtkinter(*args):
 
     left_column_frame = CTkFrame(window, width=150, height=window.winfo_screenheight())
     left_column_frame.pack(side="left", fill="y")
+    if os == 'windows':
+        pywinstyles.set_opacity(left_column_frame, 1)
 
     button1 = CTkButton(left_column_frame, text=language_dict['Stations']['stations'][lang_index], command=button1_pressed)
     button1.pack(padx=20, pady=10)
@@ -1626,6 +1647,13 @@ def launch_customtkinter(*args):
         create_shortcut_top_level()
     if start_version_top_level:
         new_version_top_level()
+
+    if os == 'windows':
+        pywinstyles.apply_style(window, 'acrylic')
+        
+        pywinstyles.set_opacity(window, 0.9)
+
+        window.configure(fg_color=(WINDOW_BACKGROUND_LIGHT, WINDOW_BACKGROUND_DARK))
     window.mainloop()
 
 window = CTk()

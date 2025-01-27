@@ -6,14 +6,15 @@ import tzlocal
 from PIL import Image
 
 
-CURRENT_VERSION = 1.3
+CURRENT_VERSION = 1.2
 URL_WIND_SPEED = 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-windgeschwindigkeit-kmh-10min/ch.meteoschweiz.messwerte-windgeschwindigkeit-kmh-10min_fr.csv'
 URL_WIND_GUST = 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-wind-boeenspitze-kmh-10min/ch.meteoschweiz.messwerte-wind-boeenspitze-kmh-10min_fr.csv'
 URL_VQHA80 = 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/VQHA80.csv'
 SERVER_URL = 'https://louse-proud-raven.ngrok-free.app/'
 URL_HISTORY_MESUREMENT = SERVER_URL + 'data/mesurement_history.csv'
 
-
+WINDOW_BACKGROUND_LIGHT = '#ebebeb'
+WINDOW_BACKGROUND_DARK = '#242424'
 BUTTON_PRESSED_COLOR = '#144870'
 BUTTON_NOT_PRESSED_COLOR = '#1c72b0'
 BUTTON_HOVER_AND_PRESSED_COLOR = '#203a4f'
