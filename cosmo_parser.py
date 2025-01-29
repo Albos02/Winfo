@@ -116,7 +116,7 @@ def cosmo_parser(station_abr: str, wind_speed_coef: float, raw: bool):
             for i in range(20):
                 i = str(i).zfill(2)
                 values.append(float(row[f'FF_10M_{i}'])*3.6)
-            time = datetime.datetime.strptime(row['time'], '%Y%m%d %H:%M')
+            time = datetime.strptime(row['time'], '%Y%m%d %H:%M')
             values.sort()
             mean = numpy.mean(values)
             median = numpy.median(values)
