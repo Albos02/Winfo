@@ -173,10 +173,10 @@ def change_theme(theme):
     dump_preferences()
     active_theme = theme
 
-def display_loading(root):
-    global loading_img_label
-    loading_img_label = CTkLabel(root, text=language_dict['Infos']['text_loading'][lang_index], font=('roboto mono', 30))
-    loading_img_label.pack(expand=True, fill='both')
+def display_loading(root, *args):
+    global loading_img
+    loading_img = CTkLabel(root, text=language_dict['Infos']['text_loading'][lang_index], font=('roboto mono', 30))
+    loading_img.pack(expand=True, fill='both')
 
 def change_default_tile_server(tile_server):
     reload_preferences()
@@ -363,7 +363,7 @@ def map_frame_setup(pack: bool, displaying_values : bool):
 
         map_widget.set_position(float(LOCATION_COORDINATES[0]), float(LOCATION_COORDINATES[1]))
         map_widget.set_zoom(9)#7
-        loading_img_label.pack_forget()
+        loading_img.pack_forget()
         map_widget.pack(fill="both", expand=True, padx=10)
         map_active = True
         station_frame_active, fav_active, all_station_active, settings_active = False, False, False, False
@@ -670,7 +670,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
         pass
     search_entry.pack(padx=20, pady=20, side=RIGHT)
     setup_table_stations(None)
-    loading_img_label.pack_forget()
+    loading_img.pack_forget()
     table_frame_active = True
     fav_active, all_station_active = False, False
     if fav_bool:
@@ -926,11 +926,10 @@ def station_frame_setup(pack: bool, station_id: int):
 
     if pack:
         station_frame.pack(fill='both', expand=True, padx=20, pady=20)
-        if os == 'windows':
-            pywinstyles.set_opacity(station_frame, 1)
         station_name = reversed_station_dict[station_id]
         CTkLabel(station_frame, text=station_name, font=h1_font).pack(pady=20)
-        display_loading(station_frame)
+        if os == 'windows':
+            pywinstyles.set_opacity(station_frame, 1)
 
         button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
         button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
@@ -999,6 +998,8 @@ def station_frame_setup(pack: bool, station_id: int):
 
         history_frame = CTkFrame(station_frame, fg_color='transparent')
         history_frame.pack(expand=True, fill="both", padx=20, pady=20)#, side=LEFT)
+        display_loading(station_frame)
+        window.update()
         prevision_frame = CTkFrame(station_frame, fg_color='transparent')
         prevision_frame.pack(expand=True, fill="both", padx=20, pady=20)#, side=RIGHT)
 
@@ -1020,7 +1021,7 @@ def station_frame_setup(pack: bool, station_id: int):
         prevision_btn = CTkButton(prevision_frame, text=language_dict['Station_Frame']['full_data_down_btn'][lang_index], command=show_prevision_table)
         prevision_btn.pack(pady=10)
 
-        loading_img_label.pack_forget()
+        loading_img.pack_forget()
         station_frame_active = True
 
         fav_active, all_station_active, table_frame_active, map_active, settings_active = False, False, False, False, False
@@ -1044,6 +1045,8 @@ def settings_frame_setup(pack:bool):
         settings_title = CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['settings'][lang_index], font=h1_font)
         settings_title.pack(padx=20, pady=30)
 
+        display_loading(settings_scrollable_frame, True)
+        window.update()
         empty = True
         stations_to_add = []
         for i in range(1, 20):
@@ -1224,6 +1227,7 @@ def settings_frame_setup(pack:bool):
         CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['meteosuisse_credit_label'][lang_index]).pack(pady=20)
         CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['app_version_label'][lang_index]+str(CURRENT_VERSION)).pack(pady=20)
 
+        loading_img.pack_forget()
         station_frame_active = False
         map_active = False
         fav_active = False
