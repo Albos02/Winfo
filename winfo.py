@@ -864,24 +864,37 @@ def chart_setup(frame, station_id, history_bool, unit: str):
                             f"{language_dict['Station_Frame']['chart_legend_3'][lang_index]}: - \n")
                 main_ydata = ax.transData.inverted().transform((event.x, event.y))[1]
                 try:
-                    if 2 > abs(main_ydata - y_values[0][idx]):
-                        moyenne_line.set_linewidth(4.0)
-                        rafale_line.set_linewidth(2.0)
-                        direction_line.set_linewidth(0.5)
-                    elif 2 > abs(main_ydata - y_values[1][idx]):
-                        rafale_line.set_linewidth(4.0)
-                        moyenne_line.set_linewidth(2.0)
-                        direction_line.set_linewidth(0.5)
-                    elif 20 > abs(event.ydata - y_values[2][idx]):
-                        direction_line.set_linewidth(2.0)
-                        moyenne_line.set_linewidth(2.0)
-                        rafale_line.set_linewidth(2.0)
-                    else:
-                        moyenne_line.set_linewidth(2.0)
-                        rafale_line.set_linewidth(2.0)
-                        direction_line.set_linewidth(0.5)
-                except Exception as e:
+                    dist_0 = abs(main_ydata - y_values[0][idx])
+                    dist_1 = abs(main_ydata - y_values[1][idx])
+                    dist_2 = abs(event.ydata - y_values[2][idx])/20 # 360° but mostly max 20kph so ~ /20
 
+                    print('all the dists')
+                    print(dist_0, dist_1, dist_2)
+
+                    def set_lines_thick(moyenne, rafale, direction):
+                        if moyenne:
+                            moyenne_line.set_linewidth(4.0)
+                        else:
+                            moyenne_line.set_linewidth(2.0)
+                        if rafale:
+                            rafale_line.set_linewidth(4.0)
+                        else:
+                            rafale_line.set_linewidth(2.0)
+                        if direction:
+                            direction_line.set_linewidth(2.0)
+                        else:
+                            direction_line.set_linewidth(0.5)
+                    if 2 > min(dist_0, dist_1, dist_2):
+                        if dist_0 < min(dist_1, dist_2):
+                            set_lines_thick(True, False, False)
+                        elif dist_1 < min(dist_0, dist_2):
+                            set_lines_thick(False, True, False)
+                        elif dist_2 < min(dist_1, dist_0):
+                            set_lines_thick(False, False, True)
+                    else:
+                        set_lines_thick(False, False, False)
+
+                except Exception as e:
                     if str(e.__class__) == "<class 'numpy.core._exceptions._UFuncNoLoopError'>":
                         pass
                     else:
