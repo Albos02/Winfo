@@ -1146,9 +1146,9 @@ def settings_frame_setup(pack:bool):
 
         def remove_last_word_entry(*e):
             text = location_entry.get()
-            last_space = text.rstrip().rfind(' ')  # find the last space
-            if last_space != -1:  # if there is a space
-                location_entry.delete(last_space, END)
+            last_space_index = text.rstrip().rfind(' ')  # find the last space
+            if last_space_index != -1:  # if there is a space
+                location_entry.delete(last_space_index+2, END)
             else:  # if there is only one word
                 location_entry.delete(0, END)
         def empty_location_entry(*e):
