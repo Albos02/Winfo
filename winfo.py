@@ -555,27 +555,30 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     def table_clicked(returns):
         row, column, value = returns['row'], returns['column'], returns['value']
         reload_preferences()
-        if column == 0 and row != 0:
-            station_name = table.get(row, 0)
-            station_frame_setup(pack=True, station_id=station_dict[station_name])
-        elif column == 4:
-            if 'favorites' in preferences.keys():
-                favoris = list(preferences['favorites'])
-                if value == '⬜':
-                    favoris.append(station_dict[table.get(row, 0)])
+        if row == 0:
+            return
+        else:
+            if column == 0:
+                station_name = table.get(row, 0)
+                station_frame_setup(pack=True, station_id=station_dict[station_name])
+            elif column == 4:
+                if 'favorites' in preferences.keys():
+                    favoris = list(preferences['favorites'])
+                    if value == '⬜':
+                        favoris.append(station_dict[table.get(row, 0)])
+                        preferences['favorites'] = favoris
+                        table.insert(row, column, '⬛')
+                    else:
+                        favoris.remove(station_dict[table.get(row, 0)])
+                        preferences['favorites'] = favoris
+                        table.insert(row, column, '⬜')
+                    print(f'favoris = {favoris}')
+                else:
+                    favoris = [station_dict[table.get(row, 0)]]
                     preferences['favorites'] = favoris
                     table.insert(row, column, '⬛')
-                else:
-                    favoris.remove(station_dict[table.get(row, 0)])
-                    preferences['favorites'] = favoris
-                    table.insert(row, column, '⬜')
-                print(f'favoris = {favoris}')
-            else:
-                favoris = [station_dict[table.get(row, 0)]]
-                preferences['favorites'] = favoris
-                table.insert(row, column, '⬛')
-            with open('preferences.json', 'w') as f:
-                json.dump(preferences, f)
+                with open('preferences.json', 'w') as f:
+                    json.dump(preferences, f)
 
     def select_entry(event):
         entry_as_display.delete(0, 'end')
