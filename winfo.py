@@ -555,7 +555,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     def table_clicked(returns):
         row, column, value = returns['row'], returns['column'], returns['value']
         reload_preferences()
-        if column == 0:
+        if column == 0 and row != 0:
             station_name = table.get(row, 0)
             station_frame_setup(pack=True, station_id=station_dict[station_name])
         elif column == 4:
