@@ -357,10 +357,7 @@ def map_frame_setup(pack: bool, displaying_values : bool):
                 icon = ImageTk.PhotoImage(new_image.rotate(direction).resize((25, 25)))
             if not displaying_values:
                 vent = ''
-            def setting_the_marker(coor_, vent_, icon_):
-                id = coor_[5]
-                map_widget.set_marker(float(coor_[1]), float(coor_[2]), text=vent_, text_color="black", icon=icon_, command=lambda _:[station_frame_setup(pack=True, station_id=id)])
-            setting_the_marker(coor, vent, icon)
+            map_widget.set_marker(float(coor[1]), float(coor[2]), text=vent, text_color="black", icon=icon, command=lambda marker, id=coor[5]:[station_frame_setup(pack=True, station_id=id)])
 
         map_widget.set_position(float(LOCATION_COORDINATES[0]), float(LOCATION_COORDINATES[1]))
         map_widget.set_zoom(9)#7
@@ -1700,9 +1697,9 @@ def launch_customtkinter(*args):
         window.configure(fg_color=(WINDOW_BACKGROUND_LIGHT, WINDOW_BACKGROUND_DARK))
     window.mainloop()
 
-window = CTk()
-window.geometry("1200x800+200+50")
-window.title(f'Winfo {CURRENT_VERSION}')
-
 if __name__ == "__main__":
+    window = CTk()
+    window.geometry("1200x800+200+50")
+    window.title(f'Winfo {CURRENT_VERSION}')
+
     launch_customtkinter()
