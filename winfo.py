@@ -98,8 +98,8 @@ def create_shortcut_top_level():
 
     toplevel.after('idle', top_level_focus)
 def button1_pressed():
-    map_frame.pack_forget()
-    settings_scrollable_frame.pack_forget()
+    # map_frame.pack_forget()
+    # settings_scrollable_frame.pack_forget()
     button1.configure(fg_color=BUTTON_PRESSED_COLOR)
     button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
@@ -111,16 +111,16 @@ def button1_pressed():
     else: table_frame_setup(pack=True, fav_bool=False, wind_sorted=False)
 
 def button2_pressed():
-    table_frame.pack_forget()
-    settings_scrollable_frame.pack_forget()
+    # table_frame.pack_forget()
+    # settings_scrollable_frame.pack_forget()
     button2.configure(fg_color=BUTTON_PRESSED_COLOR)
     button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     map_frame_setup(pack=True, displaying_values=True)
 
 def button3_pressed():
-    table_frame.pack_forget()
-    map_frame.pack_forget()
+    # table_frame.pack_forget()
+    # map_frame.pack_forget()
     button3.configure(fg_color=BUTTON_PRESSED_COLOR)
     button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
@@ -158,6 +158,127 @@ def update_all_values():
         return
     else:
         print('no page displayed yet')
+
+def forget_active_frame(save_in_last_frames: bool=True):
+    global station_frame_active, map_active, fav_active, all_station_active, settings_active, last_frames_closed, last_frames_closed_txt, retrieve_frame_index
+    print('STARTING TO FORGET A FRAME')
+    print(f'{save_in_last_frames = }, {last_frames_closed_txt = }, {retrieve_frame_index = }')
+
+    # If user went back then clicks remove following frames (like create new thread and del old one)
+    if save_in_last_frames and retrieve_frame_index > 0:
+        last_frames_closed = last_frames_closed[:-retrieve_frame_index]
+        last_frames_closed_txt = last_frames_closed_txt[:-retrieve_frame_index]
+        retrieve_frame_index = 0
+    
+    if station_frame_active:
+        station_frame.pack_forget()
+        station_frame_active = False
+        if save_in_last_frames:
+            if 'station_frame' in last_frames_closed_txt:
+                index = last_frames_closed_txt.index('station_frame')
+                last_frames_closed = last_frames_closed[index+1:]
+                last_frames_closed_txt = last_frames_closed_txt[index+1:]
+            last_frames_closed.append(station_frame)
+            last_frames_closed_txt.append('station_frame')
+    elif map_active:
+        map_frame.pack_forget()
+        map_active = False
+        if save_in_last_frames:
+            if 'map_frame' in last_frames_closed_txt:
+                index = last_frames_closed_txt.index('map_frame')
+                last_frames_closed = last_frames_closed[index+1:]
+                last_frames_closed_txt = last_frames_closed_txt[index+1:]
+            last_frames_closed.append(map_frame)
+            last_frames_closed_txt.append('map_frame')
+    elif fav_active:
+        table_frame.pack_forget()
+        fav_active = False
+        if save_in_last_frames:
+            if 'table_frame fav' in last_frames_closed_txt:
+                index = last_frames_closed_txt.index('table_frame fav')
+                last_frames_closed = last_frames_closed[index+1:]
+                last_frames_closed_txt = last_frames_closed_txt[index+1:]
+            last_frames_closed.append(table_frame)
+            last_frames_closed_txt.append('table_frame fav')
+    elif all_station_active:
+        table_frame.pack_forget()
+        all_station_active = False
+        if save_in_last_frames:
+            if 'table_frame all' in last_frames_closed_txt:
+                index = last_frames_closed_txt.index('table_frame all')
+                last_frames_closed = last_frames_closed[index+1:]
+                last_frames_closed_txt = last_frames_closed_txt[index+1:]
+            last_frames_closed.append(table_frame)
+            last_frames_closed_txt.append('table_frame all')
+    elif settings_active:
+        settings_scrollable_frame.pack_forget()
+        settings_active = False
+        if save_in_last_frames:
+            if 'settings_scrollable_frame' in last_frames_closed_txt:
+                index = last_frames_closed_txt.index('settings_scrollable_frame')
+                last_frames_closed = last_frames_closed[index+1:]
+                last_frames_closed_txt = last_frames_closed_txt[index+1:]
+            last_frames_closed.append(settings_scrollable_frame)
+            last_frames_closed_txt.append('settings_scrollable_frame')
+    else:
+        print('no page displayed yet => no frame to pack_forget')
+    print('done removing frame \n = ', last_frames_closed_txt, retrieve_frame_index)
+def pack_new_active_frame(index):
+    global station_frame_active, map_active, fav_active, all_station_active, settings_active
+    station_frame_active = map_active = fav_active = all_station_active = settings_active = False
+    
+    frame = last_frames_closed[-index]
+    frame_type = last_frames_closed_txt[-index]
+    
+    if 'station_frame' in frame_type:
+        station_frame_active = True
+    elif 'map_frame' in frame_type:
+        map_active = True  
+    elif 'table_frame fav' in frame_type:
+        fav_active = True
+    elif 'table_frame all' in frame_type:
+        all_station_active = True
+    elif 'settings_scrollable_frame' in frame_type:
+        settings_active = True
+
+
+    frame.pack(fill='both', expand=True, padx=20, pady=10)
+def retrieve_former_frame(*args):
+    global retrieve_frame_index      
+
+    if retrieve_frame_index == 0:
+        forget_active_frame()
+        retrieve_frame_index = 2
+    elif retrieve_frame_index < len(last_frames_closed):
+        forget_active_frame(False)
+        retrieve_frame_index += 1
+    elif retrieve_frame_index == len(last_frames_closed):
+        print('retrieved as many frames as possible')
+    else:
+        print('no more frames to retrieve')
+    
+    print('gonna retrieve former frame \n = ', last_frames_closed_txt, retrieve_frame_index)
+
+    pack_new_active_frame(retrieve_frame_index)
+def retrieve_following_frame(*args):
+    global retrieve_frame_index      
+    if retrieve_frame_index == len(last_frames_closed):
+        forget_active_frame(False)
+        retrieve_frame_index = len(last_frames_closed) - 1
+    elif retrieve_frame_index < len(last_frames_closed):
+        forget_active_frame(False)
+        retrieve_frame_index -= 1
+    # elif retrieve_frame_index == len(last_frames_closed):
+    #     print('retrieved as many frames as possible')
+    else:
+        print('no more frames to retrieve going forward')
+
+    print('gonna retrieve following frame \n = ', last_frames_closed_txt, retrieve_frame_index)
+
+
+    # frame_to_pack.pack(fill='both', expand=True, padx=20, pady=10)
+    
+    pack_new_active_frame(retrieve_frame_index)
 
 def change_theme(theme):
     print('theme is ' + theme)
@@ -263,13 +384,14 @@ def find_station_data_in_data_geo_files(abr: str):
     return direction, moyenne, rafale
 def map_frame_setup(pack: bool, displaying_values : bool):
     global map_frame, map_widget, map_active, fav_active, all_station_active, settings_active, station_frame_active
-    try:
-        map_frame.pack_forget()
-    except:
-        pass
-    try:
-        station_frame.pack_forget()
-    except: pass
+    # try:
+    #     map_frame.pack_forget()
+    # except:
+    #     pass
+    # try:
+    #     station_frame.pack_forget()
+    # except: pass
+    forget_active_frame(True)
     map_frame = CTkFrame(window)
     def display_values():
         map_frame_setup(pack=True, displaying_values=display_values_switch.get())
@@ -486,7 +608,8 @@ def change_fav_or_all_from_segbtn(value):
     global search_input
     search_input = ''
     print(value)
-    table_frame.pack_forget()
+    forget_active_frame()
+    # table_frame.pack_forget()
     if value == language_dict['Stations']['favorites_segmented_btn'][lang_index]:
         table_frame_setup(pack=True, fav_bool=True, wind_sorted=wind_sorted_btn_activated)
         fav_or_all_btn.set('Favoris')
@@ -526,13 +649,14 @@ def empty_search(e): #called if backspace+ctrl is pressed and delete all the sea
 
 def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     global table_frame, table_frame_active, station_frame_active, map_active, settings_active, alphabetical_sort_box, table, fav_active, all_station_active, search_entry, entry_as_display
-    try:
-        table_frame.pack_forget()
-    except:
-        pass
-    try:
-        station_frame.pack_forget()
-    except: pass
+    # try:
+    #     table_frame.pack_forget()
+    # except:
+    #     pass
+    # try:
+    #     station_frame.pack_forget()
+    # except: pass
+    forget_active_frame()
     table_frame = CTkFrame(window)
     if not pack:
         return
@@ -946,19 +1070,20 @@ def chart_setup(frame, station_id, history_bool, unit: str):
 def station_frame_setup(pack: bool, station_id: int):
     global wind_speed_coef, station_id_active, station_frame, station_frame_active, table_frame, table_frame_active, map_active, settings_active, alphabetical_sort_box, table, fav_active, all_station_active, search_entry, entry_as_display
     station_id_active = station_id
-    try:
-        station_frame.pack_forget()
-    except:
-        pass
-    try:
-        table_frame.pack_forget()
-    except: pass
-    try:
-        map_frame.pack_forget()
-    except: pass
-    try:
-        settings_scrollable_frame.pack_forget()
-    except: pass
+    # try:
+    #     station_frame.pack_forget()
+    # except:
+    #     pass
+    # try:
+    #     table_frame.pack_forget()
+    # except: pass
+    # try:
+    #     map_frame.pack_forget()
+    # except: pass
+    # try:
+    #     settings_scrollable_frame.pack_forget()
+    # except: pass
+    forget_active_frame()
     station_frame = CTkScrollableFrame(window)
 
     if pack:
@@ -1066,13 +1191,14 @@ def station_frame_setup(pack: bool, station_id: int):
 def settings_frame_setup(pack:bool):
     global settings_scrollable_frame, alert_frame_dict, last_alert_frame, plus_button, station_frame_active, map_active, fav_active, all_station_active, settings_active, alert_horiz_scrollframe, alert_nonscroll_frame, frame_len, frame_id_list, station_to_add
     reload_preferences()
-    try:
-        settings_scrollable_frame.pack_forget()
-    except:
-        pass
-    try:
-        station_frame.pack_forget()
-    except: pass
+    # try:
+    #     settings_scrollable_frame.pack_forget()
+    # except:
+    #     pass
+    # try:
+    #     station_frame.pack_forget()
+    # except: pass
+    forget_active_frame()
     settings_scrollable_frame = CTkScrollableFrame(window)
     if pack:
         alert_frame_dict = {}
@@ -1276,10 +1402,10 @@ def add_alert_frame(*args):
     global last_alert_frame, frame_len, frame_id_list
     alert_visible = None
     shortcut_visible = None
-    try:
-        plus_button.pack_forget()
-    except:
-        pass
+    # try:
+    #     plus_button.pack_forget()
+    # except:
+    #     pass
     try:
         alert_nonscroll_frame.pack_forget()
     except:
@@ -1605,8 +1731,8 @@ def dump_preferences():
         json.dump(preferences, f)
 
 def launch_customtkinter(*args):
-    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3
-    station_frame_active, map_active, fav_active, all_station_active, settings_active = False, False, False, False, False
+    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index
+    station_frame_active = map_active = fav_active = all_station_active = settings_active = False
     wind_sorted_btn_activated = False
     station_id_active = 1
     reload_preferences()
@@ -1614,6 +1740,11 @@ def launch_customtkinter(*args):
     if preferences == []:
         start_shortcut_top_level = True
     dump_preferences()
+    last_frames_closed = []
+    last_frames_closed_txt = []
+    retrieve_frame_index = 0
+    window.bind('<Alt-Left>', retrieve_former_frame)
+    window.bind('<Alt-Right>', retrieve_following_frame)
     def set_location_by_ip():
         try:
             ip_location = geocoder.ip('me')
