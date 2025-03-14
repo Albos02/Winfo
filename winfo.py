@@ -664,7 +664,11 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
         table_frame.pack(fill='both', expand=True, padx=20, pady=20)
         if os == 'windows':
             pywinstyles.set_opacity(table_frame, 1)
-    CTkLabel(table_frame, text=language_dict['Stations']['title'][lang_index], font=h1_font).pack(pady=20)
+    info, date = get_active_wind(1)
+    csv_date_frame = CTkFrame(table_frame, fg_color='transparent', height=1)
+    csv_date_frame.pack(fill='x')
+    CTkLabel(csv_date_frame, text=language_dict['Stations']['csv_date'][lang_index]+' : '+date[0]+'h'+date[1]).pack(side=RIGHT, padx=10)
+    table_frame_active = CTkLabel(table_frame, text=language_dict['Stations']['title'][lang_index], font=h1_font).pack(pady=20)
     def setup_table_stations(e):
         global table
         try:
@@ -819,11 +823,13 @@ def get_active_wind(station_id: int):
                     direction = int(float(row['dkl010z0']))
                 except:
                     direction = 'N/A'
+                date = row['Date']
+                date = strafe_date_from_csv(date)
                 if moyenne == 'N/A' or rafale == 'N/A' or direction == 'N/A':
                     pass
                 else:
                     info = [moyenne, rafale, direction]
-                    return info
+                    return info, date
     direction, moyenne, rafale = find_station_data_in_data_geo_files(abr=abr)
     if direction is None: direction = 'N/A'
     if moyenne is None: moyenne = 'N/A'
@@ -1022,7 +1028,7 @@ def chart_setup(frame, station_id, history_bool, unit: str):
                     if str(e.__class__) == "<class 'numpy.core._exceptions._UFuncNoLoopError'>":
                         pass
                     else:
-                        raise e
+                        print(e)
             else:
                 text = (f"{language_dict['Station_Frame']['chart_legend_8'][lang_index]}: {x_values[idx]}\n"
                         f"{language_dict['Station_Frame']['chart_legend_4'][lang_index]}: {y_values[0][idx]:.1f}\n"
@@ -1129,7 +1135,7 @@ def station_frame_setup(pack: bool, station_id: int):
 
         quick_info_frame = CTkFrame(station_frame, fg_color='transparent')
         quick_info_frame.pack(expand=True, fill="x", padx=20, pady=20)
-        info = get_active_wind(station_id)
+        info, date = get_active_wind(station_id)
         print('Vent actuel : ', info)
         try:
             moyenne = round(info[0]*wind_speed_coef, 1)
