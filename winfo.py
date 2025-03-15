@@ -1073,6 +1073,16 @@ def chart_setup(frame, station_id, history_bool, unit: str):
     canvas_widget.canvas = canvas
     
     return canvas_widget
+def toggle_star(station_id, star_button):
+    if station_id_active in preferences['favorites']:
+        preferences['favorites'].remove(station_id)
+        star_img = star_dark_empty_img
+    else:
+        preferences['favorites'].append(station_id)
+        star_img = star_dark_full_img
+    star_button.configure(image=star_img)
+    dump_preferences()
+    print(preferences['favorites'])
 def station_frame_setup(pack: bool, station_id: int):
     global wind_speed_coef, station_id_active, station_frame, station_frame_active, table_frame, table_frame_active, map_active, settings_active, alphabetical_sort_box, table, fav_active, all_station_active, search_entry, entry_as_display
     station_id_active = station_id
@@ -1094,6 +1104,15 @@ def station_frame_setup(pack: bool, station_id: int):
 
     if pack:
         station_frame.pack(fill='both', expand=True, padx=20, pady=20)
+        star_frame = CTkFrame(station_frame)
+        star_frame.pack(fill=X)
+
+        if station_id in preferences['favorites']:
+            star_img = star_dark_full_img
+        else:
+            star_img = star_dark_empty_img
+        star_button = CTkButton(star_frame, image=star_img, text='', fg_color='transparent', command=lambda id=station_id :[toggle_star(id, star_button)])
+        star_button.pack(side=RIGHT, padx=10)
         station_name = reversed_station_dict[station_id]
         CTkLabel(station_frame, text=station_name, font=h1_font).pack(pady=20)
         if os == 'windows':
@@ -1737,7 +1756,7 @@ def dump_preferences():
         json.dump(preferences, f)
 
 def launch_customtkinter(*args):
-    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index
+    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index, star_dark_full_img, star_dark_empty_img, star_light_full_img, star_light_empty_img
     station_frame_active = map_active = fav_active = all_station_active = settings_active = False
     wind_sorted_btn_activated = False
     station_id_active = 1
@@ -1777,6 +1796,11 @@ def launch_customtkinter(*args):
     h2_font = CTkFont('roboto mono', size=24)
     h2_font = CTkFont('roboto mono', size=22)
     p_font =  CTkFont('roboto mono', size=12)
+
+    star_dark_full_img = CTkImage(Image.open('images/star_full_dark.png'), size=(40, 40))
+    star_dark_empty_img = CTkImage(Image.open('images/star_empty_dark.png'), size=(40, 40))
+    star_light_full_img = CTkImage(Image.open('images/star_full_light.png'), size=(40, 40))
+    star_light_empty_img = CTkImage(Image.open('images/star_empty_light.png'), size=(40, 40))
 
     left_column_frame = CTkFrame(window, width=150, height=window.winfo_screenheight())
     left_column_frame.pack(side="left", fill="y")
