@@ -650,16 +650,6 @@ def remove_last_word_search_entry(e): #called if backspace+ctrl is pressed and d
         search_entry.delete(0, END)
         search_input = ''
 
-# def remove_last_word_search_entry(*e): #called if backspace+ctrl is pressed and delete last word
-#     global search_input
-#     text = search_entry.get()
-#     last_space_index = text.rstrip().rfind(' ')  # find the last space
-#     if last_space_index != -1:  # if there is a space
-#         search_entry.delete(last_space_index+2, END)
-#     else:  # if there is only one word
-#         search_entry.delete(0, END)
-#     search_input = search_entry.get()
-
 
 
 
@@ -1662,7 +1652,7 @@ def add_alert_frame(*args):
 
     CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=1).pack(padx=30, pady=10, fill='x') #thin line
     CTkButton(frame, text=language_dict['Settings']['notif_card_option_1_title'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover_color=LIGHT_3, hover=False, command=enable_alert).pack()
-    alert_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
+    alert_frame = CTkFrame(frame, fg_color='transparent', height=50)
     alert_frame.pack()
     alert_frame_1 = CTkFrame(alert_frame, fg_color=(LIGHT_3, DARK_3))
     if preferences['wind_speed_unit'] == language_dict['Infos']['kph'][lang_index]:
@@ -1672,7 +1662,7 @@ def add_alert_frame(*args):
         unit = language_dict['Infos']['knots'][lang_index]
         wind_speed_coef = 1/1.852
     CTkLabel(alert_frame_1, text=language_dict['Settings']['notif_card_option_1_label'][lang_index]).pack()
-    value_and_slider_frame = CTkFrame(alert_frame_1, corner_radius=50)
+    value_and_slider_frame = CTkFrame(alert_frame_1, fg_color='transparent', corner_radius=50)
     value_and_slider_frame.pack(padx=10, pady=5)
     slider = CTkSlider(value_and_slider_frame, from_=0, to=50, number_of_steps=30, command=slider_changed)
     slider.pack(padx=5, pady=5, side=RIGHT)
@@ -1685,7 +1675,7 @@ def add_alert_frame(*args):
     CTkFrame(frame, fg_color=(DARK_1, LIGHT_1), height=1).pack(padx=30, pady=10, fill='x') #thin line
     CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_1'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, corner_radius=10, command=enable_shortcut).pack()
     CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_2'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, command=enable_shortcut).pack()
-    shortcut_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
+    shortcut_frame = CTkFrame(frame, fg_color='transparent', height=50)
     shortcut_frame.pack()
     shortcut_frame_1 = CTkFrame(shortcut_frame, fg_color=(LIGHT_3, DARK_3))
     CTkLabel(shortcut_frame_1, text='', height=15).pack()
@@ -1693,7 +1683,7 @@ def add_alert_frame(*args):
     entry.bind("<KeyPress>", shortcut_entry_entered)
     entry.pack(padx=10, pady=10)
 
-    test_btn_frame = CTkFrame(frame)
+    test_btn_frame = CTkFrame(frame, fg_color='transparent')
     test_btn_frame.place(rely=0.92, relx=0.5, anchor=CENTER)
     CTkButton(test_btn_frame, text=language_dict['Settings']['notif_card_test_btn'][lang_index], width=60, command=send_alert).pack(side=RIGHT, padx=10, pady=10)
 
