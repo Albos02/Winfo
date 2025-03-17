@@ -638,16 +638,27 @@ def search_in_table(fav_bool: bool, wind_sorted: bool):
 #     search_input = search_entry.get()
 #     table_frame_setup(pack=True, fav_bool=False, wind_sorted=False)
 
-def empty_search(e): #called if backspace+ctrl is pressed and delete all the search
+def remove_last_word_search_entry(e): #called if backspace+ctrl is pressed and delete all the search
     global search_input
     text = search_entry.get()
     last_space = text.rstrip().rfind(' ')  # find the last space
+    print(last_space)
     if last_space != -1:  # if there is a space
-        search_entry.delete(last_space, END)
+        search_entry.delete(last_space+2, END)
         search_input = search_entry.get()
     else:  # if there is only one word
         search_entry.delete(0, END)
         search_input = ''
+
+# def remove_last_word_search_entry(*e): #called if backspace+ctrl is pressed and delete last word
+#     global search_input
+#     text = search_entry.get()
+#     last_space_index = text.rstrip().rfind(' ')  # find the last space
+#     if last_space_index != -1:  # if there is a space
+#         search_entry.delete(last_space_index+2, END)
+#     else:  # if there is only one word
+#         search_entry.delete(0, END)
+#     search_input = search_entry.get()
 
 
 
@@ -786,7 +797,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     distance_slider.pack(padx=0, side=LEFT)
     CTkLabel(distance_slider_and_search_frame, text="", width=10).pack(side=LEFT, padx=20)
     search_entry = CTkEntry(distance_slider_and_search_frame, placeholder_text=language_dict['Stations']['search_placeholder'][lang_index], width=200)
-    search_entry.bind('<Control-BackSpace>', empty_search)
+    search_entry.bind('<Control-BackSpace>', remove_last_word_search_entry)
     search_entry.bind("<Return>", lambda _: search_in_table(fav_bool, wind_sorted))
 
     # if fav_bool:
