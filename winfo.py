@@ -616,22 +616,27 @@ def change_fav_or_all_from_segbtn(value):
     if value == language_dict['Stations']['all_stations_segmented_btn'][lang_index]:
         table_frame_setup(pack=True, fav_bool=False, wind_sorted=wind_sorted_btn_activated)
 
-def search_in_table_T_T(e):
+def search_in_table(fav_bool: bool, wind_sorted: bool):
     global search_input
     search_input = search_entry.get()
-    table_frame_setup(pack=True, fav_bool=True, wind_sorted=True)
-def search_in_table_T_F(e):
-    global search_input
-    search_input = search_entry.get()
-    table_frame_setup(pack=True, fav_bool=True, wind_sorted=False)
-def search_in_table_F_T(e):
-    global search_input
-    search_input = search_entry.get()
-    table_frame_setup(pack=True, fav_bool=False, wind_sorted=True)
-def search_in_table_F_F(e):
-    global search_input
-    search_input = search_entry.get()
-    table_frame_setup(pack=True, fav_bool=False, wind_sorted=False)
+    table_frame_setup(pack=True, fav_bool=fav_bool, wind_sorted=wind_sorted)
+
+# def search_in_table_T_T(e):
+#     global search_input
+#     search_input = search_entry.get()
+#     table_frame_setup(pack=True, fav_bool=True, wind_sorted=True)
+# def search_in_table_T_F(e):
+#     global search_input
+#     search_input = search_entry.get()
+#     table_frame_setup(pack=True, fav_bool=True, wind_sorted=False)
+# def search_in_table_F_T(e):
+#     global search_input
+#     search_input = search_entry.get()
+#     table_frame_setup(pack=True, fav_bool=False, wind_sorted=True)
+# def search_in_table_F_F(e):
+#     global search_input
+#     search_input = search_entry.get()
+#     table_frame_setup(pack=True, fav_bool=False, wind_sorted=False)
 
 def empty_search(e): #called if backspace+ctrl is pressed and delete all the search
     global search_input
@@ -782,16 +787,18 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     CTkLabel(distance_slider_and_search_frame, text="", width=10).pack(side=LEFT, padx=20)
     search_entry = CTkEntry(distance_slider_and_search_frame, placeholder_text=language_dict['Stations']['search_placeholder'][lang_index], width=200)
     search_entry.bind('<Control-BackSpace>', empty_search)
-    if fav_bool:
-        if wind_sorted:
-            search_entry.bind("<Return>", search_in_table_T_T)
-        else:
-            search_entry.bind("<Return>", search_in_table_T_F)
-    else:
-        if wind_sorted:
-            search_entry.bind("<Return>", search_in_table_F_T)
-        else:
-            search_entry.bind("<Return>", search_in_table_F_F)
+    search_entry.bind("<Return>", lambda _: search_in_table(fav_bool, wind_sorted))
+
+    # if fav_bool:
+    #     if wind_sorted:
+    #         search_entry.bind("<Return>", search_in_table_T_T)
+    #     else:
+    #         search_entry.bind("<Return>", search_in_table_T_F)
+    # else:
+    #     if wind_sorted:
+    #         search_entry.bind("<Return>", search_in_table_F_T)
+    #     else:
+    #         search_entry.bind("<Return>", search_in_table_F_F)
     try:
         search_entry.insert(0, search_input)
         search_entry.focus()
