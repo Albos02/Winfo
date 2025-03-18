@@ -616,29 +616,35 @@ def change_fav_or_all_from_segbtn(value):
     if value == language_dict['Stations']['all_stations_segmented_btn'][lang_index]:
         table_frame_setup(pack=True, fav_bool=False, wind_sorted=wind_sorted_btn_activated)
 
-def search_in_table_T_T(e):
+def search_in_table(fav_bool: bool, wind_sorted: bool):
     global search_input
     search_input = search_entry.get()
-    table_frame_setup(pack=True, fav_bool=True, wind_sorted=True)
-def search_in_table_T_F(e):
-    global search_input
-    search_input = search_entry.get()
-    table_frame_setup(pack=True, fav_bool=True, wind_sorted=False)
-def search_in_table_F_T(e):
-    global search_input
-    search_input = search_entry.get()
-    table_frame_setup(pack=True, fav_bool=False, wind_sorted=True)
-def search_in_table_F_F(e):
-    global search_input
-    search_input = search_entry.get()
-    table_frame_setup(pack=True, fav_bool=False, wind_sorted=False)
+    table_frame_setup(pack=True, fav_bool=fav_bool, wind_sorted=wind_sorted)
 
-def empty_search(e): #called if backspace+ctrl is pressed and delete all the search
+# def search_in_table_T_T(e):
+#     global search_input
+#     search_input = search_entry.get()
+#     table_frame_setup(pack=True, fav_bool=True, wind_sorted=True)
+# def search_in_table_T_F(e):
+#     global search_input
+#     search_input = search_entry.get()
+#     table_frame_setup(pack=True, fav_bool=True, wind_sorted=False)
+# def search_in_table_F_T(e):
+#     global search_input
+#     search_input = search_entry.get()
+#     table_frame_setup(pack=True, fav_bool=False, wind_sorted=True)
+# def search_in_table_F_F(e):
+#     global search_input
+#     search_input = search_entry.get()
+#     table_frame_setup(pack=True, fav_bool=False, wind_sorted=False)
+
+def remove_last_word_search_entry(e): #called if backspace+ctrl is pressed and delete all the search
     global search_input
     text = search_entry.get()
     last_space = text.rstrip().rfind(' ')  # find the last space
+    print(last_space)
     if last_space != -1:  # if there is a space
-        search_entry.delete(last_space, END)
+        search_entry.delete(last_space+2, END)
         search_input = search_entry.get()
     else:  # if there is only one word
         search_entry.delete(0, END)
@@ -664,7 +670,11 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
         table_frame.pack(fill='both', expand=True, padx=20, pady=20)
         if os == 'windows':
             pywinstyles.set_opacity(table_frame, 1)
-    CTkLabel(table_frame, text=language_dict['Stations']['title'][lang_index], font=H1_FONT).pack(pady=20)
+    info, date = get_active_wind(1)
+    csv_date_frame = CTkFrame(table_frame, fg_color='transparent', height=1)
+    csv_date_frame.pack(fill='x')
+    CTkLabel(csv_date_frame, text=language_dict['Stations']['csv_date'][lang_index]+' : '+date[0]+'h'+date[1]).pack(side=RIGHT, padx=10)
+    table_frame_active = CTkLabel(table_frame, text=language_dict['Stations']['title'][lang_index], font=h1_font).pack(pady=20)
     def setup_table_stations(e):
         global table
         try:
@@ -777,17 +787,19 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     distance_slider.pack(padx=0, side=LEFT)
     CTkLabel(distance_slider_and_search_frame, text="", width=10).pack(side=LEFT, padx=20)
     search_entry = CTkEntry(distance_slider_and_search_frame, placeholder_text=language_dict['Stations']['search_placeholder'][lang_index], width=200)
-    search_entry.bind('<Control-BackSpace>', empty_search)
-    if fav_bool:
-        if wind_sorted:
-            search_entry.bind("<Return>", search_in_table_T_T)
-        else:
-            search_entry.bind("<Return>", search_in_table_T_F)
-    else:
-        if wind_sorted:
-            search_entry.bind("<Return>", search_in_table_F_T)
-        else:
-            search_entry.bind("<Return>", search_in_table_F_F)
+    search_entry.bind('<Control-BackSpace>', remove_last_word_search_entry)
+    search_entry.bind("<Return>", lambda _: search_in_table(fav_bool, wind_sorted))
+
+    # if fav_bool:
+    #     if wind_sorted:
+    #         search_entry.bind("<Return>", search_in_table_T_T)
+    #     else:
+    #         search_entry.bind("<Return>", search_in_table_T_F)
+    # else:
+    #     if wind_sorted:
+    #         search_entry.bind("<Return>", search_in_table_F_T)
+    #     else:
+    #         search_entry.bind("<Return>", search_in_table_F_F)
     try:
         search_entry.insert(0, search_input)
         search_entry.focus()
@@ -819,11 +831,13 @@ def get_active_wind(station_id: int):
                     direction = int(float(row['dkl010z0']))
                 except:
                     direction = 'N/A'
+                date = row['Date']
+                date = strafe_date_from_csv(date)
                 if moyenne == 'N/A' or rafale == 'N/A' or direction == 'N/A':
                     pass
                 else:
                     info = [moyenne, rafale, direction]
-                    return info
+                    return info, date
     direction, moyenne, rafale = find_station_data_in_data_geo_files(abr=abr)
     if direction is None: direction = 'N/A'
     if moyenne is None: moyenne = 'N/A'
@@ -1022,7 +1036,7 @@ def chart_setup(frame, station_id, history_bool, unit: str):
                     if str(e.__class__) == "<class 'numpy.core._exceptions._UFuncNoLoopError'>":
                         pass
                     else:
-                        raise e
+                        print(e)
             else:
                 text = (f"{language_dict['Station_Frame']['chart_legend_8'][lang_index]}: {x_values[idx]}\n"
                         f"{language_dict['Station_Frame']['chart_legend_4'][lang_index]}: {y_values[0][idx]:.1f}\n"
@@ -1067,6 +1081,16 @@ def chart_setup(frame, station_id, history_bool, unit: str):
     canvas_widget.canvas = canvas
     
     return canvas_widget
+def toggle_star(station_id, star_button):
+    if station_id_active in preferences['favorites']:
+        preferences['favorites'].remove(station_id)
+        star_img = star_dark_empty_img
+    else:
+        preferences['favorites'].append(station_id)
+        star_img = star_dark_full_img
+    star_button.configure(image=star_img)
+    dump_preferences()
+    print(preferences['favorites'])
 def station_frame_setup(pack: bool, station_id: int):
     global wind_speed_coef, station_id_active, station_frame, station_frame_active, table_frame, table_frame_active, map_active, settings_active, alphabetical_sort_box, table, fav_active, all_station_active, search_entry, entry_as_display
     station_id_active = station_id
@@ -1088,6 +1112,15 @@ def station_frame_setup(pack: bool, station_id: int):
 
     if pack:
         station_frame.pack(fill='both', expand=True, padx=20, pady=20)
+        star_frame = CTkFrame(station_frame)
+        star_frame.pack(fill=X)
+
+        if station_id in preferences['favorites']:
+            star_img = star_dark_full_img
+        else:
+            star_img = star_dark_empty_img
+        star_button = CTkButton(star_frame, image=star_img, text='', fg_color='transparent', command=lambda id=station_id :[toggle_star(id, star_button)])
+        star_button.pack(side=RIGHT, padx=10)
         station_name = reversed_station_dict[station_id]
         CTkLabel(station_frame, text=station_name, font=H1_FONT).pack(pady=20)
         if os == 'windows':
@@ -1129,7 +1162,7 @@ def station_frame_setup(pack: bool, station_id: int):
 
         quick_info_frame = CTkFrame(station_frame, fg_color='transparent')
         quick_info_frame.pack(expand=True, fill="x", padx=20, pady=20)
-        info = get_active_wind(station_id)
+        info, date = get_active_wind(station_id)
         print('Vent actuel : ', info)
         try:
             moyenne = round(info[0]*wind_speed_coef, 1)
@@ -1618,7 +1651,7 @@ def add_alert_frame(*args):
     combobox.pack(padx=10, pady=10)
 
     CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=1).pack(padx=30, pady=10, fill='x') #thin line
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_1_title'][lang_index], width=300, font=H2_FONT, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover_color=LIGHT_3, hover=False, command=enable_alert).pack()
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_1_title'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover_color=LIGHT_3, hover=False, command=enable_alert).pack()
     alert_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
     alert_frame.pack()
     alert_frame_1 = CTkFrame(alert_frame, fg_color=(LIGHT_3, DARK_3))
@@ -1629,7 +1662,7 @@ def add_alert_frame(*args):
         unit = language_dict['Infos']['knots'][lang_index]
         wind_speed_coef = 1/1.852
     CTkLabel(alert_frame_1, text=language_dict['Settings']['notif_card_option_1_label'][lang_index]).pack()
-    value_and_slider_frame = CTkFrame(alert_frame_1, corner_radius=50)
+    value_and_slider_frame = CTkFrame(alert_frame_1, fg_color='transparent', corner_radius=50)
     value_and_slider_frame.pack(padx=10, pady=5)
     slider = CTkSlider(value_and_slider_frame, from_=0, to=50, number_of_steps=30, command=slider_changed)
     slider.pack(padx=5, pady=5, side=RIGHT)
@@ -1640,8 +1673,8 @@ def add_alert_frame(*args):
     value_entry.pack(padx=5, pady=5, side=LEFT)
 
     CTkFrame(frame, fg_color=(DARK_1, LIGHT_1), height=1).pack(padx=30, pady=10, fill='x') #thin line
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_1'][lang_index], width=300, font=H2_FONT, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, corner_radius=10, command=enable_shortcut).pack()
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_2'][lang_index], width=300, font=H2_FONT, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, command=enable_shortcut).pack()
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_1'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, corner_radius=10, command=enable_shortcut).pack()
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_2'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, command=enable_shortcut).pack()
     shortcut_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
     shortcut_frame.pack()
     shortcut_frame_1 = CTkFrame(shortcut_frame, fg_color=(LIGHT_3, DARK_3))
@@ -1650,7 +1683,7 @@ def add_alert_frame(*args):
     entry.bind("<KeyPress>", shortcut_entry_entered)
     entry.pack(padx=10, pady=10)
 
-    test_btn_frame = CTkFrame(frame)
+    test_btn_frame = CTkFrame(frame, fg_color='transparent')
     test_btn_frame.place(rely=0.92, relx=0.5, anchor=CENTER)
     CTkButton(test_btn_frame, text=language_dict['Settings']['notif_card_test_btn'][lang_index], width=60, command=send_alert).pack(side=RIGHT, padx=10, pady=10)
 
@@ -1731,7 +1764,7 @@ def dump_preferences():
         json.dump(preferences, f)
 
 def launch_customtkinter(*args):
-    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, H1_FONT, H2_FONT, P_FONT, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index
+    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index
     station_frame_active = map_active = fav_active = all_station_active = settings_active = False
     wind_sorted_btn_activated = False
     station_id_active = 1
@@ -1764,6 +1797,12 @@ def launch_customtkinter(*args):
         set_location_by_ip()
     LOCATION = preferences['location'][0]
     LOCATION_COORDINATES = (preferences['location'][1], preferences['location'][2])
+
+
+    h1_font = CTkFont('roboto mono', size=30)
+    h2_font = CTkFont('roboto mono', size=24)
+    h2_font = CTkFont('roboto mono', size=22)
+    p_font =  CTkFont('roboto mono', size=12)
 
     left_column_frame = CTkFrame(window, width=150, height=window.winfo_screenheight())
     left_column_frame.pack(side="left", fill="y")

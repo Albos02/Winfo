@@ -2,6 +2,7 @@
     "Stations": {
         "stations": ["Stations", "Stations"],
         "title": ["Stations table", "Tableau des stations"],
+        "csv_date": ["CSV date", "Date du CSV"],
         "favorites_segmented_btn": ["Starred", "Favoris"],
         "all_stations_segmented_btn": ["All the stations", "Toutes les stations"],
         "sorted_box": ["Alphabetical order", "Ordre alphabetique"],
