@@ -42,7 +42,7 @@ def start_importation_toplevel(window):
             return
 
     def import_preferences():
-        global option_list, importation_bool
+        global option_list
         
         choice = option_list.get()
         path = choice.split(" | ")[1]
@@ -57,14 +57,11 @@ def start_importation_toplevel(window):
                 top_level.destroy()
                 main_top_level.destroy()
                 print('importation successful, toplevel destroyed')
-                importation_bool = True
         except Exception as e:
             print(f"Error importing preferences: {e}")
     def cancel_importation():
-        global importation_bool
         top_level.destroy()
         main_top_level.destroy()
-        importation_bool = False
     def show_toplevel():
         global importable_directories, option_list, top_level
         
@@ -99,9 +96,8 @@ def start_importation_toplevel(window):
         CTkButton(buttons_frame, text=language_dict["Preferences_importation"]["cancel_btn"][lang_index], command=cancel_importation).pack(padx=10, side='left')
         CTkButton(buttons_frame, text=language_dict["Preferences_importation"]["import_btn"][lang_index], command=import_preferences).pack(padx=10, side='right')
     def new_preferences():
-        global importation_bool, preferences
+        global preferences
         main_top_level.destroy()
-        importation_bool = False
         preferences = {}
     global main_top_level
     main_top_level = CTkToplevel(window)
@@ -120,4 +116,4 @@ def start_importation_toplevel(window):
     # for window in CTk.CTkTk.winfo_children(CTk.CTkTk()): # Get all children of the root window
     #     if isinstance(window, ctk.CTkToplevel):
     #         window.destroy()
-    return importation_bool, preferences
+    return preferences
