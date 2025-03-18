@@ -1,35 +1,12 @@
-import json, csv, time, pytz, subprocess, platform
+import json, csv, time, pytz, subprocess, platform, os
 if platform.system() == 'windows':
     from windows_toasts import Toast, WindowsToaster, ToastDisplayImage
 from datetime import datetime
 import tzlocal
 from PIL import Image
+from winfo_constants import *
+import winfo_import_json_preferences
 
-
-CURRENT_VERSION = 1.3
-URL_WIND_SPEED = 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-windgeschwindigkeit-kmh-10min/ch.meteoschweiz.messwerte-windgeschwindigkeit-kmh-10min_fr.csv'
-URL_WIND_GUST = 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-wind-boeenspitze-kmh-10min/ch.meteoschweiz.messwerte-wind-boeenspitze-kmh-10min_fr.csv'
-URL_VQHA80 = 'https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/VQHA80.csv'
-SERVER_URL = 'https://louse-proud-raven.ngrok-free.app/'
-URL_HISTORY_MESUREMENT = SERVER_URL + 'data/mesurement_history.csv'
-
-WINDOW_BACKGROUND_LIGHT = '#ebebeb'
-WINDOW_BACKGROUND_DARK = '#242424'
-BUTTON_PRESSED_COLOR = '#144870'
-BUTTON_NOT_PRESSED_COLOR = '#1c72b0'
-BUTTON_HOVER_AND_PRESSED_COLOR = '#203a4f'
-LIGHT_1 = '#666666' #scrollbar
-DARK_1 = '#878787' #scrollbar
-LIGHT_2 = '#C0C0C0' #custom frame
-DARK_2 = '#333333' #custom frame
-LIGHT_3 = '#d9d9d9' #classic frame
-DARK_3 = '#2b2b2b' #classic frame
-LIGHT_34 = '#d7d7d7'
-DARK_34 = '#282828'
-LIGHT_4 = '#ebebeb' #background
-DARK_4 = '#242424' #background
-
-MAP_TILE_SERVER_LIST = ['Swisstopo', 'Swisstopo Satellite', 'Cadastre Maptiler', 'Streets Maptiler', 'OpenStreetMap', 'Google', 'Google Earth']
 latest_date = None
 
 with open('conversion_key_tkinter_to_keyboard.json', 'r') as file:
@@ -40,6 +17,7 @@ def create_errored_file(error):
         f.write('Station/Location;Date;tre200s0;rre150z0;sre000z0;gre000z0;ure200s0;tde200s0;dkl010z0;fu3010z0;fu3010z1;prestas0;pp0qffs0;pp0qnhs0;ppz850s0;ppz700s0;dv1towz0;fu3towz0;fu3towz1;ta1tows0;uretows0;tdetows0\n')
         for station in coord_station_meteosuisse:
             f.write(f'{station[0]};{GMT_datetime};-;-;-;-;-;-;{error};-;-;-;-;-;-;-;-;-;-;-;-;-\n')
+
 def reload_preferences():
     global preferences
     try:
@@ -47,11 +25,19 @@ def reload_preferences():
             preferences = json.load(f)
     except FileNotFoundError:
         print('no preferences have been saved yet')
-        preferences = {}
+        importation, preferences = winfo_import_json_preferences.start_importation_toplevel()
+        if not importation:
+            print('no preferences have been imported')
+            preferences = {}
     except:
         print('error loading preferences')
         preferences = {}
+    try:
+        preferences
+    except:
+        preferences = {}
     return preferences
+
 def get_text_icon_arrow(direction):
     if direction <= 360-22.5 and direction >= 360/8*7-22.5:
         output = '⬊'

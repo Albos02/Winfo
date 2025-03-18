@@ -7,7 +7,7 @@ import geopy.distance
 from math import sqrt
 from datetime import timedelta
 from winfo_import import *
-
+from winfo_constants import *
 
 from PIL import Image
 from PIL import ImageTk
@@ -43,12 +43,12 @@ def new_version_top_level():
     #     pywinstyles.apply_style(toplevel, 'acrylic')
     #     pywinstyles.set_opacity(toplevel, 0.9)
 
-    CTkLabel(toplevel, text=language_dict['New_Version_Available']['label_title'][lang_index], font=h1_font).grid(row=0, column=0, padx=20, pady=(40,20), sticky="ew")
-    CTkLabel(toplevel, text=language_dict['New_Version_Available']['latest_is'][lang_index]+str(LATEST_VERSION), font=h2_font).grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+    CTkLabel(toplevel, text=language_dict['New_Version_Available']['label_title'][lang_index], font=H1_FONT).grid(row=0, column=0, padx=20, pady=(40,20), sticky="ew")
+    CTkLabel(toplevel, text=language_dict['New_Version_Available']['latest_is'][lang_index]+str(LATEST_VERSION), font=H2_FONT).grid(row=1, column=0, padx=20, pady=10, sticky="ew")
 
     if LATEST_VERSION_INFO != '':
-        CTkLabel(toplevel, text=language_dict['New_Version_Available']['updates'][lang_index], font=h2_font).grid(row=2, column=0, padx=20, pady=(20,5), sticky="w")
-        CTkLabel(toplevel, text=LATEST_VERSION_INFO, font=h2_font, justify="left", wraplength=460).grid(row=3, column=0, padx=20, pady=5, sticky="nw")
+        CTkLabel(toplevel, text=language_dict['New_Version_Available']['updates'][lang_index], font=H2_FONT).grid(row=2, column=0, padx=20, pady=(20,5), sticky="w")
+        CTkLabel(toplevel, text=LATEST_VERSION_INFO, font=H2_FONT, justify="left", wraplength=460).grid(row=3, column=0, padx=20, pady=5, sticky="nw")
 
     button_frame = CTkFrame(toplevel, fg_color="transparent")
     button_frame.grid(row=4, column=0, pady=(20,20), sticky="ew")
@@ -90,7 +90,7 @@ def create_shortcut_top_level():
     #     pywinstyles.apply_style(toplevel, 'acrylic')
     #     pywinstyles.set_opacity(toplevel, 0.9)
 
-    CTkLabel(toplevel, font=h1_font, text=language_dict['Infos']['add_desktop_shortcut'][lang_index]).pack(padx=20, pady=20)
+    CTkLabel(toplevel, font=H1_FONT, text=language_dict['Infos']['add_desktop_shortcut'][lang_index]).pack(padx=20, pady=20)
     yes_no_frame = CTkFrame(toplevel, fg_color='transparent')
     yes_no_frame.pack(padx=20, pady=10)
     CTkButton(yes_no_frame, text=language_dict['Infos']['yes'][lang_index], command=create_shortcut_lnk).pack(padx=10, pady=10, side=LEFT)
@@ -403,7 +403,7 @@ def map_frame_setup(pack: bool, displaying_values : bool):
             pywinstyles.set_opacity(map_frame, 1)
         map_options_frame = CTkFrame(map_frame, bg_color='transparent', fg_color='transparent')
         map_options_frame.pack(fill="x", expand=False, padx=10, pady=0)
-        titre_carte = CTkLabel(map_options_frame, text=language_dict['Map']['title'][lang_index], font=h1_font)
+        titre_carte = CTkLabel(map_options_frame, text=language_dict['Map']['title'][lang_index], font=H1_FONT)
         titre_carte.pack(pady=20)
         display_loading(map_frame)
         map_widget = tkintermapview.TkinterMapView(map_frame, width=1000, height=700, corner_radius=20)
@@ -664,7 +664,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
         table_frame.pack(fill='both', expand=True, padx=20, pady=20)
         if os == 'windows':
             pywinstyles.set_opacity(table_frame, 1)
-    CTkLabel(table_frame, text=language_dict['Stations']['title'][lang_index], font=h1_font).pack(pady=20)
+    CTkLabel(table_frame, text=language_dict['Stations']['title'][lang_index], font=H1_FONT).pack(pady=20)
     def setup_table_stations(e):
         global table
         try:
@@ -1089,7 +1089,7 @@ def station_frame_setup(pack: bool, station_id: int):
     if pack:
         station_frame.pack(fill='both', expand=True, padx=20, pady=20)
         station_name = reversed_station_dict[station_id]
-        CTkLabel(station_frame, text=station_name, font=h1_font).pack(pady=20)
+        CTkLabel(station_frame, text=station_name, font=H1_FONT).pack(pady=20)
         if os == 'windows':
             pywinstyles.set_opacity(station_frame, 1)
 
@@ -1136,7 +1136,7 @@ def station_frame_setup(pack: bool, station_id: int):
             rafale = round(info[1]*wind_speed_coef, 1)
         except:
             moyenne, rafale = info[0], info[1]
-        wind_label = CTkLabel(quick_info_frame, text=f"{moyenne} | {rafale} {unit}", font=h2_font)
+        wind_label = CTkLabel(quick_info_frame, text=f"{moyenne} | {rafale} {unit}", font=H2_FONT)
         wind_label.pack(padx=10, side=LEFT)
         if info[2] != 'N/A':
             direction_content = f"{info[2]}°"# + get_text_icon_arrow(info[2])
@@ -1150,7 +1150,7 @@ def station_frame_setup(pack: bool, station_id: int):
         else:
             direction_content = info[2]
             arrow_img = Image.open('images/cross.png')
-        direction_label = CTkLabel(quick_info_frame, text=direction_content, font=h2_font)
+        direction_label = CTkLabel(quick_info_frame, text=direction_content, font=H2_FONT)
         direction_label.pack(padx=10, side=LEFT)
 
 
@@ -1165,8 +1165,8 @@ def station_frame_setup(pack: bool, station_id: int):
         prevision_frame = CTkFrame(station_frame, fg_color='transparent')
         prevision_frame.pack(expand=True, fill="both", padx=20, pady=20)#, side=RIGHT)
 
-        CTkLabel(history_frame, text=language_dict['Station_Frame']['history'][lang_index], font=h2_font).pack(pady=20)
-        CTkLabel(prevision_frame, text=language_dict['Station_Frame']['prevision'][lang_index], font=h2_font).pack(pady=20)
+        CTkLabel(history_frame, text=language_dict['Station_Frame']['history'][lang_index], font=H2_FONT).pack(pady=20)
+        CTkLabel(prevision_frame, text=language_dict['Station_Frame']['prevision'][lang_index], font=H2_FONT).pack(pady=20)
 
         print('\nHistorique :')
         chart_setup(history_frame, station_id, True, unit=unit)
@@ -1205,7 +1205,7 @@ def settings_frame_setup(pack:bool):
         settings_scrollable_frame.pack(fill='both', expand=True, padx=20, pady=20)
         if os == 'windows':
             pywinstyles.set_opacity(settings_scrollable_frame, 1)
-        settings_title = CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['settings'][lang_index], font=h1_font)
+        settings_title = CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['settings'][lang_index], font=H1_FONT)
         settings_title.pack(padx=20, pady=30)
 
         display_loading(settings_scrollable_frame, True)
@@ -1227,7 +1227,7 @@ def settings_frame_setup(pack:bool):
         left_empty_frame = CTkButton(right_plus_frame, text='', image=empty_img, fg_color='transparent', hover=False)
         left_empty_frame.pack(side=LEFT)
 
-        CTkLabel(right_plus_frame, text=language_dict['Settings']['notif_title'][lang_index], font=h2_font).pack(side=LEFT, expand=True, fill='x', padx=20)
+        CTkLabel(right_plus_frame, text=language_dict['Settings']['notif_title'][lang_index], font=H2_FONT).pack(side=LEFT, expand=True, fill='x', padx=20)
 
         plus_image = CTkImage(light_image=Image.open('images/plus.png'), dark_image=Image.open('images/plus.png'), size=(30, 30))
         right_plus_icon_btn = CTkButton(right_plus_frame, text='', image=plus_image, fg_color='transparent', hover=False, command=add_alert_frame)
@@ -1618,7 +1618,7 @@ def add_alert_frame(*args):
     combobox.pack(padx=10, pady=10)
 
     CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=1).pack(padx=30, pady=10, fill='x') #thin line
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_1_title'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover_color=LIGHT_3, hover=False, command=enable_alert).pack()
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_1_title'][lang_index], width=300, font=H2_FONT, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover_color=LIGHT_3, hover=False, command=enable_alert).pack()
     alert_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
     alert_frame.pack()
     alert_frame_1 = CTkFrame(alert_frame, fg_color=(LIGHT_3, DARK_3))
@@ -1640,8 +1640,8 @@ def add_alert_frame(*args):
     value_entry.pack(padx=5, pady=5, side=LEFT)
 
     CTkFrame(frame, fg_color=(DARK_1, LIGHT_1), height=1).pack(padx=30, pady=10, fill='x') #thin line
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_1'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, corner_radius=10, command=enable_shortcut).pack()
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_2'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, command=enable_shortcut).pack()
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_1'][lang_index], width=300, font=H2_FONT, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, corner_radius=10, command=enable_shortcut).pack()
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_2'][lang_index], width=300, font=H2_FONT, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, command=enable_shortcut).pack()
     shortcut_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
     shortcut_frame.pack()
     shortcut_frame_1 = CTkFrame(shortcut_frame, fg_color=(LIGHT_3, DARK_3))
@@ -1731,7 +1731,7 @@ def dump_preferences():
         json.dump(preferences, f)
 
 def launch_customtkinter(*args):
-    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index
+    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, H1_FONT, H2_FONT, P_FONT, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index
     station_frame_active = map_active = fav_active = all_station_active = settings_active = False
     wind_sorted_btn_activated = False
     station_id_active = 1
@@ -1739,7 +1739,6 @@ def launch_customtkinter(*args):
     start_shortcut_top_level = False
     if preferences == []:
         start_shortcut_top_level = True
-    dump_preferences()
     last_frames_closed = []
     last_frames_closed_txt = []
     retrieve_frame_index = 0
@@ -1765,12 +1764,6 @@ def launch_customtkinter(*args):
         set_location_by_ip()
     LOCATION = preferences['location'][0]
     LOCATION_COORDINATES = (preferences['location'][1], preferences['location'][2])
-
-
-    h1_font = CTkFont('roboto mono', size=30)
-    h2_font = CTkFont('roboto mono', size=24)
-    h2_font = CTkFont('roboto mono', size=22)
-    p_font =  CTkFont('roboto mono', size=12)
 
     left_column_frame = CTkFrame(window, width=150, height=window.winfo_screenheight())
     left_column_frame.pack(side="left", fill="y")
