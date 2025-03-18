@@ -26,10 +26,6 @@ def reload_preferences():
         first_boot = False
     except FileNotFoundError:
         print('no preferences have been saved yet')
-        importation, preferences = winfo_import_json_preferences.start_importation_toplevel()
-        if not importation:
-            print('no preferences have been imported')
-            preferences = {}
         first_boot = True
     except:
         print('error loading preferences')

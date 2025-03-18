@@ -14,7 +14,7 @@ importable_directories = []
 option_list = None
 top_level = None
 
-def start_importation_toplevel():
+def start_importation_toplevel(window):
     def find_sibling_app_version():
         parent_dir = os.path.dirname(os.getcwd())
         for sibling in os.listdir(parent_dir):
@@ -94,17 +94,26 @@ def start_importation_toplevel():
         buttons_frame.pack(pady=10)
         CTkButton(buttons_frame, text='Cancel', command=cancel_importation).pack(padx=10, side='left')
         CTkButton(buttons_frame, text='Import', command=import_preferences).pack(padx=10, side='right')
-
+    def new_preferences():
+        global importation_bool, preferences
+        main_top_level.destroy()
+        importation_bool = False
+        preferences = {}
     global main_top_level
-    main_top_level = CTkToplevel()
+    main_top_level = CTkToplevel(window)
     main_top_level.title("Winfo Preferences")
     
     start_frame = CTkFrame(main_top_level, fg_color='transparent')
     start_frame.pack(pady=20)
     CTkButton(start_frame, text='Import Preferences', width=15, command=show_toplevel).pack(padx=10, side='left')
-    CTkButton(start_frame, text='Start from new', width=15).pack(padx=10, side='right')
+    CTkButton(start_frame, text='Start from new', width=15, command=new_preferences).pack(padx=10, side='right')
     
     # main_top_level.mainloop()
     main_top_level.wait_window()
     print('exiting importation_toplevel')
+
+    main_top_level.destroy()
+    # for window in CTk.CTkTk.winfo_children(CTk.CTkTk()): # Get all children of the root window
+    #     if isinstance(window, ctk.CTkToplevel):
+    #         window.destroy()
     return importation_bool, preferences

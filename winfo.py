@@ -1847,6 +1847,7 @@ def launch_customtkinter(*args):
     get_csv()
     button1_pressed()
     if first_boot:
+        preferences = winfo_import_json_preferences.start_importation_toplevel(window)
         create_shortcut_top_level()
     if start_version_top_level:
         new_version_top_level()
