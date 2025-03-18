@@ -72,6 +72,16 @@
         "download_btn": ["Download", "Télécharger"],
         "dont_show_again_btn": ["Don't show again", "Ne plus afficher"]
     },
+    "Preferences_importation": {
+        "window_title": ["Import Preferences", "Importer les préférences"],
+        "label_title": ["Choose a Winfo app folder to import your preferences:", "Choisissez un dossier d'application Winfo pour importer vos préférences"],
+        "select_folder": ["Select Folder", "Sélectionner un dossier"],
+        "selected_folder": ["Selected Folder", "Dossier sélectionné"],
+        "import_from_version": ["Import across versions", "Importer d'une autre version"],
+        "new_preferences_btn": ["Start Fresh", "Commencer sans préférences"],
+        "import_btn": ["Import", "Importer"],
+        "cancel_btn": ["Cancel", "Annuler"]
+    },
     "Infos": {
         "kph": ["kph", "km/h"],
         "knots": ["knots", "noeuds"],

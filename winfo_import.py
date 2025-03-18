@@ -5,7 +5,6 @@ from datetime import datetime
 import tzlocal
 from PIL import Image
 from winfo_constants import *
-import winfo_import_json_preferences
 
 latest_date = None
 

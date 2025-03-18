@@ -8,6 +8,7 @@ from math import sqrt
 from datetime import timedelta
 from winfo_import import *
 from winfo_constants import *
+import winfo_import_json_preferences
 
 from PIL import Image
 from PIL import ImageTk

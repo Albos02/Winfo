@@ -4,6 +4,8 @@ from customtkinter import CTk, CTkToplevel, CTkButton, CTkFrame, CTkLabel, CTkOp
 from tkinter import filedialog
 from PIL import Image
 from winfo_constants import *
+from winfo_import import language_dict, lang_index
+
 def dump_preferences():
     global preferences
     with open('preferences.json', 'w') as f:
@@ -29,14 +31,14 @@ def start_importation_toplevel(window):
     def run_dialog():
         global importable_directories, option_list
         
-        folder = filedialog.askdirectory(title="Select Folder to Search")
+        folder = filedialog.askdirectory(title=language_dict["Preferences_importation"]["select_folder"][lang_index])
         if not folder:
             return
             
         if 'preferences.json' in os.listdir(folder):
-            importable_directories.append(f"Selected Folder | {folder}")
+            importable_directories.append(f"{language_dict["Preferences_importation"]["selected_folder"][lang_index]} | {folder}")
             option_list.configure(values=importable_directories)
-            option_list.set(f"Selected Folder | {folder}")
+            option_list.set(f"{language_dict["Preferences_importation"]["selected_folder"][lang_index]} | {folder}")
             return
 
     def import_preferences():
@@ -66,17 +68,19 @@ def start_importation_toplevel(window):
     def show_toplevel():
         global importable_directories, option_list, top_level
         
-        if hasattr(main_top_level, 'toplevels') and any(toplevel.title() == "Import Preferences" for toplevel in main_top_level.toplevels):
+        if hasattr(main_top_level, 'toplevels') and any(toplevel.title() == language_dict["Preferences_importation"]["window_title"][lang_index] for toplevel in main_top_level.toplevels):
             return
 
         importable_directories = []
         find_sibling_app_version()
-        
+        # print(language_dict["Preferences_importation"]["window_title"][lang_index])
+        print(language_dict["Preferences_importation"]["window_title"][lang_index])
+
         top_level = CTkToplevel(main_top_level)
-        top_level.title("Import Preferences")
+        top_level.title(language_dict["Preferences_importation"]["window_title"][lang_index])
         top_level.grab_set()
         
-        CTkLabel(top_level, text="Choose a Winfo app folder to import your preferences:", font=H3_FONT).pack(pady=10)
+        CTkLabel(top_level, text=language_dict["Preferences_importation"]["label_title"][lang_index], font=H3_FONT).pack(pady=10)
 
         select_frame = CTkFrame(top_level, fg_color='transparent')
         select_frame.pack(pady=10, padx=10)
@@ -92,8 +96,8 @@ def start_importation_toplevel(window):
 
         buttons_frame = CTkFrame(top_level, fg_color='transparent')
         buttons_frame.pack(pady=10)
-        CTkButton(buttons_frame, text='Cancel', command=cancel_importation).pack(padx=10, side='left')
-        CTkButton(buttons_frame, text='Import', command=import_preferences).pack(padx=10, side='right')
+        CTkButton(buttons_frame, text=language_dict["Preferences_importation"]["cancel_btn"][lang_index], command=cancel_importation).pack(padx=10, side='left')
+        CTkButton(buttons_frame, text=language_dict["Preferences_importation"]["import_btn"][lang_index], command=import_preferences).pack(padx=10, side='right')
     def new_preferences():
         global importation_bool, preferences
         main_top_level.destroy()
@@ -101,12 +105,12 @@ def start_importation_toplevel(window):
         preferences = {}
     global main_top_level
     main_top_level = CTkToplevel(window)
-    main_top_level.title("Winfo Preferences")
+    main_top_level.title(language_dict["Preferences_importation"]["window_title"][lang_index])
     
     start_frame = CTkFrame(main_top_level, fg_color='transparent')
     start_frame.pack(pady=20)
-    CTkButton(start_frame, text='Import Preferences', width=15, command=show_toplevel).pack(padx=10, side='left')
-    CTkButton(start_frame, text='Start from new', width=15, command=new_preferences).pack(padx=10, side='right')
+    CTkButton(start_frame, text=language_dict["Preferences_importation"]["import_from_version"][lang_index], width=15, command=show_toplevel).pack(padx=10, side='left')
+    CTkButton(start_frame, text=language_dict["Preferences_importation"]["new_preferences_btn"][lang_index], width=15, command=new_preferences).pack(padx=10, side='right')
     
     # main_top_level.mainloop()
     main_top_level.wait_window()
