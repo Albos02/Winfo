@@ -1771,9 +1771,6 @@ def launch_customtkinter(*args):
     wind_sorted_btn_activated = False
     station_id_active = 1
     reload_preferences()
-    start_shortcut_top_level = False
-    if preferences == []:
-        start_shortcut_top_level = True
     last_frames_closed = []
     last_frames_closed_txt = []
     retrieve_frame_index = 0
@@ -1849,7 +1846,7 @@ def launch_customtkinter(*args):
             start_version_top_level = True
     get_csv()
     button1_pressed()
-    if start_shortcut_top_level:
+    if first_boot:
         create_shortcut_top_level()
     if start_version_top_level:
         new_version_top_level()

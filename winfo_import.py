@@ -19,19 +19,22 @@ def create_errored_file(error):
             f.write(f'{station[0]};{GMT_datetime};-;-;-;-;-;-;{error};-;-;-;-;-;-;-;-;-;-;-;-;-\n')
 
 def reload_preferences():
-    global preferences
+    global preferences, first_boot
     try:
         with open('preferences.json', 'r') as f:
             preferences = json.load(f)
+        first_boot = False
     except FileNotFoundError:
         print('no preferences have been saved yet')
         importation, preferences = winfo_import_json_preferences.start_importation_toplevel()
         if not importation:
             print('no preferences have been imported')
             preferences = {}
+        first_boot = True
     except:
         print('error loading preferences')
         preferences = {}
+        first_boot = True
     try:
         preferences
     except:
