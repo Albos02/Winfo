@@ -19,17 +19,18 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import subprocess
 import platform
+import os
 
 if platform.system().lower() == 'windows':
-    os = 'windows'
+    OS = 'windows'
     from win32com.client import Dispatch
     from windows_toasts import Toast, InteractableWindowsToaster, WindowsToaster, ToastDisplayImage, ToastActivatedEventArgs, ToastImagePosition
 
     import pywinstyles # CTkwindow with style acrylic
 elif platform.system().lower() == 'linux':
-    os = 'linux'
+    OS = 'linux'
 elif platform.system().lower() == 'darwin':
-    os = 'macos'
+    OS = 'macos'
 def new_version_top_level():
     def top_level_focus():
             toplevel.focus_set()
