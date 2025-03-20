@@ -1116,7 +1116,11 @@ def station_frame_setup(pack: bool, station_id: int):
         station_frame.pack(fill='both', expand=True, padx=20, pady=20)
         star_frame = CTkFrame(station_frame)
         star_frame.pack(fill=X)
-
+        
+        try: 
+            preferences['favorites']
+        except:
+            preferences['favorites'] = []
         if station_id in preferences['favorites']:
             star_img = star_dark_full_img
         else:
