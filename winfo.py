@@ -1133,7 +1133,7 @@ def station_frame_setup(pack: bool, station_id: int):
         button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
 
         reload_preferences()
-        if preferences['wind_speed_unit'] == language_dict['Infos']['kph'][lang_index]:
+        if preferences['wind_speed_unit'] == 'kph':
             wind_speed_coef = 1
             unit = language_dict['Infos']['kph'][lang_index]
         else:
@@ -1369,7 +1369,7 @@ def settings_frame_setup(pack:bool):
         wind_speed_unit = CTkOptionMenu(wind_speed_unit_frame, values=[language_dict['Infos']['kph'][lang_index], language_dict['Infos']['knots'][lang_index]], command=change_wind_speed_unit)
         try:
             global wind_speed_coef
-            if preferences['wind_speed_unit'] == language_dict['Infos']['kph'][lang_index]:
+            if preferences['wind_speed_unit'] == 'kph':
                 wind_speed_coef = 1
                 wind_speed_unit.set(language_dict['Infos']['kph'][lang_index])
             else:
@@ -1657,7 +1657,7 @@ def add_alert_frame(*args):
     alert_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
     alert_frame.pack()
     alert_frame_1 = CTkFrame(alert_frame, fg_color=(LIGHT_3, DARK_3))
-    if preferences['wind_speed_unit'] == language_dict['Infos']['kph'][lang_index]:
+    if preferences['wind_speed_unit'] == 'kph':
         unit = language_dict['Infos']['kph'][lang_index]
         wind_speed_coef = 1
     else:
@@ -1850,7 +1850,6 @@ def launch_customtkinter(*args):
     button1_pressed()
     if first_boot:
         preferences = winfo_import_json_preferences.start_importation_toplevel(window)
-        print('preferences', preferences, type(preferences))
         create_shortcut_top_level()
     if start_version_top_level:
         new_version_top_level()
