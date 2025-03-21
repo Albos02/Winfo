@@ -4,7 +4,7 @@ from customtkinter import CTk, CTkToplevel, CTkButton, CTkFrame, CTkLabel, CTkOp
 from tkinter import filedialog
 from PIL import Image
 from winfo_constants import *
-from winfo_import import language_dict, lang_index
+from winfo_import import *
 
 def dump_preferences():
     global preferences
@@ -36,9 +36,9 @@ def start_importation_toplevel(window):
             return
             
         if 'preferences.json' in os.listdir(folder):
-            importable_directories.append(f"{language_dict["Preferences_importation"]["selected_folder"][lang_index]} | {folder}")
+            importable_directories.append(f"{language_dict['Preferences_importation']['selected_folder'][lang_index]} | {folder}")
             option_list.configure(values=importable_directories)
-            option_list.set(f"{language_dict["Preferences_importation"]["selected_folder"][lang_index]} | {folder}")
+            option_list.set(f"{language_dict['Preferences_importation']['selected_folder'][lang_index]} | {folder}")
             return
 
     def import_preferences():
