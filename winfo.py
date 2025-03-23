@@ -143,6 +143,7 @@ def get_csv():
 
 def update_all_values():
     print('updating values... new ones are here !!!')
+    frame_navigator.__init__() # reset everything so that it will update the values (not load back unupdated frames)
     if map_active:
         map_frame_setup(True, displaying_values=True)
         return
@@ -161,126 +162,132 @@ def update_all_values():
     else:
         print('no page displayed yet')
 
-def forget_active_frame(save_in_last_frames: bool=True):
-    global station_frame_active, map_active, fav_active, all_station_active, settings_active, last_frames_closed, last_frames_closed_txt, retrieve_frame_index
-    print('STARTING TO FORGET A FRAME')
-    print(f'{save_in_last_frames = }, {last_frames_closed_txt = }, {retrieve_frame_index = }')
 
-    # If user went back then clicks remove following frames (like create new thread and del old one)
-    if save_in_last_frames and retrieve_frame_index > 0:
-        last_frames_closed = last_frames_closed[:-retrieve_frame_index]
-        last_frames_closed_txt = last_frames_closed_txt[:-retrieve_frame_index]
-        retrieve_frame_index = 0
-    
-    if station_frame_active:
-        station_frame.pack_forget()
-        station_frame_active = False
-        if save_in_last_frames:
-            if 'station_frame' in last_frames_closed_txt:
-                index = last_frames_closed_txt.index('station_frame')
-                last_frames_closed = last_frames_closed[index+1:]
-                last_frames_closed_txt = last_frames_closed_txt[index+1:]
-            last_frames_closed.append(station_frame)
-            last_frames_closed_txt.append('station_frame')
-    elif map_active:
-        map_frame.pack_forget()
-        map_active = False
-        if save_in_last_frames:
-            if 'map_frame' in last_frames_closed_txt:
-                index = last_frames_closed_txt.index('map_frame')
-                last_frames_closed = last_frames_closed[index+1:]
-                last_frames_closed_txt = last_frames_closed_txt[index+1:]
-            last_frames_closed.append(map_frame)
-            last_frames_closed_txt.append('map_frame')
-    elif fav_active:
-        table_frame.pack_forget()
-        fav_active = False
-        if save_in_last_frames:
-            if 'table_frame fav' in last_frames_closed_txt:
-                index = last_frames_closed_txt.index('table_frame fav')
-                last_frames_closed = last_frames_closed[index+1:]
-                last_frames_closed_txt = last_frames_closed_txt[index+1:]
-            last_frames_closed.append(table_frame)
-            last_frames_closed_txt.append('table_frame fav')
-    elif all_station_active:
-        table_frame.pack_forget()
-        all_station_active = False
-        if save_in_last_frames:
-            if 'table_frame all' in last_frames_closed_txt:
-                index = last_frames_closed_txt.index('table_frame all')
-                last_frames_closed = last_frames_closed[index+1:]
-                last_frames_closed_txt = last_frames_closed_txt[index+1:]
-            last_frames_closed.append(table_frame)
-            last_frames_closed_txt.append('table_frame all')
-    elif settings_active:
-        settings_scrollable_frame.pack_forget()
-        settings_active = False
-        if save_in_last_frames:
-            if 'settings_scrollable_frame' in last_frames_closed_txt:
-                index = last_frames_closed_txt.index('settings_scrollable_frame')
-                last_frames_closed = last_frames_closed[index+1:]
-                last_frames_closed_txt = last_frames_closed_txt[index+1:]
-            last_frames_closed.append(settings_scrollable_frame)
-            last_frames_closed_txt.append('settings_scrollable_frame')
-    else:
-        print('no page displayed yet => no frame to pack_forget')
-    print('done removing frame \n = ', last_frames_closed_txt, retrieve_frame_index)
-def pack_new_active_frame(index):
-    global station_frame_active, map_active, fav_active, all_station_active, settings_active
-    station_frame_active = map_active = fav_active = all_station_active = settings_active = False
-    
-    frame = last_frames_closed[-index]
-    frame_type = last_frames_closed_txt[-index]
-    
-    if 'station_frame' in frame_type:
-        station_frame_active = True
-    elif 'map_frame' in frame_type:
-        map_active = True  
-    elif 'table_frame fav' in frame_type:
-        fav_active = True
-    elif 'table_frame all' in frame_type:
-        all_station_active = True
-    elif 'settings_scrollable_frame' in frame_type:
-        settings_active = True
+class FrameNavigator():
+    """manages frames to move forward/backward in history and load frames instantly by storing them"""
+    def __init__(self):
+        # super(FrameNavigator, self).__init__()
+        self.frame_history = []
+        self.frame_names = []
+        self.reset()
+    def reset(self):
+        print('reseting ')
+        self.current_index = None
+
+        self.active_frame = None
+        self.active_frame_name = None
+    def get_active_frame_name(self, frame):
+        if station_frame_active:
+            self.active_frame_name = 'station_frame'
+            self.active_frame = station_frame
+        elif map_active:
+            self.active_frame_name = 'map'
+            self.active_frame = map_frame
+        elif fav_active:
+            self.active_frame_name = 'fav_station'
+            self.active_frame = table_frame
+        elif all_station_active:
+            self.active_frame_name = 'all_station'
+            self.active_frame = table_frame
+        elif settings_active:
+            self.active_frame_name = 'settings'
+            self.active_frame = settings_scrollable_frame
+        else:
+            print('error : no active frame')
+
+    def set_new_active_frame(self, frame_name):
+        global station_frame_active, map_active, fav_active, all_station_active, settings_active
+        station_frame_active, map_active, fav_active, all_station_active, settings_active = False, False, False, False, False
+        if frame_name == 'station_frame':
+            station_frame_active = True
+        elif frame_name == 'map':   
+            map_active = True
+        elif frame_name == 'fav_station':
+            fav_active = True
+        elif frame_name == 'all_station':
+            all_station_active = True
+        elif frame_name == 'settings':
+            settings_active = True
+        else:
+            print('error : frame_name not valid')
+        # return station_frame_active, map_active, fav_active, all_station_active, settings_active
+    def store_frame(self, frame, frame_name):
+        self.frame_history.append(frame)
+        self.frame_names.append(frame_name)
+
+    def forget_active_frame(self, *frame, store: bool=True):
+        if self.current_index is not None and store is True:
+            # print('reseting current_index is', self.current_index, 'and frame_names is', self.frame_names, 'and store is ', store)
+            self.reset()   
+        # print(frame)
+        # if frame == not '()':
+        #     self.active_frame = frame
+        self.get_active_frame_name(frame)
+        if self.active_frame is None: #if Winfo is starting up
+            return
+        if store:
+            self.store_frame(self.active_frame, self.active_frame_name)
+
+        if self.active_frame is not None:
+            self.active_frame.pack_forget()
+        # print('forgot frame : ', self.active_frame_name, '\n ----> frame_names is now : ', self.frame_names)
+
+    def pack_frame(self):
+        if len(self.frame_history) > 0:
+            # print('packing frame', self.frame_history[self.current_index])
+            self.get_active_frame_name(self.frame_history[self.current_index])
+
+            self.set_new_active_frame(self.frame_names[self.current_index])
+            frame_to_pack = self.frame_history[self.current_index]
+            print('frame_to_pack : ', frame_to_pack)
+            if frame_to_pack is not None:
+                frame_to_pack.pack(expand=True, fill=BOTH)
+        else:
+            print('error : history is empty')
+
+    def go_back(self, *e):
+        print('go_back called')
+        print(self.current_index, self.frame_names)
+        # print(len(self.frame_history) >= abs(self.current_index), len(self.frame_history), (self.current_index))
+        if self.current_index is None:
+            print('going back for the first time')
+            self.forget_active_frame(store=True)
+            self.current_index = -2 #(# index set after forget_active_frame because frame was stored and index was set to None)
+        elif len(self.frame_history) > abs(self.current_index):
+            print(len(self.frame_history), abs(self.current_index))
+            print('going back once more')
+            self.forget_active_frame(store=False)
+            self.current_index -= 1
+        else:
+            print('cant go back more')
+        print(self.current_index)
+        print(self.frame_names)
+        # print(self.frame_history)
+        # if self.current_index is not None and 
+        self.pack_frame()
+    def go_forward(self, *e):
+        print('go_forward called')
+        print(self.current_index, self.frame_names)
+        if self.current_index is None:
+            print('cant go forward anymore')
+            return
+        if abs(self.current_index) == 1:
+            print('cant go forward anymore')
+            self.current_index = None
+            return
+
+        print('going forward once more')
+        self.forget_active_frame(store=False)
+        self.current_index += 1
+
+        print(self.current_index)
+        print(self.frame_names)
+        print(self.frame_history)
+        self.pack_frame()
 
 
-    frame.pack(fill='both', expand=True, padx=20, pady=10)
-def retrieve_former_frame(*args):
-    global retrieve_frame_index      
-
-    if retrieve_frame_index == 0:
-        forget_active_frame()
-        retrieve_frame_index = 2
-    elif retrieve_frame_index < len(last_frames_closed):
-        forget_active_frame(False)
-        retrieve_frame_index += 1
-    elif retrieve_frame_index == len(last_frames_closed):
-        print('retrieved as many frames as possible')
-    else:
-        print('no more frames to retrieve')
-    
-    print('gonna retrieve former frame \n = ', last_frames_closed_txt, retrieve_frame_index)
-
-    pack_new_active_frame(retrieve_frame_index)
-def retrieve_following_frame(*args):
-    global retrieve_frame_index      
-    if retrieve_frame_index == len(last_frames_closed):
-        forget_active_frame(False)
-        retrieve_frame_index = len(last_frames_closed) - 1
-    elif retrieve_frame_index < len(last_frames_closed):
-        forget_active_frame(False)
-        retrieve_frame_index -= 1
-    # elif retrieve_frame_index == len(last_frames_closed):
-    #     print('retrieved as many frames as possible')
-    else:
-        print('no more frames to retrieve going forward')
-
-    print('gonna retrieve following frame \n = ', last_frames_closed_txt, retrieve_frame_index)
 
 
-    # frame_to_pack.pack(fill='both', expand=True, padx=20, pady=10)
-    
-    pack_new_active_frame(retrieve_frame_index)
 
 def change_theme(theme):
     print('theme is ' + theme)
@@ -393,7 +400,7 @@ def map_frame_setup(pack: bool, displaying_values : bool):
     # try:
     #     station_frame.pack_forget()
     # except: pass
-    forget_active_frame(True)
+    frame_navigator.forget_active_frame()
     map_frame = CTkFrame(window)
     def display_values():
         map_frame_setup(pack=True, displaying_values=display_values_switch.get())
@@ -610,7 +617,7 @@ def change_fav_or_all_from_segbtn(value):
     global search_input
     search_input = ''
     print(value)
-    forget_active_frame()
+    frame_navigator.forget_active_frame()
     # table_frame.pack_forget()
     if value == language_dict['Stations']['favorites_segmented_btn'][lang_index]:
         table_frame_setup(pack=True, fav_bool=True, wind_sorted=wind_sorted_btn_activated)
@@ -664,7 +671,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     # try:
     #     station_frame.pack_forget()
     # except: pass
-    forget_active_frame()
+    frame_navigator.forget_active_frame()
     table_frame = CTkFrame(window)
     if not pack:
         return
@@ -1109,7 +1116,7 @@ def station_frame_setup(pack: bool, station_id: int):
     # try:
     #     settings_scrollable_frame.pack_forget()
     # except: pass
-    forget_active_frame()
+    frame_navigator.forget_active_frame()
     station_frame = CTkScrollableFrame(window)
 
     if pack:
@@ -1237,7 +1244,7 @@ def settings_frame_setup(pack:bool):
     # try:
     #     station_frame.pack_forget()
     # except: pass
-    forget_active_frame()
+    frame_navigator.forget_active_frame()
     settings_scrollable_frame = CTkScrollableFrame(window)
     if pack:
         alert_frame_dict = {}
@@ -1772,7 +1779,7 @@ def dump_preferences():
         json.dump(preferences, f)
 
 def launch_customtkinter(*args):
-    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index, star_dark_full_img, star_dark_empty_img, star_light_full_img, star_light_empty_img
+    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index, star_dark_full_img, star_dark_empty_img, star_light_full_img, star_light_empty_img, frame_navigator
     station_frame_active = map_active = fav_active = all_station_active = settings_active = False
     wind_sorted_btn_activated = False
     station_id_active = 1
@@ -1780,8 +1787,10 @@ def launch_customtkinter(*args):
     last_frames_closed = []
     last_frames_closed_txt = []
     retrieve_frame_index = 0
-    window.bind('<Alt-Left>', retrieve_former_frame)
-    window.bind('<Alt-Right>', retrieve_following_frame)
+
+    frame_navigator = FrameNavigator()
+    window.bind('<Alt-Left>', frame_navigator.go_back)
+    window.bind('<Alt-Right>', frame_navigator.go_forward)
     def set_location_by_ip():
         try:
             ip_location = geocoder.ip('me')
