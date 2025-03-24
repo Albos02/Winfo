@@ -143,7 +143,6 @@ def get_csv():
 
 def update_all_values():
     print('updating values... new ones are here !!!')
-    frame_navigator.__init__() # reset everything so that it will update the values (not load back unupdated frames)
     if map_active:
         map_frame_setup(True, displaying_values=True)
         return
@@ -162,16 +161,15 @@ def update_all_values():
     else:
         print('no page displayed yet')
 
+    frame_navigator.__init__() # reset everything so that it will update the values (not load back unupdated frames)
 
 class FrameNavigator():
     """manages frames to move forward/backward in history and load frames instantly by storing them"""
     def __init__(self):
-        # super(FrameNavigator, self).__init__()
         self.frame_history = []
         self.frame_names = []
         self.reset()
     def reset(self):
-        print('reseting ')
         self.current_index = None
 
         self.active_frame = None
@@ -210,18 +208,14 @@ class FrameNavigator():
             settings_active = True
         else:
             print('error : frame_name not valid')
-        # return station_frame_active, map_active, fav_active, all_station_active, settings_active
     def store_frame(self, frame, frame_name):
         self.frame_history.append(frame)
         self.frame_names.append(frame_name)
 
     def forget_active_frame(self, *frame, store: bool=True):
         if self.current_index is not None and store is True:
-            # print('reseting current_index is', self.current_index, 'and frame_names is', self.frame_names, 'and store is ', store)
             self.reset()   
-        # print(frame)
-        # if frame == not '()':
-        #     self.active_frame = frame
+
         self.get_active_frame_name(frame)
         if self.active_frame is None: #if Winfo is starting up
             return
@@ -230,16 +224,12 @@ class FrameNavigator():
 
         if self.active_frame is not None:
             self.active_frame.pack_forget()
-        # print('forgot frame : ', self.active_frame_name, '\n ----> frame_names is now : ', self.frame_names)
 
     def pack_frame(self):
         if len(self.frame_history) > 0:
-            # print('packing frame', self.frame_history[self.current_index])
             self.get_active_frame_name(self.frame_history[self.current_index])
-
             self.set_new_active_frame(self.frame_names[self.current_index])
             frame_to_pack = self.frame_history[self.current_index]
-            print('frame_to_pack : ', frame_to_pack)
             if frame_to_pack is not None:
                 frame_to_pack.pack(expand=True, fill=BOTH)
         else:
@@ -247,42 +237,31 @@ class FrameNavigator():
 
     def go_back(self, *e):
         print('go_back called')
-        print(self.current_index, self.frame_names)
-        # print(len(self.frame_history) >= abs(self.current_index), len(self.frame_history), (self.current_index))
         if self.current_index is None:
             print('going back for the first time')
             self.forget_active_frame(store=True)
             self.current_index = -2 #(# index set after forget_active_frame because frame was stored and index was set to None)
         elif len(self.frame_history) > abs(self.current_index):
-            print(len(self.frame_history), abs(self.current_index))
             print('going back once more')
             self.forget_active_frame(store=False)
             self.current_index -= 1
         else:
             print('cant go back more')
-        print(self.current_index)
-        print(self.frame_names)
-        # print(self.frame_history)
-        # if self.current_index is not None and 
+
         self.pack_frame()
     def go_forward(self, *e):
         print('go_forward called')
-        print(self.current_index, self.frame_names)
         if self.current_index is None:
             print('cant go forward anymore')
             return
         if abs(self.current_index) == 1:
             print('cant go forward anymore')
-            self.current_index = None
             return
 
         print('going forward once more')
         self.forget_active_frame(store=False)
         self.current_index += 1
 
-        print(self.current_index)
-        print(self.frame_names)
-        print(self.frame_history)
         self.pack_frame()
 
 
