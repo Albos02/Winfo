@@ -804,7 +804,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
         all_station_active = True
     station_frame_active, map_active, settings_active = False, False, False
 def get_active_wind(station_id: int):
-    abr = coord_station_meteosuisse[station_i][0]
+    abr = coord_station_meteosuisse[station_id][0]
     with open('VQHA80.csv', 'r') as fichier_csv:
         reader = csv.DictReader(fichier_csv, delimiter=';')
         for row in reader:
