@@ -4,7 +4,7 @@ import tkintermapview
 import requests, urllib.request, csv, json, webbrowser
 import geocoder
 import geopy.distance
-from math import sqrt
+from math import log, sqrt
 from datetime import timedelta
 from winfo_import import *
 from winfo_constants import *
@@ -32,9 +32,10 @@ elif platform.system().lower() == 'linux':
 elif platform.system().lower() == 'darwin':
     OS = 'macos'
 def new_version_top_level():
+    logger.info('new_version_top_level() called')
     def top_level_focus():
-            toplevel.focus_set()
-            toplevel.after(10000, top_level_focus)
+        toplevel.focus_set()
+        toplevel.after(10000, top_level_focus)
     global toplevel
     toplevel = CTkToplevel(window)
     toplevel.title(language_dict['New_Version_Available']['window_title'][lang_index])
@@ -62,18 +63,22 @@ def new_version_top_level():
     toplevel.after('idle', top_level_focus)
 
 def open_new_version():
+    logger.info('open_new_version() called')
     webbrowser.open("https://louse-proud-raven.ngrok-free.app/versions/")
     toplevel.destroy()
 def ne_plus_afficher():
+    logger.info('ne_plus_afficher() called')
     toplevel.destroy()
     reload_preferences()
     preferences['not_show_update'] = True
     dump_preferences()
 def create_shortcut_top_level():
+    logger.info('create_shortcut_top_level() called')
     def top_level_focus():
         toplevel.focus_set()
         toplevel.after(10000, top_level_focus)
     def create_shortcut_lnk():
+        logger.info('create_shortcut_lnk() called')
         current_dir = os.getcwd()
         target_path = os.path.join(current_dir, 'winfo.py')
 
@@ -86,6 +91,7 @@ def create_shortcut_top_level():
         shortcut.WorkingDirectory = current_dir
         shortcut.save()
         toplevel.destroy()
+        logger.info('create_shortcut_lnk() finished')
 
     toplevel = CTkToplevel(window)
     # if os == 'windows': # pywinstyles doesn't work well with toplevel
@@ -100,8 +106,7 @@ def create_shortcut_top_level():
 
     toplevel.after('idle', top_level_focus)
 def button1_pressed():
-    # map_frame.pack_forget()
-    # settings_scrollable_frame.pack_forget()
+    logger.info('button1_pressed() called')
     button1.configure(fg_color=BUTTON_PRESSED_COLOR)
     button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
@@ -113,21 +118,20 @@ def button1_pressed():
     else: table_frame_setup(pack=True, fav_bool=False, wind_sorted=False)
 
 def button2_pressed():
-    # table_frame.pack_forget()
-    # settings_scrollable_frame.pack_forget()
+    logger.info('button2_pressed() called')
     button2.configure(fg_color=BUTTON_PRESSED_COLOR)
     button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     map_frame_setup(pack=True, displaying_values=True)
 
 def button3_pressed():
-    # table_frame.pack_forget()
-    # map_frame.pack_forget()
+    logger.info('button3_pressed() called')
     button3.configure(fg_color=BUTTON_PRESSED_COLOR)
     button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     settings_frame_setup(pack=True)
 def get_csv():
+    logger.info('get_csv() called')
     global latest_date
     try:
         urllib.request.urlretrieve(URL_VQHA80, "VQHA80.csv")
@@ -138,30 +142,88 @@ def get_csv():
                 update_all_values()
                 latest_date = date
     except Exception as error:
+        logger.error(f'get_csv() failed: {error}')
+        logger.info('creating errored file')
         create_errored_file(error)
     window.after(10000, get_csv)
 
+
 def update_all_values():
-    print('updating values... new ones are here !!!')
+    logger.info('updating values... new ones are here !!!')
     if map_active:
         map_frame_setup(True, displaying_values=True)
+        logger.info("updating values..  in map_frame")
         return
     elif fav_active:
         table_frame_setup(pack=True, fav_bool=True, wind_sorted=wind_sorted_btn_activated)
+        logger.info("updating values..  in favorites_frame")
         return
     elif all_station_active:
         table_frame_setup(pack=True, fav_bool=False, wind_sorted=wind_sorted_btn_activated)
+        logger.info("updating values..  in all_station_frame")
         return
     elif settings_active:
-        print("updating values.. but in settings so idk what to do...")
+        logger.info("updating values..  in settings so idk what to do...")
         return
     elif station_frame_active:
+        logger.info("updating values..  in station_frame")
         station_frame_setup(pack=True, station_id=station_id_active)
         return
     else:
-        print('no page displayed yet')
+        logger.info('updating values.. no page displayed yet')
 
     frame_navigator.__init__() # reset everything so that it will update the values (not load back unupdated frames)
+
+class Logger:
+    def __init__(self):
+        self.log_dir = 'logs'
+
+        self.filename = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".log"
+        self.path = os.path.join(self.log_dir, self.filename)
+
+        os.makedirs(self.log_dir, exist_ok=True)
+    
+    def format(self, level, message):
+        """
+        Format the log message
+        
+        :param level: Log level (e.g., 'INFO', 'ERROR')
+        :param message: Log message
+        :return: Formatted log string
+        """
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return f"{timestamp} - {level} - {message}"
+    
+    def write_to_log_file(self, level, message):
+        """
+        Write a formatted log message to the file
+        
+        :param level: Log level
+        :param message: Log message
+        """
+        formatted_message = self.format(level, message)
+        with open(self.path, 'a') as f:
+            f.write(formatted_message + '\n')
+        
+        print('logged', formatted_message)
+    
+    def info(self, message):
+        """
+        Log an INFO level message
+        
+        :param message: Message to log
+        """
+        self.write_to_log_file('INFO', message)
+    
+    def error(self, message):
+        """
+        Log an ERROR level message
+        
+        :param message: Message to log
+        """
+        self.write_to_log_file('ERROR', message)
+
+logger = Logger()
 
 class FrameNavigator():
     """manages frames to move forward/backward in history and load frames instantly by storing them"""
@@ -170,11 +232,13 @@ class FrameNavigator():
         self.frame_names = []
         self.reset()
     def reset(self):
+        logger.info('reseting frame navigator')
+
         self.current_index = None
 
         self.active_frame = None
         self.active_frame_name = None
-    def get_active_frame_name(self, frame):
+    def get_active_frame_name(self):
         if station_frame_active:
             self.active_frame_name = 'station_frame'
             self.active_frame = station_frame
@@ -191,7 +255,7 @@ class FrameNavigator():
             self.active_frame_name = 'settings'
             self.active_frame = settings_scrollable_frame
         else:
-            print('error : no active frame')
+            logger.info('FrameNavigator.get_active_frame_name() error ? : no active frame')
 
     def set_new_active_frame(self, frame_name):
         global station_frame_active, map_active, fav_active, all_station_active, settings_active
@@ -207,16 +271,17 @@ class FrameNavigator():
         elif frame_name == 'settings':
             settings_active = True
         else:
-            print('error : frame_name not valid')
+            logger.error('FrameNavigator.set_new_active_frame(): frame_name not valid')
     def store_frame(self, frame, frame_name):
         self.frame_history.append(frame)
         self.frame_names.append(frame_name)
 
-    def forget_active_frame(self, *frame, store: bool=True):
+    def forget_active_frame(self, store: bool=True):
+        logger.info(f'forget_active_frame() called -> store: {store}')
         if self.current_index is not None and store is True:
             self.reset()   
 
-        self.get_active_frame_name(frame)
+        self.get_active_frame_name()
         if self.active_frame is None: #if Winfo is starting up
             return
         if store:
@@ -232,33 +297,34 @@ class FrameNavigator():
             frame_to_pack = self.frame_history[self.current_index]
             if frame_to_pack is not None:
                 frame_to_pack.pack(expand=True, fill=BOTH)
+            logger.info(f'successfully packed frame: {self.active_frame_name}')
         else:
-            print('error : history is empty')
+            logger.error('FrameNavigator.pack_frame(): history is empty')
 
     def go_back(self, *e):
-        print('go_back called')
+        logger.info('FrameNavigator.go_back() called')
         if self.current_index is None:
-            print('going back for the first time')
+            logger.info('going back for the first time')
             self.forget_active_frame(store=True)
             self.current_index = -2 #(# index set after forget_active_frame because frame was stored and index was set to None)
         elif len(self.frame_history) > abs(self.current_index):
-            print('going back once more')
+            logger.info('going back once more')
             self.forget_active_frame(store=False)
             self.current_index -= 1
         else:
-            print('cant go back more')
+            logger.info('cant go back more')
 
         self.pack_frame()
     def go_forward(self, *e):
-        print('go_forward called')
+        logger.info('FrameNavigator.go_forward() called')
         if self.current_index is None:
-            print('cant go forward anymore')
+            logger.info('cant go forward anymore')
             return
         if abs(self.current_index) == 1:
-            print('cant go forward anymore')
+            logger.info('cant go forward anymore')
             return
 
-        print('going forward once more')
+        logger.info('going forward once more')
         self.forget_active_frame(store=False)
         self.current_index += 1
 
@@ -269,7 +335,7 @@ class FrameNavigator():
 
 
 def change_theme(theme):
-    print('theme is ' + theme)
+    logger.info(f'change_theme() called -> new theme : {theme}')
     global active_theme
     if theme == language_dict['Infos']['theme_system'][lang_index]:
         theme = "System"
@@ -277,7 +343,7 @@ def change_theme(theme):
         theme = "Dark"
     elif theme == language_dict['Infos']['theme_light'][lang_index]:
         theme = "Light"
-    print(f'theme changed to {theme}')
+    logger.info(f'theme changed to {theme}')
     set_appearance_mode(theme)
     preferences['theme'] = theme
     dump_preferences()
@@ -293,7 +359,7 @@ def change_default_tile_server(tile_server):
     preferences['map_tile_server'] = tile_server
     dump_preferences()
 def change_tile_server(tile_server):
-    print('change_tile_server --> ', tile_server)
+    logger.info(f'change_tile_server() called -> new tile server : {tile_server}')
     if tile_server == 'Swisstopo':
         tile_server = 'https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg'
     elif tile_server == 'Swisstopo Satellite':
@@ -310,6 +376,7 @@ def change_tile_server(tile_server):
         tile_server = 'https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga'# google earth
     map_widget.set_tile_server(tile_server)
 def find_station_data_in_data_geo_files(abr: str):
+    logger.info(f'find_station_data_in_data_geo_files() called -> station : {abr}')
     try:
         urllib.request.urlretrieve(URL_WIND_SPEED, "ch.meteoschweiz.messwerte-windgeschwindigkeit-kmh-10min_fr.csv")
         urllib.request.urlretrieve(URL_WIND_GUST, "ch.meteoschweiz.messwerte-wind-boeenspitze-kmh-10min_fr.csv")
@@ -371,6 +438,7 @@ def find_station_data_in_data_geo_files(abr: str):
         rafale = None
     return direction, moyenne, rafale
 def map_frame_setup(pack: bool, displaying_values : bool):
+    logger.info('map_frame_setup() called -> pack: {}, displaying_values: {}'.format(pack, displaying_values))
     global map_frame, map_widget, map_active, fav_active, all_station_active, settings_active, station_frame_active
     # try:
     #     map_frame.pack_forget()
@@ -431,16 +499,9 @@ def map_frame_setup(pack: bool, displaying_values : bool):
             for ligne in reader:
                 if ligne['Station/Location'] in abreviation_list:
                     VQHA80.append(ligne)
-                else:
-                    print(ligne)
-            print('len(VQHA80) = ', count, 'len(coord) = ', len(coord))
         for ligne, coor in zip(VQHA80, coord):
             if ligne['Station/Location'] == 'MRP':
                 continue
-            if ligne['Station/Location'] == coor[0]:
-                print(ligne['Station/Location'], coor[0], ligne['fu3010z0'])
-            else:
-                print(ligne['Station/Location'], coor[0], ligne['fu3010z0'], '----'*2)
             try:
                 direction = int(-float(ligne['dkl010z0']))
             except:
@@ -505,7 +566,7 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
         reload_preferences()
         with open("coord_station_meteosuisse.json", "r") as f_json:
             coord_reader = json.load(f_json)
-            print(LOCATION_COORDINATES[0], '|', LOCATION_COORDINATES[1])
+            logger.info(f'LOCATION_COORDINATES: {LOCATION_COORDINATES[0]} | {LOCATION_COORDINATES[1]}')
             for ligne, coord in zip(reader, coord_reader):
                 if ligne['Station/Location'] == 'MRP':  # exists in meteoswiss but always empty
                     continue
@@ -536,8 +597,8 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                         direction, vent, rafale = find_station_data_in_data_geo_files(abr=coord[0])
                     else:
                         direction, vent, rafale = None, None, None
-                    print(direction, vent, rafale)
                     already_direction = True
+                logger.info(f'{direction} | {vent} | {rafale}')
                 if vent is None or rafale is None:
                     vent, rafale = '-', '-'
                     new_line.append('')
@@ -593,44 +654,27 @@ def set_segmented_btn(fav_bool: bool):
         fav_or_all_btn.set(language_dict['Stations']['all_stations_segmented_btn'][lang_index])
 
 def change_fav_or_all_from_segbtn(value):
+    logger.info(f'change_fav_or_all_from_segbtn: {value}')
     global search_input
     search_input = ''
-    print(value)
     frame_navigator.forget_active_frame()
     # table_frame.pack_forget()
     if value == language_dict['Stations']['favorites_segmented_btn'][lang_index]:
         table_frame_setup(pack=True, fav_bool=True, wind_sorted=wind_sorted_btn_activated)
-        fav_or_all_btn.set('Favoris')
+        fav_or_all_btn.set(language_dict['Stations']['favorites_segmented_btn'][lang_index])
     if value == language_dict['Stations']['all_stations_segmented_btn'][lang_index]:
         table_frame_setup(pack=True, fav_bool=False, wind_sorted=wind_sorted_btn_activated)
+        fav_or_all_btn.set(language_dict['Stations']['all_stations_segmented_btn'][lang_index])
 
 def search_in_table(fav_bool: bool, wind_sorted: bool):
     global search_input
     search_input = search_entry.get()
     table_frame_setup(pack=True, fav_bool=fav_bool, wind_sorted=wind_sorted)
 
-# def search_in_table_T_T(e):
-#     global search_input
-#     search_input = search_entry.get()
-#     table_frame_setup(pack=True, fav_bool=True, wind_sorted=True)
-# def search_in_table_T_F(e):
-#     global search_input
-#     search_input = search_entry.get()
-#     table_frame_setup(pack=True, fav_bool=True, wind_sorted=False)
-# def search_in_table_F_T(e):
-#     global search_input
-#     search_input = search_entry.get()
-#     table_frame_setup(pack=True, fav_bool=False, wind_sorted=True)
-# def search_in_table_F_F(e):
-#     global search_input
-#     search_input = search_entry.get()
-#     table_frame_setup(pack=True, fav_bool=False, wind_sorted=False)
-
 def remove_last_word_search_entry(e): #called if backspace+ctrl is pressed and delete all the search
     global search_input
     text = search_entry.get()
     last_space = text.rstrip().rfind(' ')  # find the last space
-    print(last_space)
     if last_space != -1:  # if there is a space
         search_entry.delete(last_space+2, END)
         search_input = search_entry.get()
@@ -642,6 +686,7 @@ def remove_last_word_search_entry(e): #called if backspace+ctrl is pressed and d
 
 
 def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
+    logger.info(f'table_frame_setup() called -> pack: {pack}, fav_bool: {fav_bool}, wind_sorted: {wind_sorted}')
     global table_frame, table_frame_active, station_frame_active, map_active, settings_active, alphabetical_sort_box, table, fav_active, all_station_active, search_entry, entry_as_display
     # try:
     #     table_frame.pack_forget()
@@ -691,7 +736,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
                         favoris.remove(station_dict[table.get(row, 0)])
                         preferences['favorites'] = favoris
                         table.insert(row, column, '⬜')
-                    print(f'favoris = {favoris}')
+                    logger.info(f'favoris = {favoris}')
                 else:
                     favoris = [station_dict[table.get(row, 0)]]
                     preferences['favorites'] = favoris
@@ -746,7 +791,6 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     distance_slider_and_search_frame.pack(pady=10)
     scrollframe = CTkScrollableFrame(table_frame, fg_color='transparent')
     scrollframe.pack(expand=True, fill="both", padx=10, pady=10)
-    print(LOCATION)
     if LOCATION is None:
         location_begining = language_dict['Stations']['no_location_error'][lang_index].upper()
     elif len(LOCATION) < 25:
@@ -852,8 +896,6 @@ def get_history_matrix(station_id: int, raw: bool):
     with open('mesurement_history.csv', 'r') as fichier_csv:
         reader = csv.DictReader(fichier_csv, delimiter=',')
         for row in reader:
-            # print(row)
-            print(row['Date'], row[f'{abr}_moyenne'], row[f'{abr}_rafale'], row[f'{abr}_direction'], row[f'{abr}_temp'], row[f'{abr}_pluie'], row[f'{abr}_humidite'], row[f'{abr}_QFE'], row[f'{abr}_QFF'], row[f'{abr}_QNH'])
             hour, minute, date = strafe_date_from_csv(local_time=row['Date'])
             direction = row[f'{abr}_direction']
             try:
@@ -978,6 +1020,7 @@ def chart_setup(frame, station_id, history_bool, unit: str):
                          verticalalignment='top')
 
     def motion_notify_event(event):
+        logger.info('Chart motion_notify_event(), event : ' + str(event))
         if event.inaxes in (ax, ax2) and event.xdata is not None and event.ydata is not None:
             idx = min(range(len(x_numeric)), key=lambda i: abs(x_numeric[i] - event.xdata))
             if history_bool:
@@ -997,8 +1040,8 @@ def chart_setup(frame, station_id, history_bool, unit: str):
                     dist_1 = abs(main_ydata - y_values[1][idx])
                     dist_2 = abs(event.ydata - y_values[2][idx])/20 # 360° but mostly max 20kph so ~ /20
 
-                    print('all the dists')
-                    print(dist_0, dist_1, dist_2)
+                    logger.info('all the dists')
+                    logger.info(dist_0, dist_1, dist_2)
 
                     def set_lines_thick(moyenne, rafale, direction):
                         if moyenne:
@@ -1027,7 +1070,8 @@ def chart_setup(frame, station_id, history_bool, unit: str):
                     if str(e.__class__) == "<class 'numpy.core._exceptions._UFuncNoLoopError'>":
                         pass
                     else:
-                        print(e)
+                        logger.error('Chart motion_notify_event()')
+                        logger.error(e)
             else:
                 text = (f"{language_dict['Station_Frame']['chart_legend_8'][lang_index]}: {x_values[idx]}\n"
                         f"{language_dict['Station_Frame']['chart_legend_4'][lang_index]}: {y_values[0][idx]:.1f}\n"
@@ -1081,8 +1125,8 @@ def toggle_star(station_id, star_button):
         star_img = star_dark_full_img
     star_button.configure(image=star_img)
     dump_preferences()
-    print(preferences['favorites'])
 def station_frame_setup(pack: bool, station_id: int):
+    logger.info(f'station_frame_setup() called -> pack: {pack}, station_id: {station_id}')
     global wind_speed_coef, station_id_active, station_frame, station_frame_active, table_frame, table_frame_active, map_active, settings_active, alphabetical_sort_box, table, fav_active, all_station_active, search_entry, entry_as_display
     station_id_active = station_id
     # try:
@@ -1158,7 +1202,6 @@ def station_frame_setup(pack: bool, station_id: int):
         quick_info_frame = CTkFrame(station_frame, fg_color='transparent')
         quick_info_frame.pack(expand=True, fill="x", padx=20, pady=20)
         info, date = get_active_wind(station_id)
-        print('Vent actuel : ', info)
         try:
             moyenne = round(info[0]*wind_speed_coef, 1)
             rafale = round(info[1]*wind_speed_coef, 1)
@@ -1196,7 +1239,6 @@ def station_frame_setup(pack: bool, station_id: int):
         CTkLabel(history_frame, text=language_dict['Station_Frame']['history'][lang_index], font=H2_FONT).pack(pady=20)
         CTkLabel(prevision_frame, text=language_dict['Station_Frame']['prevision'][lang_index], font=H2_FONT).pack(pady=20)
 
-        print('\nHistorique :')
         chart_setup(history_frame, station_id, True, unit=unit)
         history_table_showed = False
         table_history = CTkTable(history_frame, values=get_history_matrix(station_id, raw=False), header_color=BUTTON_NOT_PRESSED_COLOR)
@@ -1204,7 +1246,6 @@ def station_frame_setup(pack: bool, station_id: int):
         history_btn.pack(pady=10)
 
 
-        print('\nPrévisions :')
         chart_setup(prevision_frame, station_id, False, unit=unit)
         prevision_table_showed = False
         table_prevision = CTkTable(prevision_frame, values=get_prevision_matrix(station_id, raw=False), header_color=BUTTON_NOT_PRESSED_COLOR)
@@ -1217,15 +1258,10 @@ def station_frame_setup(pack: bool, station_id: int):
         fav_active, all_station_active, table_frame_active, map_active, settings_active = False, False, False, False, False
 
 def settings_frame_setup(pack:bool):
+    logger.info(f'settings_frame_setup() called -> pack: {pack}')
     global settings_scrollable_frame, alert_frame_dict, last_alert_frame, plus_button, station_frame_active, map_active, fav_active, all_station_active, settings_active, alert_horiz_scrollframe, alert_nonscroll_frame, frame_len, frame_id_list, station_to_add
     reload_preferences()
-    # try:
-    #     settings_scrollable_frame.pack_forget()
-    # except:
-    #     pass
-    # try:
-    #     station_frame.pack_forget()
-    # except: pass
+
     frame_navigator.forget_active_frame()
     settings_scrollable_frame = CTkScrollableFrame(window)
     if pack:
@@ -1271,9 +1307,9 @@ def settings_frame_setup(pack:bool):
             plus_button.pack(anchor='center', pady=100)
         else:
             alert_horiz_scrollframe.pack(expand=True, fill='x', padx=20, pady=20)
-            print('stations to add', stations_to_add)
+            logger.info('stations to add', stations_to_add)
             for station in stations_to_add:
-                print(f'adding station Num{station}')
+                logger.info(f'adding station Num{station}')
                 add_alert_frame(station)
         def change_wind_speed_unit(e):
             global wind_speed_coef
@@ -1286,7 +1322,6 @@ def settings_frame_setup(pack:bool):
                 wind_speed_coef = 1
             elif e == language_dict['Infos']['knots'][lang_index]:
                 wind_speed_coef = 1/1.852
-            print(wind_speed_coef)
             button3_pressed()
 
         def update_location(event):
@@ -1294,7 +1329,7 @@ def settings_frame_setup(pack:bool):
             search_term = location_entry.get()
             headers = {'User-Agent': f'Winfo/{CURRENT_VERSION}'}#' (winfo.projet@gmail.com)'}
             url_nominatim_OSM = f'https://nominatim.openstreetmap.org/search.php?q={search_term}&format=jsonv2'
-            print(f'url {url_nominatim_OSM}')
+            logger.info(f'update_location url {url_nominatim_OSM}')
             try:
                 r = requests.get(url_nominatim_OSM, headers=headers)
             except:
@@ -1304,23 +1339,18 @@ def settings_frame_setup(pack:bool):
             if r is not None:
                 data = json.loads(r.text)
 
-                print('---------------------')
                 best_importance = 0
                 for response in data:
                     place_importance = response['importance']
                     if place_importance > best_importance:
                         best_importance = place_importance
-                    print('----')
 
-                print(f'best importance: {best_importance}')
+                logger.info(f'best importance: {best_importance}')
 
-                print(best_importance)
                 if best_importance != 0:
                     for response in data:
-                        print(response['importance'], best_importance)
                         if response['importance'] == best_importance:
                             LOCATION = response['display_name']
-                            print('to add', LOCATION)
                             LOCATION_COORDINATES = (response['lat'], response['lon'])
                             preferences['location'][0] = LOCATION
                             preferences['location'][1], preferences['location'][2] = LOCATION_COORDINATES
@@ -1460,7 +1490,7 @@ def add_alert_frame(*args):
             except:
                 pass
         else:
-            print('No station selected -> cannot save frame_order')
+            logger.info('select_station_event() called -> No station selected => cannot save frame_order')
     def enable_alert(*initializing_bool):
         nonlocal alert_visible
         if alert_visible == None:
@@ -1472,7 +1502,7 @@ def add_alert_frame(*args):
             if str(combobox.get()) in station_dict.keys():
                 update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', 'remove')
             else:
-                print('No station selected -> cannot remove wind limit')
+                logger.info('enable_alert() called -> No station selected => cannot remove wind limit')
             slider.set(25)
             value_entry.delete(0, 'end')
             if unit == language_dict['Infos']['kph'][lang_index]:
@@ -1497,7 +1527,7 @@ def add_alert_frame(*args):
                 if not initializing_bool:
                     update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', int(slider.get()))
             else:
-                print('No station selected -> cannot save wind limit')
+                logger.info('enable_alert() called -> No station selected => cannot save wind limit')
     def enable_shortcut(*initializing_bool):
         nonlocal shortcut_visible
         if shortcut_visible == None:
@@ -1509,7 +1539,7 @@ def add_alert_frame(*args):
                 if not initializing_bool:
                     update_alert_preferences(str(station_dict[combobox.get()]), 'shortcut', 'remove')
             else:
-                print('No station selected -> cannot remove shortcut')
+                logger.info('enable_shortcut() called -> No station selected => cannot remove shortcut')
             entry.delete(0, 'end')
             shortcut_visible = False
         else:
@@ -1534,16 +1564,15 @@ def add_alert_frame(*args):
         if str(combobox.get()) in station_dict.keys():
             update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', value/wind_speed_coef)
         else:
-            print('No station selected -> cannot save wind limit')
+            logger.info('entry_changed() called -> No station selected => cannot save wind limit')
         frame.focus()
     def slider_changed(event):
-        print(int(event))
         value_entry.delete(0, 'end')
         value_entry.insert(0, str(int(slider.get()))+'  '+unit)
         if str(combobox.get()) in station_dict.keys():
             update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', int(event/wind_speed_coef))
         else:
-            print('No station selected -> cannot save wind limit')
+            logger.info('slider_changed() called -> No station selected => cannot save wind limit')
     def shortcut_entry_entered(event):
         if event.keysym != 'Escape':
             if event.keysym not in shortcut:
@@ -1556,7 +1585,7 @@ def add_alert_frame(*args):
         if str(combobox.get()) in station_dict.keys():
             update_alert_preferences(str(station_dict[combobox.get()]), 'shortcut', shortcut)
         else:
-            print('No station selected -> cannot save shortcut')
+            logger.info('shortcut_entry_entered() called -> No station selected => cannot save shortcut')
     def send_alert():
         content, local_time = alert_content()
 
@@ -1602,11 +1631,10 @@ def add_alert_frame(*args):
             subprocess.run(["osascript", "-e", '\n'.join(text_fields)], check=True)
 
         def activated_callback(activatedEventArgs: ToastActivatedEventArgs):
-            print(activatedEventArgs.arguments)
             if activatedEventArgs.arguments == 'delete':
                 toaster.remove_toast(newToast)
             elif activatedEventArgs.arguments == 'snooze':
-                print('snooze (TODO)') # TODO
+                pass # logger.info('snooze (TODO)') # TODO
             else:
                 checkmark_img_label.pack(side=LEFT, padx=10, pady=10)
         
@@ -1619,7 +1647,7 @@ def add_alert_frame(*args):
         newToast.on_activated = activated_callback
 
         toaster.show_toast(newToast)
-        print('notification sent to', combobox.get())#station)
+        logger.info('notification sent to', combobox.get())
     def remove_alert_frame():
         global frame_len
         if str(combobox.get()) in station_dict.keys():
@@ -1661,8 +1689,7 @@ def add_alert_frame(*args):
     value_and_slider_frame.pack(padx=10, pady=5)
     slider = CTkSlider(value_and_slider_frame, from_=0, to=50, number_of_steps=30, command=slider_changed)
     slider.pack(padx=5, pady=5, side=RIGHT)
-    font_on_blue_color = combobox.cget('text_color')
-    print(font_on_blue_color)
+    font_on_blue_color = combobox.cget('text_color') # TODO set and use a defined global variable
     value_entry = CTkEntry(value_and_slider_frame, text_color=font_on_blue_color, width=100, justify=CENTER, fg_color=BUTTON_NOT_PRESSED_COLOR, corner_radius=50)
     value_entry.insert(0, str(int(slider.get()))+'  '+unit)
     value_entry.bind('<Button-1>', select_entry)
@@ -1691,7 +1718,7 @@ def add_alert_frame(*args):
         reload_preferences()
         station_to_add = args[0]
         title_lab.configure(text=language_dict['Settings']['notif_card_title'][lang_index]+str(preferences['notification'][station_to_add]['frame_order']))
-        print(station_to_add, values[int(station_to_add)], f'\n -> {coord_station_meteosuisse[int(station_to_add)-1] = } ')
+        logger.info(station_to_add, values[int(station_to_add)], f'\n -> {coord_station_meteosuisse[int(station_to_add)-1] = } ')
         combobox.set(values[int(station_to_add)+1])
         entry.delete(0, 'end')
         try:
@@ -1716,7 +1743,7 @@ def add_alert_frame(*args):
 
 def update_alert_preferences(station_id, type, value):
     reload_preferences()
-    print(f'preferences["notification"][{station_id}] -> type: {type}, value: {value}')
+    logger.info(f'preferences["notification"][{station_id}] -> type: {type}, value: {value}')
     try:
         preferences['notification']
     except KeyError:
@@ -1822,7 +1849,7 @@ def launch_customtkinter(*args):
 
     if 'theme' in preferences.keys():
         set_appearance_mode(preferences['theme'])
-        print(preferences['theme'])
+        logger.info(f'preferences["theme"] = {preferences["theme"]}')
         change_theme(preferences['theme'])
 
     map_frame_setup(pack=False, displaying_values=True)
@@ -1835,16 +1862,16 @@ def launch_customtkinter(*args):
         LATEST_VERSION = r['latest_version']
         LATEST_VERSION_INFO = r[str(LATEST_VERSION)]
     except Exception as error:
-        print(error)
+        logger.error(error)
         LATEST_VERSION = 'error'
     start_version_top_level = False
-    print('\nVersion check :')
+    logger.info('\nVersion check :')
     if CURRENT_VERSION == LATEST_VERSION:
-        print("you're on the latest version")
+        logger.info(f'you are on the latest version ({CURRENT_VERSION})')
     elif LATEST_VERSION == 'error':
-        print("you're on version " + str(CURRENT_VERSION) + ' but cannot check latest version')
+        logger.info(f'you are on version {CURRENT_VERSION} but cannot check latest version')
     else:
-        print('not the last version', 'you are on version ' + str(CURRENT_VERSION) + ' and the latest version is ' + str(LATEST_VERSION))
+        logger.info(f'not the last version, you are on version {CURRENT_VERSION} and the latest version is {LATEST_VERSION}')
         if 'not_show_update' not in preferences.keys():
             start_version_top_level = True
     get_csv()
