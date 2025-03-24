@@ -191,7 +191,7 @@ class Logger:
         :param message: Log message
         :return: Formatted log string
         """
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
         return f"{timestamp} - {level} - {message}"
     
     def write_to_log_file(self, level, message):
@@ -598,7 +598,6 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                     else:
                         direction, vent, rafale = None, None, None
                     already_direction = True
-                logger.info(f'{direction} | {vent} | {rafale}')
                 if vent is None or rafale is None:
                     vent, rafale = '-', '-'
                     new_line.append('')
@@ -1865,7 +1864,7 @@ def launch_customtkinter(*args):
         logger.error(error)
         LATEST_VERSION = 'error'
     start_version_top_level = False
-    logger.info('\nVersion check :')
+    logger.info('Version check :')
     if CURRENT_VERSION == LATEST_VERSION:
         logger.info(f'you are on the latest version ({CURRENT_VERSION})')
     elif LATEST_VERSION == 'error':
