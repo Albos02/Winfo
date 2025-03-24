@@ -922,6 +922,9 @@ def chart_setup(frame, station_id, history_bool, unit: str):
 
     x_numeric = list(range(len(x_values)))
 
+    max_gust_point = max(y_values[1])
+    threshold_hover_dist = 1/20*max_gust_point
+
     lines = []
     labels = []
 
@@ -1010,7 +1013,7 @@ def chart_setup(frame, station_id, history_bool, unit: str):
                             direction_line.set_linewidth(2.0)
                         else:
                             direction_line.set_linewidth(0.5)
-                    if 2 > min(dist_0, dist_1, dist_2):
+                    if threshold_hover_dist > min(dist_0, dist_1, dist_2):
                         if dist_0 < min(dist_1, dist_2):
                             set_lines_thick(True, False, False)
                         elif dist_1 < min(dist_0, dist_2):
