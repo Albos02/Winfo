@@ -1157,7 +1157,7 @@ def station_frame_setup(pack: bool, station_id: int):
             star_img = star_dark_full_img
         else:
             star_img = star_dark_empty_img
-        star_button = CTkButton(star_frame, image=star_img, text='', fg_color='transparent', command=lambda id=station_id :[toggle_star(id, star_button)])
+        star_button = CTkButton(star_frame, image=star_img, text='', fg_color='transparent', hover=False, command=lambda id=station_id :[toggle_star(id, star_button)])
         star_button.pack(side=RIGHT, padx=10)
         station_name = reversed_station_dict[station_id]
         CTkLabel(station_frame, text=station_name, font=H1_FONT).pack(pady=20)
