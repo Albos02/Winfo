@@ -238,6 +238,17 @@ class FrameNavigator():
 
         self.active_frame = None
         self.active_frame_name = None
+    def dehover_left_column_buttons(self):
+        button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+        button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+        button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+    def hover_left_column_button_active(self):
+        if fav_active or all_station_active:
+            button1.configure(fg_color=BUTTON_PRESSED_COLOR)
+        elif map_active:
+            button2.configure(fg_color=BUTTON_PRESSED_COLOR)
+        elif settings_active:
+            button3.configure(fg_color=BUTTON_PRESSED_COLOR)
     def get_active_frame_name(self):
         if station_frame_active:
             self.active_frame_name = 'station_frame'
@@ -300,6 +311,8 @@ class FrameNavigator():
             logger.info(f'successfully packed frame: {self.active_frame_name}')
         else:
             logger.error('FrameNavigator.pack_frame(): history is empty')
+        self.hover_left_column_button_active()
+
 
     def go_back(self, *e):
         logger.info('FrameNavigator.go_back() called')
@@ -307,10 +320,12 @@ class FrameNavigator():
             logger.info('going back for the first time')
             self.forget_active_frame(store=True)
             self.current_index = -2 #(# index set after forget_active_frame because frame was stored and index was set to None)
+            self.dehover_left_column_buttons()
         elif len(self.frame_history) > abs(self.current_index):
             logger.info('going back once more')
             self.forget_active_frame(store=False)
             self.current_index -= 1
+            self.dehover_left_column_buttons()
         else:
             logger.info('cant go back more')
 
@@ -323,6 +338,8 @@ class FrameNavigator():
         if abs(self.current_index) == 1:
             logger.info('cant go forward anymore')
             return
+
+        self.dehover_left_column_buttons()
 
         logger.info('going forward once more')
         self.forget_active_frame(store=False)
