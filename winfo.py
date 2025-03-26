@@ -292,7 +292,7 @@ class FrameNavigator():
 
     def pack_frame(self):
         if len(self.frame_history) > 0:
-            self.get_active_frame_name(self.frame_history[self.current_index])
+            # self.get_active_frame_name(self.frame_history[self.current_index])
             self.set_new_active_frame(self.frame_names[self.current_index])
             frame_to_pack = self.frame_history[self.current_index]
             if frame_to_pack is not None:
@@ -1786,6 +1786,10 @@ def dump_preferences():
     with open('preferences.json', 'w') as f:
         json.dump(preferences, f)
 
+def left_arrow_button_pressed():
+    frame_navigator.go_back()
+def right_arrow_button_pressed():
+    frame_navigator.go_forward()
 def launch_customtkinter(*args):
     global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index, star_dark_full_img, star_dark_empty_img, star_light_full_img, star_light_empty_img, frame_navigator
     station_frame_active = map_active = fav_active = all_station_active = settings_active = False
@@ -1836,6 +1840,14 @@ def launch_customtkinter(*args):
     left_column_frame.pack(side="left", fill="y")
     if os == 'windows':
         pywinstyles.set_opacity(left_column_frame, 1)
+
+    arrow_btn_frame = CTkFrame(left_column_frame, fg_color='transparent')
+    arrow_btn_frame.pack()
+    left_arrow_button = CTkButton(arrow_btn_frame, text='<', command=left_arrow_button_pressed, width=60)
+    left_arrow_button.pack(side=LEFT, padx=10, pady=10)
+
+    right_arrow_button = CTkButton(arrow_btn_frame, text='>', command=right_arrow_button_pressed, width=60)
+    right_arrow_button.pack(side=RIGHT, padx=10, pady=10)
 
     button1 = CTkButton(left_column_frame, text=language_dict['Stations']['stations'][lang_index], command=button1_pressed)
     button1.pack(padx=20, pady=10)
