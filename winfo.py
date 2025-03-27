@@ -1648,6 +1648,12 @@ def launch_customtkinter(*args):
     last_frames_closed_txt = []
     retrieve_frame_index = 0
 
+    if wind_speed_coef == 1:
+        preferences['wind_speed_unit'] = 'kph'
+    else:
+        preferences['wind_speed_unit'] = 'knots'
+    dump_preferences()
+
     window.bind('<Alt-Left>', frame_navigator.go_back)
     window.bind('<Alt-Right>', frame_navigator.go_forward)
     def set_location_by_ip():
