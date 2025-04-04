@@ -821,7 +821,10 @@ def chart_setup(frame, station_id, history_bool, unit: str):
     x_numeric = list(range(len(x_values)))
 
     max_gust_point = max(y_values[1])
-    threshold_hover_dist = 1/20*max_gust_point
+    try:
+        threshold_hover_dist = 1/20*max_gust_point
+    except:
+        threshold_hover_dist = 0
 
     lines = []
     labels = []
