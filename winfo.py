@@ -151,22 +151,28 @@ def get_csv():
 
 def update_all_values():
     logger.info('updating values... new ones are here !!!')
-    if map_active:
+    # if map_active:
+    if active_frame_manager.active_frame_type == 'map':
         map_frame_setup(True, displaying_values=True)
         logger.info("updating values..  in map_frame")
         return
-    elif fav_active:
+    # elif fav_active:
+    elif active_frame_manager.active_frame_type == 'fav_station':
+
         table_frame_setup(pack=True, fav_bool=True, wind_sorted=wind_sorted_btn_activated)
         logger.info("updating values..  in favorites_frame")
         return
-    elif all_station_active:
+    # elif all_station_active:
+    elif active_frame_manager.active_frame_type == 'all_station':
         table_frame_setup(pack=True, fav_bool=False, wind_sorted=wind_sorted_btn_activated)
         logger.info("updating values..  in all_station_frame")
         return
-    elif settings_active:
+    # elif settings_active:
+    elif active_frame_manager.active_frame_type == 'settings':
         logger.info("updating values..  in settings so idk what to do...")
         return
-    elif station_frame_active:
+    # elif station_frame_active:
+    elif active_frame_manager.active_frame_type == 'station_frame':
         logger.info("updating values..  in station_frame")
         station_frame_setup(pack=True, station_id=station_id_active)
         return
@@ -382,8 +388,9 @@ def map_frame_setup(pack: bool, displaying_values : bool):
         map_widget.set_zoom(9)#7
         loading_img.pack_forget()
         map_widget.pack(fill="both", expand=True, padx=10)
-        map_active = True
-        station_frame_active, fav_active, all_station_active, settings_active = False, False, False, False
+        active_frame_manager.set_active_frame(map_frame, 'map')
+        # map_active = True
+        # station_frame_active, fav_active, all_station_active, settings_active = False, False, False, False
 
 
 def changed_wind_sorted():
@@ -554,7 +561,7 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     csv_date_frame = CTkFrame(table_frame, fg_color='transparent', height=1)
     csv_date_frame.pack(fill='x')
     CTkLabel(csv_date_frame, text=language_dict['Stations']['csv_date'][lang_index]+' : '+date[0]+'h'+date[1]).pack(side=RIGHT, padx=10)
-    table_frame_active = CTkLabel(table_frame, text=language_dict['Stations']['title'][lang_index], font=h1_font).pack(pady=20)
+    # table_frame_active = CTkLabel(table_frame, text=language_dict['Stations']['title'][lang_index], font=h1_font).pack(pady=20) #TODO
     def setup_table_stations(e):
         global table
         try:
@@ -688,12 +695,14 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
     setup_table_stations(None)
     loading_img.pack_forget()
     table_frame_active = True
-    fav_active, all_station_active = False, False
+    # fav_active, all_station_active = False, False
     if fav_bool:
-        fav_active = True
+        # fav_active = True
+        active_frame_manager.set_active_frame(table_frame, 'fav_station')
     else:
-        all_station_active = True
-    station_frame_active, map_active, settings_active = False, False, False
+        # all_station_active = True
+        active_frame_manager.set_active_frame(table_frame, 'all_station')
+    # station_frame_active, map_active, settings_active = False, False, False
 def get_active_wind(station_id: int):
     abr = coord_station_meteosuisse[station_id][0]
     with open('VQHA80.csv', 'r') as fichier_csv:
@@ -1100,9 +1109,10 @@ def station_frame_setup(pack: bool, station_id: int):
         prevision_btn.pack(pady=10)
 
         loading_img.pack_forget()
-        station_frame_active = True
+        # station_frame_active = True
+        active_frame_manager.set_active_frame(station_frame, 'station_frame')
 
-        fav_active, all_station_active, table_frame_active, map_active, settings_active = False, False, False, False, False
+        # fav_active, all_station_active, table_frame_active, map_active, settings_active = False, False, False, False, False
 
 def settings_frame_setup(pack:bool):
     logger.info(f'settings_frame_setup() called -> pack: {pack}')
@@ -1296,11 +1306,13 @@ def settings_frame_setup(pack:bool):
         CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['app_version_label'][lang_index]+str(CURRENT_VERSION)).pack(pady=20)
 
         loading_img.pack_forget()
-        station_frame_active = False
-        map_active = False
-        fav_active = False
-        all_station_active = False
-        settings_active = True
+
+        active_frame_manager.set_active_frame(settings_scrollable_frame, 'settings')
+        # station_frame_active = False
+        # map_active = False
+        # fav_active = False
+        # all_station_active = False
+        # settings_active = True
 
 
 def add_alert_frame(*args):
@@ -1633,14 +1645,20 @@ def dump_preferences():
     global preferences
     with open('preferences.json', 'w') as f:
         json.dump(preferences, f)
-
+def update_tab_button_color():
+    button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+    button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+    button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+    
+    if active_frame_manager.active_frame_type == 'fav_station' or active_frame_manager.active_frame_type == 'all_station':
+        button1.configure(fg_color=BUTTON_PRESSED_COLOR)
 def left_arrow_button_pressed():
     frame_navigator.go_back()
 def right_arrow_button_pressed():
     frame_navigator.go_forward()
 def launch_customtkinter(*args):
     global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index, star_dark_full_img, star_dark_empty_img, star_light_full_img, star_light_empty_img
-    station_frame_active = map_active = fav_active = all_station_active = settings_active = False
+    # station_frame_active = map_active = fav_active = all_station_active = settings_active = False
     wind_sorted_btn_activated = False
     station_id_active = 1
     reload_preferences()
@@ -1710,6 +1728,10 @@ def launch_customtkinter(*args):
 
     button3 = CTkButton(left_column_frame, text=language_dict['Settings']['settings'][lang_index], command=button3_pressed)
     button3.pack(padx=20, pady=10)
+
+    frame_navigator.button1 = button1
+    frame_navigator.button2 = button2
+    frame_navigator.button3 = button3
 
     if 'theme' in preferences.keys():
         set_appearance_mode(preferences['theme'])

@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+from winfo_constants import BUTTON_NOT_PRESSED_COLOR, BUTTON_PRESSED_COLOR
 
 class Logger:
     def __init__(self):
@@ -67,16 +68,19 @@ class FrameNavigator():
         self.active_frame = None
         self.active_frame_name = None
     def dehover_left_column_buttons(self):
-        button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
-        button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
-        button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+        self.button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+        self.button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+        self.button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     def hover_left_column_button_active(self):
-        if fav_active or all_station_active:
-            button1.configure(fg_color=BUTTON_PRESSED_COLOR)
-        elif map_active:
-            button2.configure(fg_color=BUTTON_PRESSED_COLOR)
-        elif settings_active:
-            button3.configure(fg_color=BUTTON_PRESSED_COLOR)
+        # if fav_active or all_station_active:
+        if active_frame_manager.active_frame_type == 'fav_station' or active_frame_manager.active_frame_type == 'all_station':
+            self.button1.configure(fg_color=BUTTON_PRESSED_COLOR)
+        # elif map_active:
+        elif active_frame_manager.active_frame_type == 'map':
+            self.button2.configure(fg_color=BUTTON_PRESSED_COLOR)
+        # elif settings_active:
+        elif active_frame_manager.active_frame_type == 'settings':
+            self.button3.configure(fg_color=BUTTON_PRESSED_COLOR)
     def get_active_frame_name(self):
         if station_frame_active:
             self.active_frame_name = 'station_frame'
@@ -120,7 +124,10 @@ class FrameNavigator():
         if self.current_index is not None and store is True:
             self.reset()   
 
-        self.get_active_frame_name()
+        # self.get_active_frame_name()
+        self.active_frame = active_frame_manager.active_frame
+        self.active_frame_name = active_frame_manager.active_frame_type
+        
         if self.active_frame is None: #if Winfo is starting up
             return
         if store:
@@ -132,10 +139,13 @@ class FrameNavigator():
     def pack_frame(self):
         if len(self.frame_history) > 0:
             # self.get_active_frame_name(self.frame_history[self.current_index])
-            self.set_new_active_frame(self.frame_names[self.current_index])
+            # self.set_new_active_frame(self.frame_names[self.current_index])
+
+            active_frame_manager.set_active_frame(self.frame_history[self.current_index], self.frame_names[self.current_index])
+
             frame_to_pack = self.frame_history[self.current_index]
             if frame_to_pack is not None:
-                frame_to_pack.pack(expand=True, fill=BOTH)
+                frame_to_pack.pack(expand=True, fill='both')
             logger.info(f'successfully packed frame: {self.active_frame_name}')
         else:
             logger.error('FrameNavigator.pack_frame(): history is empty')
@@ -176,3 +186,15 @@ class FrameNavigator():
         self.pack_frame()
 
 frame_navigator = FrameNavigator()
+
+
+class ActiveFrameManager():
+    def __init__(self):
+        self.active_frame_type = None
+        self.active_frame = None
+    def set_active_frame(self, frame, frame_type):
+        self.active_frame = frame
+        self.active_frame_type = frame_type
+
+
+active_frame_manager = ActiveFrameManager()
