@@ -13,7 +13,7 @@ with open('conversion_key_tkinter_to_keyboard.json', 'r') as file:
     conversion_key_tkinter_keyboard = json.load(file)
 def create_errored_file(error):
     logger.info('creating_errored_file')
-    GMT_datetime = f'{time.gmtime().tm_year}{time.gmtime().tm_mon}{time.gmtime().tm_mday}{time.gmtime().tm_hour}{round(time.gmtime().tm_min, -1)}'
+    GMT_datetime = f'{time.gmtime().tm_year}{str(time.gmtime().tm_mon).zfill(2)}{str(time.gmtime().tm_mday).zfill(2)}{time.gmtime().tm_hour}{round(time.gmtime().tm_min, -1)}'
     with open('VQHA80.csv', 'w') as f:
         f.write('Station/Location;Date;tre200s0;rre150z0;sre000z0;gre000z0;ure200s0;tde200s0;dkl010z0;fu3010z0;fu3010z1;prestas0;pp0qffs0;pp0qnhs0;ppz850s0;ppz700s0;dv1towz0;fu3towz0;fu3towz1;ta1tows0;uretows0;tdetows0\n')
         for station in coord_station_meteosuisse:
