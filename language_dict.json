@@ -44,6 +44,10 @@
         "meteosuisse_credit_label": ["All data is provided by MeteoSwiss", "Toutes les données sont mises à disposition par MétéoSuisse"],
         "app_version_label": ["App version : ", "Version de l'application : "]
     },
+    "Alert": {
+        "alert": ["Notifications", "Notifications"],
+        "title": ["Notifications", "Notifications"]
+    },
     "Station_Frame": {
         "history": ["History graph", "Historique"],
         "prevision": ["Prevision graph", "Prévisions"],

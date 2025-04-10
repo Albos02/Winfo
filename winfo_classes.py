@@ -71,6 +71,7 @@ class FrameNavigator():
         self.button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
         self.button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
         self.button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+        self.button4.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     def hover_left_column_button_active(self):
         # if fav_active or all_station_active:
         if active_frame_manager.active_frame_type == 'fav_station' or active_frame_manager.active_frame_type == 'all_station':
@@ -78,9 +79,11 @@ class FrameNavigator():
         # elif map_active:
         elif active_frame_manager.active_frame_type == 'map':
             self.button2.configure(fg_color=BUTTON_PRESSED_COLOR)
+        elif active_frame_manager.active_frame_type == 'alert':
+            self.button3.configure(fg_color=BUTTON_PRESSED_COLOR)
         # elif settings_active:
         elif active_frame_manager.active_frame_type == 'settings':
-            self.button3.configure(fg_color=BUTTON_PRESSED_COLOR)
+            self.button4.configure(fg_color=BUTTON_PRESSED_COLOR)
     def get_active_frame_name(self):
         if station_frame_active:
             self.active_frame_name = 'station_frame'
@@ -96,7 +99,7 @@ class FrameNavigator():
             self.active_frame = table_frame
         elif settings_active:
             self.active_frame_name = 'settings'
-            self.active_frame = settings_scrollable_frame
+            self.active_frame = settings_frame
         else:
             logger.info('FrameNavigator.get_active_frame_name() error ? : no active frame')
 

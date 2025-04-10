@@ -111,6 +111,7 @@ def button1_pressed():
     button1.configure(fg_color=BUTTON_PRESSED_COLOR)
     button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+    button4.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     reload_preferences()
     if 'favorites' in preferences.keys():
         if len(preferences['favorites']) > 0:
@@ -123,11 +124,20 @@ def button2_pressed():
     button2.configure(fg_color=BUTTON_PRESSED_COLOR)
     button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+    button4.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     map_frame_setup(pack=True, displaying_values=True)
 
 def button3_pressed():
     logger.info('button3_pressed() called')
     button3.configure(fg_color=BUTTON_PRESSED_COLOR)
+    button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+    button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+    button4.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+    alert_frame_setup(pack=True)
+
+def button4_pressed():
+    logger.info('button4_pressed() called')
+    button4.configure(fg_color=BUTTON_PRESSED_COLOR)
     button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     settings_frame_setup(pack=True)
@@ -392,6 +402,351 @@ def map_frame_setup(pack: bool, displaying_values : bool):
         # map_active = True
         # station_frame_active, fav_active, all_station_active, settings_active = False, False, False, False
 
+def alert_frame_setup(pack: bool):
+    global alert_horiz_scrollframe, alert_nonscroll_frame, frame_len, frame_id_list, station_to_add
+    logger.info('alert_frame_setup() called -> pack: {}'.format(pack))
+
+    frame_navigator.forget_active_frame()
+    alert_frame = CTkFrame(window)
+
+    if pack:
+        reload_preferences()
+        alert_frame.pack(fill='both', expand=True, padx=20, pady=10)
+        if os == 'windows':
+            pywinstyles.set_opacity(alert_frame, 1)
+
+        CTkLabel(alert_frame, text=language_dict['Alert']['title'][lang_index], font=H1_FONT).pack(pady=20)
+        display_loading(alert_frame)
+
+        ### CREATE HORIZONTAL SCROLLFRAME FOR ALERTS
+
+        empty = True
+        stations_to_add = []
+        for i in range(1, 20):
+            returns = get_station_which_frame_order_is_frame_id(i)
+            if returns is not None:
+                empty = False
+                stations_to_add.append(returns)
+        frame_id_list = []
+        frame_len = 0
+
+        last_alert_frame = 0
+        right_plus_frame = CTkFrame(alert_frame, fg_color='transparent')
+        right_plus_frame.pack(fill='x', expand=False)
+        empty_img = CTkImage(light_image=Image.new('RGBA', (30, 30), (0, 0, 0, 0)), dark_image=Image.new('RGBA', (30, 30), (0, 0, 0, 0)), size=(30, 30))
+        left_empty_frame = CTkButton(right_plus_frame, text='', image=empty_img, fg_color='transparent', hover=False)
+        left_empty_frame.pack(side=LEFT)
+
+        # CTkLabel(right_plus_frame, text=language_dict['Settings']['notif_title'][lang_index], font=H2_FONT).pack(side=LEFT, expand=True, fill='x', padx=20)
+
+        plus_image = CTkImage(light_image=Image.open('images/plus.png'), dark_image=Image.open('images/plus.png'), size=(30, 30))
+        right_plus_icon_btn = CTkButton(right_plus_frame, text='', image=plus_image, fg_color='transparent', hover=False, command=add_alert_frame)
+        right_plus_icon_btn.pack(side=RIGHT)
+        # frame_for_scroll_or_not_frame = CTkFrame(alert_frame)
+        # frame_for_scroll_or_not_frame.pack(expand=True, fill='both')
+        alert_horiz_scrollframe = CTkScrollableFrame(alert_frame, fg_color=(LIGHT_2, DARK_2), corner_radius=20, height=500, orientation='horizontal')#, border_color='red', border_width=1)#, ) #add transform to CTkScrollableFrame()   #fg_color=('#C0C0C0', '#333333')
+        if empty:
+            alert_nonscroll_frame = CTkFrame(alert_frame, fg_color=(LIGHT_2, DARK_2), corner_radius=20, height=500)
+            alert_nonscroll_frame.pack(expand=True, fill='x', padx=20, pady=20)
+            big_plus_image = CTkImage(light_image=Image.open('images/plus.png'), dark_image=Image.open('images/plus.png'), size=(200, 200))
+            plus_button = CTkButton(alert_nonscroll_frame, text='', image=big_plus_image, fg_color='transparent', hover=False, command=add_alert_frame)
+            plus_button.pack(anchor='center', pady=100)
+        else:
+            alert_horiz_scrollframe.pack(expand=True, fill='x', padx=20, pady=0)
+            logger.info(f'stations to add {stations_to_add}')
+            for station in stations_to_add:
+                logger.info(f'adding station Num {station}')
+                add_alert_frame(station)
+
+
+        loading_img.pack_forget()
+        alert_frame.pack(fill="both", expand=True, padx=10)
+        active_frame_manager.set_active_frame(alert_frame, 'alert')
+
+def add_alert_frame(*args):
+    global last_alert_frame, frame_len, frame_id_list
+    alert_visible = None
+    shortcut_visible = None
+    # try:
+    #     plus_button.pack_forget()
+    # except:
+    #     pass
+    try:
+        alert_nonscroll_frame.pack_forget()
+    except:
+        pass
+    frame_len += 1
+    frame_id_list.append(frame_len)
+    frame_id = frame_len
+    shortcut=[]
+
+    def select_station_event(event):
+        last_station = get_station_which_frame_order_is_frame_id(frame_id=frame_id)
+        if last_station is not None:
+            update_alert_preferences(last_station, 'all', 'remove')
+        if str(combobox.get()) in station_dict.keys():
+            update_alert_preferences(str(station_dict[combobox.get()]), 'frame_order', int(frame_id))
+            try:
+                if alert_visible:
+                    update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', int(slider.get()/wind_speed_coef))
+            except:
+                pass
+            try:
+                if shortcut_visible:
+                    update_alert_preferences(str(station_dict[combobox.get()]), 'shortcut', shortcut)
+            except:
+                pass
+        else:
+            logger.info('select_station_event() called -> No station selected => cannot save frame_order')
+    def enable_alert(*initializing_bool):
+        nonlocal alert_visible
+        if alert_visible == None:
+            alert_visible = False
+        if alert_visible:
+            alert_frame_1.pack_forget()
+            alert_frame.configure(height=50)
+            alert_visible = False
+            if str(combobox.get()) in station_dict.keys():
+                update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', 'remove')
+            else:
+                logger.info('enable_alert() called -> No station selected => cannot remove wind limit')
+            slider.set(25)
+            value_entry.delete(0, 'end')
+            if unit == language_dict['Infos']['kph'][lang_index]:
+                value_entry.insert(0, str(25)+'  '+language_dict['Infos']['kph'][lang_index])
+            else:
+                value_entry.insert(0, str(round(25/1.852, 1))+'  '+language_dict['Infos']['knots'][lang_index])
+        else:
+            alert_frame_1.pack(expand=True, fill='both')
+            alert_visible = True
+            try:
+                wind = preferences['notification'][str(station_dict[combobox.get()])]['wind_limit']*wind_speed_coef
+                if wind == int(wind):
+                    wind = int(wind)
+                else:
+                    wind = round(wind, 1)
+                slider.set(wind)
+                value_entry.delete(0, 'end')
+                value_entry.insert(0, str(wind)+'  '+unit)
+            except:
+                pass
+            if str(combobox.get()) in station_dict.keys():
+                if not initializing_bool:
+                    update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', int(slider.get()))
+            else:
+                logger.info('enable_alert() called -> No station selected => cannot save wind limit')
+    def enable_shortcut(*initializing_bool):
+        nonlocal shortcut_visible
+        if shortcut_visible == None:
+            shortcut_visible = False
+        if shortcut_visible:
+            shortcut_frame_1.pack_forget()
+            shortcut_frame.configure(height=50)
+            if str(combobox.get()) in station_dict.keys():
+                if not initializing_bool:
+                    update_alert_preferences(str(station_dict[combobox.get()]), 'shortcut', 'remove')
+            else:
+                logger.info('enable_shortcut() called -> No station selected => cannot remove shortcut')
+            entry.delete(0, 'end')
+            shortcut_visible = False
+        else:
+            shortcut_frame_1.pack(expand=True, fill='both')
+            shortcut_visible = True
+    def select_entry(e):
+        value_entry.delete(0, 'end')
+    def entry_changed(e):
+        try:
+            value = float(value_entry.get())
+        except ValueError: # if comma instead of dot
+            try:
+                value = int(value_entry.get().split(',')[0]) + float(value_entry.get().split(',')[1])/(10**len(value_entry.get().split(',')[1]))
+            except:
+                value = float('')
+        value_entry.delete(0, 'end')
+        if value == int(value):
+            value_entry.insert(0, str(int(value))+'  '+unit)
+        else:
+            value_entry.insert(0, str(value)+'  '+unit)
+        slider.set(int(value))
+        if str(combobox.get()) in station_dict.keys():
+            update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', value/wind_speed_coef)
+        else:
+            logger.info('entry_changed() called -> No station selected => cannot save wind limit')
+        frame.focus()
+    def slider_changed(event):
+        value_entry.delete(0, 'end')
+        value_entry.insert(0, str(int(slider.get()))+'  '+unit)
+        if str(combobox.get()) in station_dict.keys():
+            update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', int(event/wind_speed_coef))
+        else:
+            logger.info('slider_changed() called -> No station selected => cannot save wind limit')
+    def shortcut_entry_entered(event):
+        if event.keysym != 'Escape':
+            if event.keysym not in shortcut:
+                shortcut.append(event.keysym)
+        else:
+            for _ in range(len(shortcut)):
+                shortcut.pop(0)
+        entry.delete(0, 'end')
+        entry.insert(0, ' + '.join(shortcut))
+        if str(combobox.get()) in station_dict.keys():
+            update_alert_preferences(str(station_dict[combobox.get()]), 'shortcut', shortcut)
+        else:
+            logger.info('shortcut_entry_entered() called -> No station selected => cannot save shortcut')
+    def send_alert():
+        content, local_time = alert_content()
+
+        hour, minute, date = strafe_date_from_csv(local_time=local_time)
+        date = f"{hour}h{minute}  {date}"
+
+        if wind_speed_coef == 1:
+            unit = language_dict['Infos']['kph'][lang_index]
+        else:
+            unit = language_dict['Infos']['knots'][lang_index]
+        
+        img = set_icon(float(content[station_dict[combobox.get()]][0].split('|')[0]), float(content[station_dict[combobox.get()]][0].split('|')[1]))
+        img = img.resize((350, 350), Image.Resampling.HAMMING)
+        img = img.rotate(-int(content[station_dict[combobox.get()]][1].split('°')[0]))
+
+        background = Image.new('RGBA', (400, 400), (0, 0, 0, 0))  # larger transparent background
+        position = ((background.width - img.width) // 2,
+                (background.height - img.height) // 2)
+        background.paste(img, position, img)
+        background.save('wind_arrow_alert.png', 'PNG')
+
+        checkmark_img = CTkImage(light_image=Image.open('images/checkmark.png'), dark_image=Image.open('images/checkmark.png'), size=(20, 20))
+        checkmark_img_label = CTkLabel(test_btn_frame, image=checkmark_img, text='')
+
+        try:
+            text_fields = [combobox.get(), content[station_dict[combobox.get()]][0] + unit + '     ' + date, content[station_dict[combobox.get()]][1]]
+        except:
+            text_fields = ['Veuillez selectionner une station', 'pour obtenir les données']
+
+        if platform.system().lower() == 'windows':
+            newToast = Toast()
+            newToast.AddImage(ToastDisplayImage.fromPath('wind_arrow_alert.png'))
+            # ToastImagePosition('appLogoOverride')
+
+            newToast.text_fields = text_fields
+            #check.pack() in def activated_callback()
+
+            # toaster = InteractableWindowsToaster('Winfo') # for the btns but very high
+            toaster = WindowsToaster('Winfo') # without btn but nicer
+        elif platform.system().lower() == 'linux':
+            subprocess.Popen(['notify-send', 'Winfo', '\n'.join(text_fields)], '-i wind_arrow_alert.png')
+        elif platform.system().lower() == 'darwin':
+            subprocess.run(["osascript", "-e", '\n'.join(text_fields)], check=True)
+
+        def activated_callback(activatedEventArgs: ToastActivatedEventArgs):
+            if activatedEventArgs.arguments == 'delete':
+                toaster.remove_toast(newToast)
+            elif activatedEventArgs.arguments == 'snooze':
+                pass # logger.info('snooze (TODO)') # TODO
+            else:
+                checkmark_img_label.pack(side=LEFT, padx=10, pady=10)
+        
+        '''
+        # needs to be InteractableWindowsToaster()
+        newToast.AddAction(ToastButton('Supprimer', 'delete'))
+        newToast.AddAction(ToastButton('Bloquer pour 1h', 'snooze'))
+        '''
+
+        newToast.on_activated = activated_callback
+
+        toaster.show_toast(newToast)
+        logger.info('notification sent to', combobox.get())
+    def remove_alert_frame():
+        global frame_len
+        if str(combobox.get()) in station_dict.keys():
+            update_alert_preferences(str(station_dict[combobox.get()]), 'all', 'remove')
+        frame.pack_forget()
+        frame_len -= 1
+        frame_id_list.remove(int(frame_id))
+    frame = CTkFrame(alert_horiz_scrollframe, fg_color=(LIGHT_3, DARK_3), corner_radius=20)
+    CTkFrame(frame, height=1, width=325).pack() #empty frame for width of "frame"
+    alert_horiz_scrollframe.pack(expand=True, fill='x', padx=20, pady=20)
+    frame.pack(side=LEFT, expand=True, fill='y', padx=20, pady=20)
+    CTkLabel(frame, text='', height=3).pack()
+    cross_frame = CTkFrame(frame, fg_color='transparent')
+    cross_frame.pack(fill='x', pady=5)
+    cross_image = CTkImage(light_image=Image.open('images/cross.png'), dark_image=Image.open('images/cross.png'), size=(30, 30))
+    cross_button = CTkButton(cross_frame, text='', width=30, image=cross_image, fg_color='transparent', hover=False, command=remove_alert_frame)
+    cross_button.pack(side=RIGHT, fill='y', padx=20)
+    title_lab = CTkLabel(cross_frame, text=language_dict['Settings']['notif_card_title'][lang_index] + str(frame_id))
+    title_lab.pack(side=LEFT, expand=True, padx=10)
+    values = station_list[:]
+    values.insert(0, language_dict['Settings']['notif_card_combobox'][lang_index])
+
+    combobox = CTkOptionMenu(frame, values=values, width=200, command=select_station_event)
+    combobox.pack(padx=10, pady=10)
+
+    CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=1).pack(padx=30, pady=10, fill='x') #thin line
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_1_title'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover_color=LIGHT_3, hover=False, command=enable_alert).pack()
+    alert_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
+    alert_frame.pack()
+    alert_frame_1 = CTkFrame(alert_frame, fg_color=(LIGHT_3, DARK_3))
+    if preferences['wind_speed_unit'] == 'kph':
+        unit = language_dict['Infos']['kph'][lang_index]
+        wind_speed_coef = 1
+    else:
+        unit = language_dict['Infos']['knots'][lang_index]
+        wind_speed_coef = 1/1.852
+    CTkLabel(alert_frame_1, text=language_dict['Settings']['notif_card_option_1_label'][lang_index]).pack()
+    value_and_slider_frame = CTkFrame(alert_frame_1, fg_color='transparent', corner_radius=50)
+    value_and_slider_frame.pack(padx=10, pady=5)
+    slider = CTkSlider(value_and_slider_frame, from_=0, to=50, number_of_steps=30, command=slider_changed)
+    slider.pack(padx=5, pady=5, side=RIGHT)
+    font_on_blue_color = combobox.cget('text_color') # TODO set and use a defined global variable
+    value_entry = CTkEntry(value_and_slider_frame, text_color=font_on_blue_color, width=100, justify=CENTER, fg_color=BUTTON_NOT_PRESSED_COLOR, corner_radius=50)
+    value_entry.insert(0, str(int(slider.get()))+'  '+unit)
+    value_entry.bind('<Button-1>', select_entry)
+    value_entry.bind("<Return>", entry_changed)
+    value_entry.pack(padx=5, pady=5, side=LEFT)
+
+    CTkFrame(frame, fg_color=(DARK_1, LIGHT_1), height=1).pack(padx=30, pady=10, fill='x') #thin line
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_1'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, corner_radius=10, command=enable_shortcut).pack()
+    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_2'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, command=enable_shortcut).pack()
+    shortcut_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
+    shortcut_frame.pack()
+    shortcut_frame_1 = CTkFrame(shortcut_frame, fg_color=(LIGHT_3, DARK_3))
+    CTkLabel(shortcut_frame_1, text='', height=15).pack()
+    entry = CTkEntry(shortcut_frame_1, width=250, placeholder_text=language_dict['Settings']['placeholder_option_2'][lang_index])
+    entry.bind("<KeyPress>", shortcut_entry_entered)
+    entry.pack(padx=10, pady=10)
+
+    test_btn_frame = CTkFrame(frame, fg_color='transparent')
+    test_btn_frame.place(rely=0.92, relx=0.5, anchor=CENTER)
+    CTkButton(test_btn_frame, text=language_dict['Settings']['notif_card_test_btn'][lang_index], width=60, command=send_alert).pack(side=RIGHT, padx=10, pady=10)
+
+    skip = False
+    if args == ():
+        skip = True
+    if not skip:
+        reload_preferences()
+        station_to_add = args[0]
+        title_lab.configure(text=language_dict['Settings']['notif_card_title'][lang_index]+str(preferences['notification'][station_to_add]['frame_order']))
+        logger.info(station_to_add + values[int(station_to_add)]+ f'\n -> {coord_station_meteosuisse[int(station_to_add)-1] = } ')
+        combobox.set(values[int(station_to_add)+1])
+        entry.delete(0, 'end')
+        try:
+            try:
+                wind = round(float(preferences['notification'][station_to_add]['wind_limit'])*wind_speed_coef, 1)
+                if wind == int(wind):
+                    wind = int(wind)
+                value_entry.delete(0, 'end')
+                value_entry.insert(0, str(wind)+'  '+unit)
+            except KeyError:
+                pass
+            slider.set(round(float(preferences['notification'][station_to_add]['wind_limit'])*wind_speed_coef, 1))
+            enable_alert(True)
+        except KeyError:
+            pass
+        try:
+            entry.insert(0, ' + '.join(preferences['notification'][station_to_add]['shortcut']))
+            enable_shortcut()
+        except KeyError:
+            pass
+        del station_to_add
 
 def changed_wind_sorted():
     global wind_sorted_btn_activated
@@ -999,7 +1354,7 @@ def station_frame_setup(pack: bool, station_id: int):
     #     map_frame.pack_forget()
     # except: pass
     # try:
-    #     settings_scrollable_frame.pack_forget()
+    #     settings_frame.pack_forget()
     # except: pass
     frame_navigator.forget_active_frame()
     station_frame = CTkScrollableFrame(window)
@@ -1027,6 +1382,7 @@ def station_frame_setup(pack: bool, station_id: int):
         button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
         button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
         button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+        button4.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
 
         reload_preferences()
         if preferences['wind_speed_unit'] == 'kph':
@@ -1119,58 +1475,24 @@ def station_frame_setup(pack: bool, station_id: int):
 
 def settings_frame_setup(pack:bool):
     logger.info(f'settings_frame_setup() called -> pack: {pack}')
-    global settings_scrollable_frame, alert_frame_dict, last_alert_frame, plus_button, station_frame_active, map_active, fav_active, all_station_active, settings_active, alert_horiz_scrollframe, alert_nonscroll_frame, frame_len, frame_id_list, station_to_add
+    global settings_frame, alert_frame_dict, last_alert_frame, plus_button, station_frame_active, map_active, fav_active, all_station_active, settings_active
     reload_preferences()
 
     frame_navigator.forget_active_frame()
-    settings_scrollable_frame = CTkScrollableFrame(window)
+    # settings_frame = CTkScrollableFrame(window)
+    settings_frame = CTkFrame(window)
+
     if pack:
         alert_frame_dict = {}
-        settings_scrollable_frame.pack(fill='both', expand=True, padx=20, pady=20)
+        settings_frame.pack(fill='both', expand=True, padx=20, pady=20)
         if os == 'windows':
-            pywinstyles.set_opacity(settings_scrollable_frame, 1)
-        settings_title = CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['settings'][lang_index], font=H1_FONT)
+            pywinstyles.set_opacity(settings_frame, 1)
+        settings_title = CTkLabel(settings_frame, text=language_dict['Settings']['settings'][lang_index], font=H1_FONT)
         settings_title.pack(padx=20, pady=30)
 
-        display_loading(settings_scrollable_frame, True)
+        display_loading(settings_frame, True)
         window.update()
-        empty = True
-        stations_to_add = []
-        for i in range(1, 20):
-            returns = get_station_which_frame_order_is_frame_id(i)
-            if returns is not None:
-                empty = False
-                stations_to_add.append(returns)
-        frame_id_list = []
-        frame_len = 0
 
-        last_alert_frame = 0
-        right_plus_frame = CTkFrame(settings_scrollable_frame)
-        right_plus_frame.pack(fill='x', expand=False)
-        empty_img = CTkImage(light_image=Image.new('RGBA', (30, 30), (0, 0, 0, 0)), dark_image=Image.new('RGBA', (30, 30), (0, 0, 0, 0)), size=(30, 30))
-        left_empty_frame = CTkButton(right_plus_frame, text='', image=empty_img, fg_color='transparent', hover=False)
-        left_empty_frame.pack(side=LEFT)
-
-        CTkLabel(right_plus_frame, text=language_dict['Settings']['notif_title'][lang_index], font=H2_FONT).pack(side=LEFT, expand=True, fill='x', padx=20)
-
-        plus_image = CTkImage(light_image=Image.open('images/plus.png'), dark_image=Image.open('images/plus.png'), size=(30, 30))
-        right_plus_icon_btn = CTkButton(right_plus_frame, text='', image=plus_image, fg_color='transparent', hover=False, command=add_alert_frame)
-        right_plus_icon_btn.pack(side=RIGHT)
-        frame_for_scroll_or_not_frame = CTkFrame(settings_scrollable_frame)
-        frame_for_scroll_or_not_frame.pack(expand=True, fill='both')
-        alert_horiz_scrollframe = CTkScrollableFrame(frame_for_scroll_or_not_frame, fg_color=(LIGHT_2, DARK_2), corner_radius=20, height=500, orientation='horizontal')#, border_color='red', border_width=1)#, ) #add transform to CTkScrollableFrame()   #fg_color=('#C0C0C0', '#333333')
-        if empty:
-            alert_nonscroll_frame = CTkFrame(frame_for_scroll_or_not_frame, fg_color=(LIGHT_2, DARK_2), corner_radius=20, height=500)
-            alert_nonscroll_frame.pack(expand=True, fill='x', padx=20, pady=20)
-            big_plus_image = CTkImage(light_image=Image.open('images/plus.png'), dark_image=Image.open('images/plus.png'), size=(200, 200))
-            plus_button = CTkButton(alert_nonscroll_frame, text='', image=big_plus_image, fg_color='transparent', hover=False, command=add_alert_frame)
-            plus_button.pack(anchor='center', pady=100)
-        else:
-            alert_horiz_scrollframe.pack(expand=True, fill='x', padx=20, pady=20)
-            logger.info('stations to add', stations_to_add)
-            for station in stations_to_add:
-                logger.info(f'adding station Num{station}')
-                add_alert_frame(station)
         def change_wind_speed_unit(e):
             global wind_speed_coef
             if e == language_dict['Infos']['kph'][lang_index]:
@@ -1182,7 +1504,7 @@ def settings_frame_setup(pack:bool):
                 wind_speed_coef = 1
             elif e == language_dict['Infos']['knots'][lang_index]:
                 wind_speed_coef = 1/1.852
-            button3_pressed()
+            button4_pressed()
 
         def update_location(event):
             global LOCATION, LOCATION_COORDINATES
@@ -1244,9 +1566,10 @@ def settings_frame_setup(pack:bool):
                 lang_index = 1
             button1.configure(text=language_dict['Stations']['stations'][lang_index])
             button2.configure(text=language_dict['Map']['map'][lang_index])
-            button3.configure(text=language_dict['Settings']['settings'][lang_index])
-            button3_pressed()
-        wind_speed_unit_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
+            button3.configure(text=language_dict['Alert']['alert'][lang_index])
+            button4.configure(text=language_dict['Settings']['settings'][lang_index])
+            button4_pressed()
+        wind_speed_unit_frame = CTkFrame(settings_frame, fg_color='transparent')
         wind_speed_unit_frame.pack(pady=20)
         CTkLabel(wind_speed_unit_frame, text=language_dict['Settings']['wind_unit_label'][lang_index]).pack(padx=10, side=LEFT)
         wind_speed_unit = CTkOptionMenu(wind_speed_unit_frame, values=[language_dict['Infos']['kph'][lang_index], language_dict['Infos']['knots'][lang_index]], command=change_wind_speed_unit)
@@ -1261,7 +1584,7 @@ def settings_frame_setup(pack:bool):
         except:
             pass
         wind_speed_unit.pack(padx=10, side=RIGHT)
-        location_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
+        location_frame = CTkFrame(settings_frame, fg_color='transparent')
         location_frame.pack(pady=20)
         CTkLabel(location_frame, text=language_dict['Settings']['location_label'][lang_index]).pack(padx=10, side=LEFT)
         #CTkLabel(location_frame, text='', width=10).pack(padx=10, side=RIGHT)
@@ -1272,7 +1595,7 @@ def settings_frame_setup(pack:bool):
         bin_img = CTkImage(light_image=Image.open('images/bin.png'), dark_image=Image.open('images/bin.png'), size=(20, 20))
         CTkButton(location_frame, text='', image=bin_img, width=10, command=empty_location_entry).pack(side=RIGHT, padx=0)
 
-        default_tile_server_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
+        default_tile_server_frame = CTkFrame(settings_frame, fg_color='transparent')
         default_tile_server_frame.pack(pady=20)
         CTkLabel(default_tile_server_frame, text=language_dict['Settings']['tile_server_label'][lang_index]).pack(padx=10, side=LEFT)
         default_map_tile_server = CTkOptionMenu(default_tile_server_frame, values=MAP_TILE_SERVER_LIST, command=change_default_tile_server)
@@ -1281,7 +1604,7 @@ def settings_frame_setup(pack:bool):
             default_map_tile_server.set(preferences['map_tile_server'])
         except:
             pass
-        theme_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
+        theme_frame = CTkFrame(settings_frame, fg_color='transparent')
         theme_frame.pack(pady=20)
         CTkLabel(theme_frame, text=language_dict['Settings']['app_theme_label'][lang_index]).pack(padx=10, side=LEFT)
         theme_color_option_menu = CTkOptionMenu(theme_frame, values=[language_dict['Infos']['theme_system'][lang_index], language_dict['Infos']['theme_light'][lang_index], language_dict['Infos']['theme_dark'][lang_index]], command=change_theme)
@@ -1295,7 +1618,7 @@ def settings_frame_setup(pack:bool):
         except:
             theme_color_option_menu.set(language_dict['Infos']['theme_system'][lang_index])
         theme_color_option_menu.pack(padx=10)
-        language_frame = CTkFrame(settings_scrollable_frame, fg_color='transparent')
+        language_frame = CTkFrame(settings_frame, fg_color='transparent')
         language_frame.pack(pady=20)
         CTkLabel(language_frame, text=language_dict['Settings']['language_label'][lang_index]).pack(side=LEFT, padx=10)
         language_option_menu = CTkOptionMenu(language_frame, values=['Français', 'English'], command=language_menu_callback)
@@ -1304,13 +1627,13 @@ def settings_frame_setup(pack:bool):
         except:
             pass
         language_option_menu.pack(side=RIGHT, padx=10)
-        CTkButton(settings_scrollable_frame, text=language_dict['Settings']['web_site_btn'][lang_index], command=open_website).pack(padx=20, pady=20)
-        CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['meteosuisse_credit_label'][lang_index]).pack(pady=20)
-        CTkLabel(settings_scrollable_frame, text=language_dict['Settings']['app_version_label'][lang_index]+str(CURRENT_VERSION)).pack(pady=20)
+        CTkButton(settings_frame, text=language_dict['Settings']['web_site_btn'][lang_index], command=open_website).pack(padx=20, pady=20)
+        CTkLabel(settings_frame, text=language_dict['Settings']['meteosuisse_credit_label'][lang_index]).pack(pady=20)
+        CTkLabel(settings_frame, text=language_dict['Settings']['app_version_label'][lang_index]+str(CURRENT_VERSION)).pack(pady=20)
 
         loading_img.pack_forget()
 
-        active_frame_manager.set_active_frame(settings_scrollable_frame, 'settings')
+        active_frame_manager.set_active_frame(settings_frame, 'settings')
         # station_frame_active = False
         # map_active = False
         # fav_active = False
@@ -1318,290 +1641,6 @@ def settings_frame_setup(pack:bool):
         # settings_active = True
 
 
-def add_alert_frame(*args):
-    global last_alert_frame, frame_len, frame_id_list
-    alert_visible = None
-    shortcut_visible = None
-    # try:
-    #     plus_button.pack_forget()
-    # except:
-    #     pass
-    try:
-        alert_nonscroll_frame.pack_forget()
-    except:
-        pass
-    frame_len += 1
-    frame_id_list.append(frame_len)
-    frame_id = frame_len
-    shortcut=[]
-
-    def select_station_event(event):
-        last_station = get_station_which_frame_order_is_frame_id(frame_id=frame_id)
-        if last_station is not None:
-            update_alert_preferences(last_station, 'all', 'remove')
-        if str(combobox.get()) in station_dict.keys():
-            update_alert_preferences(str(station_dict[combobox.get()]), 'frame_order', int(frame_id))
-            try:
-                if alert_visible:
-                    update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', int(slider.get()/wind_speed_coef))
-            except:
-                pass
-            try:
-                if shortcut_visible:
-                    update_alert_preferences(str(station_dict[combobox.get()]), 'shortcut', shortcut)
-            except:
-                pass
-        else:
-            logger.info('select_station_event() called -> No station selected => cannot save frame_order')
-    def enable_alert(*initializing_bool):
-        nonlocal alert_visible
-        if alert_visible == None:
-            alert_visible = False
-        if alert_visible:
-            alert_frame_1.pack_forget()
-            alert_frame.configure(height=50)
-            alert_visible = False
-            if str(combobox.get()) in station_dict.keys():
-                update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', 'remove')
-            else:
-                logger.info('enable_alert() called -> No station selected => cannot remove wind limit')
-            slider.set(25)
-            value_entry.delete(0, 'end')
-            if unit == language_dict['Infos']['kph'][lang_index]:
-                value_entry.insert(0, str(25)+'  '+language_dict['Infos']['kph'][lang_index])
-            else:
-                value_entry.insert(0, str(round(25/1.852, 1))+'  '+language_dict['Infos']['knots'][lang_index])
-        else:
-            alert_frame_1.pack(expand=True, fill='both')
-            alert_visible = True
-            try:
-                wind = preferences['notification'][str(station_dict[combobox.get()])]['wind_limit']*wind_speed_coef
-                if wind == int(wind):
-                    wind = int(wind)
-                else:
-                    wind = round(wind, 1)
-                slider.set(wind)
-                value_entry.delete(0, 'end')
-                value_entry.insert(0, str(wind)+'  '+unit)
-            except:
-                pass
-            if str(combobox.get()) in station_dict.keys():
-                if not initializing_bool:
-                    update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', int(slider.get()))
-            else:
-                logger.info('enable_alert() called -> No station selected => cannot save wind limit')
-    def enable_shortcut(*initializing_bool):
-        nonlocal shortcut_visible
-        if shortcut_visible == None:
-            shortcut_visible = False
-        if shortcut_visible:
-            shortcut_frame_1.pack_forget()
-            shortcut_frame.configure(height=50)
-            if str(combobox.get()) in station_dict.keys():
-                if not initializing_bool:
-                    update_alert_preferences(str(station_dict[combobox.get()]), 'shortcut', 'remove')
-            else:
-                logger.info('enable_shortcut() called -> No station selected => cannot remove shortcut')
-            entry.delete(0, 'end')
-            shortcut_visible = False
-        else:
-            shortcut_frame_1.pack(expand=True, fill='both')
-            shortcut_visible = True
-    def select_entry(e):
-        value_entry.delete(0, 'end')
-    def entry_changed(e):
-        try:
-            value = float(value_entry.get())
-        except ValueError: # if comma instead of dot
-            try:
-                value = int(value_entry.get().split(',')[0]) + float(value_entry.get().split(',')[1])/(10**len(value_entry.get().split(',')[1]))
-            except:
-                value = float('')
-        value_entry.delete(0, 'end')
-        if value == int(value):
-            value_entry.insert(0, str(int(value))+'  '+unit)
-        else:
-            value_entry.insert(0, str(value)+'  '+unit)
-        slider.set(int(value))
-        if str(combobox.get()) in station_dict.keys():
-            update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', value/wind_speed_coef)
-        else:
-            logger.info('entry_changed() called -> No station selected => cannot save wind limit')
-        frame.focus()
-    def slider_changed(event):
-        value_entry.delete(0, 'end')
-        value_entry.insert(0, str(int(slider.get()))+'  '+unit)
-        if str(combobox.get()) in station_dict.keys():
-            update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', int(event/wind_speed_coef))
-        else:
-            logger.info('slider_changed() called -> No station selected => cannot save wind limit')
-    def shortcut_entry_entered(event):
-        if event.keysym != 'Escape':
-            if event.keysym not in shortcut:
-                shortcut.append(event.keysym)
-        else:
-            for _ in range(len(shortcut)):
-                shortcut.pop(0)
-        entry.delete(0, 'end')
-        entry.insert(0, ' + '.join(shortcut))
-        if str(combobox.get()) in station_dict.keys():
-            update_alert_preferences(str(station_dict[combobox.get()]), 'shortcut', shortcut)
-        else:
-            logger.info('shortcut_entry_entered() called -> No station selected => cannot save shortcut')
-    def send_alert():
-        content, local_time = alert_content()
-
-        hour, minute, date = strafe_date_from_csv(local_time=local_time)
-        date = f"{hour}h{minute}  {date}"
-
-        if wind_speed_coef == 1:
-            unit = language_dict['Infos']['kph'][lang_index]
-        else:
-            unit = language_dict['Infos']['knots'][lang_index]
-        
-        img = set_icon(float(content[station_dict[combobox.get()]][0].split('|')[0]), float(content[station_dict[combobox.get()]][0].split('|')[1]))
-        img = img.resize((350, 350), Image.Resampling.HAMMING)
-        img = img.rotate(-int(content[station_dict[combobox.get()]][1].split('°')[0]))
-
-        background = Image.new('RGBA', (400, 400), (0, 0, 0, 0))  # larger transparent background
-        position = ((background.width - img.width) // 2,
-                (background.height - img.height) // 2)
-        background.paste(img, position, img)
-        background.save('wind_arrow_alert.png', 'PNG')
-
-        checkmark_img = CTkImage(light_image=Image.open('images/checkmark.png'), dark_image=Image.open('images/checkmark.png'), size=(20, 20))
-        checkmark_img_label = CTkLabel(test_btn_frame, image=checkmark_img, text='')
-
-        try:
-            text_fields = [combobox.get(), content[station_dict[combobox.get()]][0] + unit + '     ' + date, content[station_dict[combobox.get()]][1]]
-        except:
-            text_fields = ['Veuillez selectionner une station', 'pour obtenir les données']
-
-        if platform.system().lower() == 'windows':
-            newToast = Toast()
-            newToast.AddImage(ToastDisplayImage.fromPath('wind_arrow_alert.png'))
-            # ToastImagePosition('appLogoOverride')
-
-            newToast.text_fields = text_fields
-            #check.pack() in def activated_callback()
-
-            # toaster = InteractableWindowsToaster('Winfo') # for the btns but very high
-            toaster = WindowsToaster('Winfo') # without btn but nicer
-        elif platform.system().lower() == 'linux':
-            subprocess.Popen(['notify-send', 'Winfo', '\n'.join(text_fields)], '-i wind_arrow_alert.png')
-        elif platform.system().lower() == 'darwin':
-            subprocess.run(["osascript", "-e", '\n'.join(text_fields)], check=True)
-
-        def activated_callback(activatedEventArgs: ToastActivatedEventArgs):
-            if activatedEventArgs.arguments == 'delete':
-                toaster.remove_toast(newToast)
-            elif activatedEventArgs.arguments == 'snooze':
-                pass # logger.info('snooze (TODO)') # TODO
-            else:
-                checkmark_img_label.pack(side=LEFT, padx=10, pady=10)
-        
-        '''
-        # needs to be InteractableWindowsToaster()
-        newToast.AddAction(ToastButton('Supprimer', 'delete'))
-        newToast.AddAction(ToastButton('Bloquer pour 1h', 'snooze'))
-        '''
-
-        newToast.on_activated = activated_callback
-
-        toaster.show_toast(newToast)
-        logger.info('notification sent to', combobox.get())
-    def remove_alert_frame():
-        global frame_len
-        if str(combobox.get()) in station_dict.keys():
-            update_alert_preferences(str(station_dict[combobox.get()]), 'all', 'remove')
-        frame.pack_forget()
-        frame_len -= 1
-        frame_id_list.remove(int(frame_id))
-    frame = CTkFrame(alert_horiz_scrollframe, fg_color=(LIGHT_3, DARK_3), corner_radius=20)
-    CTkFrame(frame, height=1, width=325).pack() #empty frame for width of "frame"
-    alert_horiz_scrollframe.pack(expand=True, fill='x', padx=20, pady=20)
-    frame.pack(side=LEFT, expand=True, fill='y', padx=20, pady=20)
-    CTkLabel(frame, text='', height=3).pack()
-    cross_frame = CTkFrame(frame, fg_color='transparent')
-    cross_frame.pack(fill='x', pady=5)
-    cross_image = CTkImage(light_image=Image.open('images/cross.png'), dark_image=Image.open('images/cross.png'), size=(30, 30))
-    cross_button = CTkButton(cross_frame, text='', width=30, image=cross_image, fg_color='transparent', hover=False, command=remove_alert_frame)
-    cross_button.pack(side=RIGHT, fill='y', padx=20)
-    title_lab = CTkLabel(cross_frame, text=language_dict['Settings']['notif_card_title'][lang_index] + str(frame_id))
-    title_lab.pack(side=LEFT, expand=True, padx=10)
-    values = station_list[:]
-    values.insert(0, language_dict['Settings']['notif_card_combobox'][lang_index])
-
-    combobox = CTkOptionMenu(frame, values=values, width=200, command=select_station_event)
-    combobox.pack(padx=10, pady=10)
-
-    CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=1).pack(padx=30, pady=10, fill='x') #thin line
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_1_title'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover_color=LIGHT_3, hover=False, command=enable_alert).pack()
-    alert_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
-    alert_frame.pack()
-    alert_frame_1 = CTkFrame(alert_frame, fg_color=(LIGHT_3, DARK_3))
-    if preferences['wind_speed_unit'] == 'kph':
-        unit = language_dict['Infos']['kph'][lang_index]
-        wind_speed_coef = 1
-    else:
-        unit = language_dict['Infos']['knots'][lang_index]
-        wind_speed_coef = 1/1.852
-    CTkLabel(alert_frame_1, text=language_dict['Settings']['notif_card_option_1_label'][lang_index]).pack()
-    value_and_slider_frame = CTkFrame(alert_frame_1, fg_color='transparent', corner_radius=50)
-    value_and_slider_frame.pack(padx=10, pady=5)
-    slider = CTkSlider(value_and_slider_frame, from_=0, to=50, number_of_steps=30, command=slider_changed)
-    slider.pack(padx=5, pady=5, side=RIGHT)
-    font_on_blue_color = combobox.cget('text_color') # TODO set and use a defined global variable
-    value_entry = CTkEntry(value_and_slider_frame, text_color=font_on_blue_color, width=100, justify=CENTER, fg_color=BUTTON_NOT_PRESSED_COLOR, corner_radius=50)
-    value_entry.insert(0, str(int(slider.get()))+'  '+unit)
-    value_entry.bind('<Button-1>', select_entry)
-    value_entry.bind("<Return>", entry_changed)
-    value_entry.pack(padx=5, pady=5, side=LEFT)
-
-    CTkFrame(frame, fg_color=(DARK_1, LIGHT_1), height=1).pack(padx=30, pady=10, fill='x') #thin line
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_1'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, corner_radius=10, command=enable_shortcut).pack()
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_2'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, command=enable_shortcut).pack()
-    shortcut_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
-    shortcut_frame.pack()
-    shortcut_frame_1 = CTkFrame(shortcut_frame, fg_color=(LIGHT_3, DARK_3))
-    CTkLabel(shortcut_frame_1, text='', height=15).pack()
-    entry = CTkEntry(shortcut_frame_1, width=250, placeholder_text=language_dict['Settings']['placeholder_option_2'][lang_index])
-    entry.bind("<KeyPress>", shortcut_entry_entered)
-    entry.pack(padx=10, pady=10)
-
-    test_btn_frame = CTkFrame(frame, fg_color='transparent')
-    test_btn_frame.place(rely=0.92, relx=0.5, anchor=CENTER)
-    CTkButton(test_btn_frame, text=language_dict['Settings']['notif_card_test_btn'][lang_index], width=60, command=send_alert).pack(side=RIGHT, padx=10, pady=10)
-
-    skip = False
-    if args == ():
-        skip = True
-    if not skip:
-        reload_preferences()
-        station_to_add = args[0]
-        title_lab.configure(text=language_dict['Settings']['notif_card_title'][lang_index]+str(preferences['notification'][station_to_add]['frame_order']))
-        logger.info(station_to_add, values[int(station_to_add)], f'\n -> {coord_station_meteosuisse[int(station_to_add)-1] = } ')
-        combobox.set(values[int(station_to_add)+1])
-        entry.delete(0, 'end')
-        try:
-            try:
-                wind = round(float(preferences['notification'][station_to_add]['wind_limit'])*wind_speed_coef, 1)
-                if wind == int(wind):
-                    wind = int(wind)
-                value_entry.delete(0, 'end')
-                value_entry.insert(0, str(wind)+'  '+unit)
-            except KeyError:
-                pass
-            slider.set(round(float(preferences['notification'][station_to_add]['wind_limit'])*wind_speed_coef, 1))
-            enable_alert(True)
-        except KeyError:
-            pass
-        try:
-            entry.insert(0, ' + '.join(preferences['notification'][station_to_add]['shortcut']))
-            enable_shortcut()
-        except KeyError:
-            pass
-        del station_to_add
 
 def update_alert_preferences(station_id, type, value):
     reload_preferences()
@@ -1660,7 +1699,7 @@ def left_arrow_button_pressed():
 def right_arrow_button_pressed():
     frame_navigator.go_forward()
 def launch_customtkinter(*args):
-    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, last_frames_closed, last_frames_closed_txt, retrieve_frame_index, star_dark_full_img, star_dark_empty_img, star_light_full_img, star_light_empty_img
+    global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, button4, last_frames_closed, last_frames_closed_txt, retrieve_frame_index, star_dark_full_img, star_dark_empty_img, star_light_full_img, star_light_empty_img
     # station_frame_active = map_active = fav_active = all_station_active = settings_active = False
     wind_sorted_btn_activated = False
     station_id_active = 1
@@ -1729,12 +1768,16 @@ def launch_customtkinter(*args):
     button2 = CTkButton(left_column_frame, text=language_dict['Map']['map'][lang_index], command=button2_pressed)
     button2.pack(padx=20, pady=10)
 
-    button3 = CTkButton(left_column_frame, text=language_dict['Settings']['settings'][lang_index], command=button3_pressed)
+    button3 = CTkButton(left_column_frame, text=language_dict['Alert']['alert'][lang_index], command=button3_pressed)
     button3.pack(padx=20, pady=10)
+
+    button4 = CTkButton(left_column_frame, text=language_dict['Settings']['settings'][lang_index], command=button4_pressed)
+    button4.pack(padx=20, pady=10)
 
     frame_navigator.button1 = button1
     frame_navigator.button2 = button2
     frame_navigator.button3 = button3
+    frame_navigator.button4 = button4
 
     if 'theme' in preferences.keys():
         set_appearance_mode(preferences['theme'])
