@@ -25,15 +25,6 @@
     "Settings": {
         "settings": ["Settings", "Paramètres"],
         "titles": ["Settings", "Paramètres"],
-        "notif_title": ["Notifications", "Notifications"],
-        "notif_card_title": ["Notification ", "Notification "],
-        "notif_card_combobox": ["Select a station", "Sélectionner une station"],
-        "notif_card_option_1_title": ["Add a wind alert", "Créer une alerte de vent"],
-        "notif_card_option_1_label": ["Choose a minimum average wind", "Déterminez un vent moyen minimum"],
-        "notif_card_option_2_title_1": ["Add a keyboard shortcut", "Ajouter un raccourci clavier"],
-        "notif_card_option_2_title_2": ["to send a notification", "pour envoyer une notification"],
-        "placeholder_option_2": ["Press a shortcut", "Entrer un raccourci"],
-        "notif_card_test_btn": ["Send a test notification", "Tester la notification"],
         "wind_unit_label": ["Wind unit", "Unité de vent"],
         "location_label": ["Enter your location for more precision", "Entrez votre localistation pour plus de précision"],
         "placeholder_location": ["Location", "Lieu"],
@@ -46,7 +37,16 @@
     },
     "Alert": {
         "alert": ["Notifications", "Notifications"],
-        "title": ["Notifications", "Notifications"]
+        "title": ["Notifications", "Notifications"],
+        "notif_title": ["Notifications", "Notifications"],
+        "notif_card_title": ["Notification ", "Notification "],
+        "notif_card_combobox": ["Select a station", "Sélectionner une station"],
+        "notif_card_option_1_title": ["Add a wind alert", "Créer une alerte de vent"],
+        "notif_card_option_1_label": ["Choose a minimum average wind", "Déterminez un vent moyen minimum"],
+        "notif_card_option_2_title_1": ["Add a keyboard shortcut", "Ajouter un raccourci clavier"],
+        "notif_card_option_2_title_2": ["to send a notification", "pour envoyer une notification"],
+        "placeholder_option_2": ["Press a shortcut", "Entrer un raccourci"],
+        "notif_card_test_btn": ["Send a test notification", "Tester la notification"]
     },
     "Station_Frame": {
         "history": ["History graph", "Historique"],
