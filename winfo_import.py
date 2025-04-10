@@ -224,7 +224,7 @@ for station in station_dict.keys(): station_list.append(str(station))
 reload_preferences()
 
 logger.info('openning preferences.json')
-with open('language_dict.json', 'r') as file:
+with open('language_dict.json', 'r', encoding='utf-8') as file:
     language_dict = json.load(file)
     try:
         if preferences['language'] == 'English':
