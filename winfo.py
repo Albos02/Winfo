@@ -437,7 +437,7 @@ def alert_frame_setup(pack: bool):
         left_empty_frame = CTkButton(right_plus_frame, text='', image=empty_img, fg_color='transparent', hover=False)
         left_empty_frame.pack(side=LEFT)
 
-        # CTkLabel(right_plus_frame, text=language_dict['Settings']['notif_title'][lang_index], font=H2_FONT).pack(side=LEFT, expand=True, fill='x', padx=20)
+        # CTkLabel(right_plus_frame, text=language_dict['Alert']['notif_title'][lang_index], font=H2_FONT).pack(side=LEFT, expand=True, fill='x', padx=20)
 
         plus_image = CTkImage(light_image=Image.open('images/plus.png'), dark_image=Image.open('images/plus.png'), size=(30, 30))
         right_plus_icon_btn = CTkButton(right_plus_frame, text='', image=plus_image, fg_color='transparent', hover=False, command=add_alert_frame)
@@ -672,16 +672,16 @@ def add_alert_frame(*args):
     cross_image = CTkImage(light_image=Image.open('images/cross.png'), dark_image=Image.open('images/cross.png'), size=(30, 30))
     cross_button = CTkButton(cross_frame, text='', width=30, image=cross_image, fg_color='transparent', hover=False, command=remove_alert_frame)
     cross_button.pack(side=RIGHT, fill='y', padx=20)
-    title_lab = CTkLabel(cross_frame, text=language_dict['Settings']['notif_card_title'][lang_index] + str(frame_id))
+    title_lab = CTkLabel(cross_frame, text=language_dict['Alert']['notif_card_title'][lang_index] + str(frame_id))
     title_lab.pack(side=LEFT, expand=True, padx=10)
     values = station_list[:]
-    values.insert(0, language_dict['Settings']['notif_card_combobox'][lang_index])
+    values.insert(0, language_dict['Alert']['notif_card_combobox'][lang_index])
 
     combobox = CTkOptionMenu(frame, values=values, width=200, command=select_station_event)
     combobox.pack(padx=10, pady=10)
 
     CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=1).pack(padx=30, pady=10, fill='x') #thin line
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_1_title'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover_color=LIGHT_3, hover=False, command=enable_alert).pack()
+    CTkButton(frame, text=language_dict['Alert']['notif_card_option_1_title'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover_color=LIGHT_3, hover=False, command=enable_alert).pack()
     alert_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
     alert_frame.pack()
     alert_frame_1 = CTkFrame(alert_frame, fg_color=(LIGHT_3, DARK_3))
@@ -691,7 +691,7 @@ def add_alert_frame(*args):
     else:
         unit = language_dict['Infos']['knots'][lang_index]
         wind_speed_coef = 1/1.852
-    CTkLabel(alert_frame_1, text=language_dict['Settings']['notif_card_option_1_label'][lang_index]).pack()
+    CTkLabel(alert_frame_1, text=language_dict['Alert']['notif_card_option_1_label'][lang_index]).pack()
     value_and_slider_frame = CTkFrame(alert_frame_1, fg_color='transparent', corner_radius=50)
     value_and_slider_frame.pack(padx=10, pady=5)
     slider = CTkSlider(value_and_slider_frame, from_=0, to=50, number_of_steps=30, command=slider_changed)
@@ -704,19 +704,19 @@ def add_alert_frame(*args):
     value_entry.pack(padx=5, pady=5, side=LEFT)
 
     CTkFrame(frame, fg_color=(DARK_1, LIGHT_1), height=1).pack(padx=30, pady=10, fill='x') #thin line
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_1'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, corner_radius=10, command=enable_shortcut).pack()
-    CTkButton(frame, text=language_dict['Settings']['notif_card_option_2_title_2'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, command=enable_shortcut).pack()
+    CTkButton(frame, text=language_dict['Alert']['notif_card_option_2_title_1'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, corner_radius=10, command=enable_shortcut).pack()
+    CTkButton(frame, text=language_dict['Alert']['notif_card_option_2_title_2'][lang_index], width=300, font=h2_font, fg_color='transparent', text_color=(DARK_3, LIGHT_3), hover=False, command=enable_shortcut).pack()
     shortcut_frame = CTkFrame(frame, fg_color=(LIGHT_3, DARK_3), height=50)
     shortcut_frame.pack()
     shortcut_frame_1 = CTkFrame(shortcut_frame, fg_color=(LIGHT_3, DARK_3))
     CTkLabel(shortcut_frame_1, text='', height=15).pack()
-    entry = CTkEntry(shortcut_frame_1, width=250, placeholder_text=language_dict['Settings']['placeholder_option_2'][lang_index])
+    entry = CTkEntry(shortcut_frame_1, width=250, placeholder_text=language_dict['Alert']['placeholder_option_2'][lang_index])
     entry.bind("<KeyPress>", shortcut_entry_entered)
     entry.pack(padx=10, pady=10)
 
     test_btn_frame = CTkFrame(frame, fg_color='transparent')
     test_btn_frame.place(rely=0.92, relx=0.5, anchor=CENTER)
-    CTkButton(test_btn_frame, text=language_dict['Settings']['notif_card_test_btn'][lang_index], width=60, command=send_alert).pack(side=RIGHT, padx=10, pady=10)
+    CTkButton(test_btn_frame, text=language_dict['Alert']['notif_card_test_btn'][lang_index], width=60, command=send_alert).pack(side=RIGHT, padx=10, pady=10)
 
     skip = False
     if args == ():
@@ -724,7 +724,7 @@ def add_alert_frame(*args):
     if not skip:
         reload_preferences()
         station_to_add = args[0]
-        title_lab.configure(text=language_dict['Settings']['notif_card_title'][lang_index]+str(preferences['notification'][station_to_add]['frame_order']))
+        title_lab.configure(text=language_dict['Alert']['notif_card_title'][lang_index]+str(preferences['notification'][station_to_add]['frame_order']))
         logger.info(station_to_add + values[int(station_to_add)]+ f'\n -> {coord_station_meteosuisse[int(station_to_add)-1] = } ')
         combobox.set(values[int(station_to_add)+1])
         entry.delete(0, 'end')
