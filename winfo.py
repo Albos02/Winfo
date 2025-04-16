@@ -581,6 +581,11 @@ def add_alert_frame(*args):
             update_alert_preferences(str(station_dict[combobox.get()]), 'wind_limit', int(event/wind_speed_coef))
         else:
             logger.info('slider_changed() called -> No station selected => cannot save wind limit')
+    def del_last_letter_shortcut():
+        if len(shortcut) == 0:
+            return
+        if len(shortcut[-1]) == 1:
+            entry.delete(len(entry.get())-1, 'end')
     def shortcut_entry_entered(event):
         if event.keysym != 'Escape':
             if event.keysym not in shortcut:
@@ -590,6 +595,7 @@ def add_alert_frame(*args):
                 shortcut.pop(0)
         entry.delete(0, 'end')
         entry.insert(0, ' + '.join(shortcut))
+        window.after(1, del_last_letter_shortcut)
         if str(combobox.get()) in station_dict.keys():
             update_alert_preferences(str(station_dict[combobox.get()]), 'shortcut', shortcut)
         else:
