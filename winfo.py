@@ -140,6 +140,7 @@ def button4_pressed():
     button4.configure(fg_color=BUTTON_PRESSED_COLOR)
     button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button2.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
+    button3.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     settings_frame_setup(pack=True)
 def get_csv():
     logger.info('get_csv() called')
