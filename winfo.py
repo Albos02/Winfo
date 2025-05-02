@@ -23,14 +23,17 @@ import platform
 import os
 
 if platform.system().lower() == 'windows':
+    logger.info('OS is Windows')
     OS = 'windows'
     from win32com.client import Dispatch
     from windows_toasts import Toast, InteractableWindowsToaster, WindowsToaster, ToastDisplayImage, ToastActivatedEventArgs, ToastImagePosition
 
     import pywinstyles # CTkwindow with style acrylic
 elif platform.system().lower() == 'linux':
+    logger.info('OS is Linux')
     OS = 'linux'
 elif platform.system().lower() == 'darwin':
+    logger.info('OS is macOS')
     OS = 'macos'
 def new_version_top_level():
     logger.info('new_version_top_level() called')
@@ -59,16 +62,16 @@ def new_version_top_level():
     button_frame.grid_columnconfigure((0,1), weight=1)
 
     CTkButton(button_frame, text=language_dict['New_Version_Available']['download_btn'][lang_index], command=open_new_version).grid(row=0, column=0, padx=10, sticky="e")
-    CTkButton(button_frame, text=language_dict['New_Version_Available']['dont_show_again_btn'][lang_index], command=ne_plus_afficher).grid(row=0, column=1, padx=10, sticky="w")
+    CTkButton(button_frame, text=language_dict['New_Version_Available']['dont_show_again_btn'][lang_index], command=dont_show_again).grid(row=0, column=1, padx=10, sticky="w")
 
     toplevel.after('idle', top_level_focus)
 
 def open_new_version():
-    logger.info('open_new_version() called')
+    logger.info('openning website from new_version_top_level()')
     webbrowser.open("https://louse-proud-raven.ngrok-free.app/versions/")
     toplevel.destroy()
-def ne_plus_afficher():
-    logger.info('ne_plus_afficher() called')
+def dont_show_again():
+    logger.info('dont_show_again() called')
     toplevel.destroy()
     reload_preferences()
     preferences['not_show_update'] = True
@@ -149,10 +152,16 @@ def get_csv():
         urllib.request.urlretrieve(URL_VQHA80, "VQHA80.csv")
         with open("VQHA80.csv", "r") as fichier_csv:
             reader = csv.DictReader(fichier_csv, delimiter=';')
-            date = list(reader)[0]['Date']
+            val = list(reader)
+            date = val[0]['Date']
             if date != latest_date:
+                logger.info('new date => updating values')
+                logger.info('list(DictReader) content :')
+                logger.info(val)
                 update_all_values()
                 latest_date = date
+            else:
+                logger.info('same date => not updating values')
     except Exception as error:
         logger.error(f'get_csv() failed: {error}')
         logger.info('creating errored file')
@@ -190,13 +199,7 @@ def update_all_values():
     else:
         logger.info('updating values.. no page displayed yet')
 
-    frame_navigator.__init__() # reset everything so that it will update the values (not load back unupdated frames)
-
-
-
-
-
-
+    frame_navigator.__init__() # reset (wipe out all previously stored frame) so that it will update the values (not load back unupdated frames)
 
 
 def change_theme(theme):
@@ -301,6 +304,7 @@ def find_station_data_in_data_geo_files(abr: str):
             rafale = None
     except:
         rafale = None
+    logger.info('end of find_station_data_in_data_geo_files() -> direction : {}, moyenne : {}, rafale : {}'.format(direction, moyenne, rafale))
     return direction, moyenne, rafale
 def map_frame_setup(pack: bool, displaying_values : bool):
     logger.info('map_frame_setup() called -> pack: {}, displaying_values: {}'.format(pack, displaying_values))
@@ -465,6 +469,11 @@ def alert_frame_setup(pack: bool):
         active_frame_manager.set_active_frame(alert_frame, 'alert')
 
 def add_alert_frame(*args):
+    if args:
+        logger.info('add_alert_frame() called -> args: {}'.format(args))
+    else:
+        logger.info('add_alert_frame() called (no args)')
+
     global last_alert_frame, frame_len, frame_id_list
     alert_visible = None
     shortcut_visible = None
@@ -772,9 +781,11 @@ def calculate_distance(pos_lat, pos_lon, station_lat, station_lon):
     station_pos = (station_lat, station_lon)
     distance = geopy.distance.distance(position, station_pos).km
     distance = round(distance, 5)
+    logger.info(f"Calculated distance to station: {distance}km")
     return distance
 
 def get_station_matrix(fav_bool: bool, wind_sorted: bool):
+    logger.info(f"Retrieving station matrix with fav_bool={fav_bool}, wind_sorted={wind_sorted}")
     already_direction = False
     with open("VQHA80.csv", "r") as f_csv:
         reader = csv.DictReader(f_csv, delimiter=';')
@@ -810,6 +821,7 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                 try:
                     vent, rafale = round(float(ligne['fu3010z0']) * wind_speed_coef, 1), round(float(ligne['fu3010z1']) * wind_speed_coef, 1)
                 except ValueError:
+                    logger.error(f"Failed to parse wind data for station {coord[0]}: {ligne['fu3010z0']}, {ligne['fu3010z1']}")
                     if 'urlopen error' not in ligne['dkl010z0']:
                         direction, vent, rafale = find_station_data_in_data_geo_files(abr=coord[0])
                     else:
@@ -838,7 +850,8 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
                     elif (direction <= 360/8-22.5 or direction <= 360+360/8-22.5) and (direction >= 0-22.5 or direction >= 360-22.5): output = '⬇'
                     else: output = 'None'
                     new_line.append(f'{direction}°   {output}')
-                except:
+                except Exception as e:
+                    logger.error(f"Failed to parse direction data for station {coord[0]}: {ligne['dkl010z0']} - Error: {str(e)}")
                     if 'error' in ligne['dkl010z0']:
                         new_line.append(ligne['dkl010z0'])
                     else:
@@ -858,6 +871,9 @@ def get_station_matrix(fav_bool: bool, wind_sorted: bool):
             if wind_sorted:
                 values = sorted(values, key=lambda item_in_values: (-5 if item_in_values[1] == '' else float(item_in_values[1].split('|')[0])), reverse=True)
             values.insert(0, [language_dict['Stations']['table_title_station'][lang_index], language_dict['Stations']['table_title_wind-gust'][lang_index], language_dict['Stations']['table_title_direction'][lang_index], language_dict['Stations']['table_title_county'][lang_index], language_dict['Stations']['table_title_favorites'][lang_index]])
+            logger.info(f"Station matrix generated with {len(values)-1} stations")
+            logger.info('Station matrix:')
+            logger.info(values)
             return values
 
 def set_segmented_btn(fav_bool: bool):
@@ -870,7 +886,6 @@ def set_segmented_btn(fav_bool: bool):
         fav_or_all_btn.set(language_dict['Stations']['all_stations_segmented_btn'][lang_index])
 
 def change_fav_or_all_from_segbtn(value):
-    logger.info(f'change_fav_or_all_from_segbtn: {value}')
     global search_input
     search_input = ''
     frame_navigator.forget_active_frame()
@@ -884,6 +899,7 @@ def change_fav_or_all_from_segbtn(value):
 
 def search_in_table(fav_bool: bool, wind_sorted: bool):
     global search_input
+    logger.info(f"Searching for: '{search_input}'")
     search_input = search_entry.get()
     table_frame_setup(pack=True, fav_bool=fav_bool, wind_sorted=wind_sorted)
 
@@ -948,10 +964,12 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
                         favoris.append(station_dict[table.get(row, 0)])
                         preferences['favorites'] = favoris
                         table.insert(row, column, '⬛')
+                        logger.info(f"Added station {table.get(row, 0)} to favorites")
                     else:
                         favoris.remove(station_dict[table.get(row, 0)])
                         preferences['favorites'] = favoris
                         table.insert(row, column, '⬜')
+                        logger.info(f"Removed station {table.get(row, 0)} from favorites")
                     logger.info(f'favoris = {favoris}')
                 else:
                     favoris = [station_dict[table.get(row, 0)]]
@@ -985,11 +1003,13 @@ def table_frame_setup(pack: bool, fav_bool: bool, wind_sorted: bool):
             entry_as_display.configure(placeholder_text=f'{value} KM')
         distance_slider.set(value)
         distance_slider_and_search_frame.focus()
+        logger.info(f"Distance filter to {value}km")
         preferences['distance_slider'] = value
         dump_preferences()
         setup_table_stations(None)
     def distance_slider_changed(value):
         value = int(round(value, -1))
+        logger.info(f"Distance slider changed to {value}km")
         entry_as_display.delete(0, 'end')
         if value == 500:
             entry_as_display.configure(placeholder_text=f'N/A KM')
@@ -1092,6 +1112,7 @@ def get_active_wind(station_id: int):
     if direction is None: direction = 'N/A'
     if moyenne is None: moyenne = 'N/A'
     if rafale is None: rafale = 'N/A'
+    logger.info(f"get_active_wind({station_id}) = {moyenne}, {rafale}, {direction}")
     return [moyenne, rafale, direction], date
 def create_mesurement_errored_file():
     with open('mesurement_history.csv', 'w') as file:
@@ -1147,6 +1168,8 @@ def get_history_matrix(station_id: int, raw: bool):
             ]
             )
         matrix.reverse()
+    logger.info(f'get_history_matrix() station_id : {station_id} raw : {raw} matrix : ')
+    logger.info(matrix)
     return matrix
 def get_prevision_matrix(station_id: int, raw: bool):
     abr = coord_station_meteosuisse[station_id][0]
@@ -1156,6 +1179,7 @@ def get_prevision_matrix(station_id: int, raw: bool):
 
 
 def chart_setup(frame, station_id, history_bool, unit: str):
+    logger.info(f'creating chart for station_id : {station_id} history_bool : {history_bool} unit : {unit}')
     plt.style.use('_mpl-gallery')
     fig, ax = plt.subplots(figsize=(10, 6))
     plt.subplots_adjust(left=0.06, right=0.94, bottom=0.2, top=0.97)
@@ -1335,15 +1359,19 @@ def chart_setup(frame, station_id, history_bool, unit: str):
     
     canvas_widget.figure = fig
     canvas_widget.canvas = canvas
-    
+
+    logger.info('done creating chart')
     return canvas_widget
 def toggle_star(station_id, star_button):
+    logger.info('star toggle')
     if station_id_active in preferences['favorites']:
         preferences['favorites'].remove(station_id)
         star_img = star_dark_empty_img
+        logger.info(f'removed {station_id} from favorites => {preferences["favorites"]}')
     else:
         preferences['favorites'].append(station_id)
         star_img = star_dark_full_img
+        logger.info(f'added {station_id} to favorites => {preferences["favorites"]}')
     star_button.configure(image=star_img)
     dump_preferences()
 def station_frame_setup(pack: bool, station_id: int):
@@ -1688,13 +1716,15 @@ def get_station_which_frame_order_is_frame_id(frame_id):
             return station_id
 
 def open_website():
+    logger.info('openning website')
     webbrowser.open(SERVER_URL)
 
 def dump_preferences():
+    logger.info('dumping preferences')
     global preferences
     with open('preferences.json', 'w') as f:
         json.dump(preferences, f)
-def update_tab_button_color():
+def update_tab_button_color(): # TODO Check if removable or wrong (3 times button1)
     button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
     button1.configure(fg_color=BUTTON_NOT_PRESSED_COLOR)
@@ -1706,6 +1736,7 @@ def left_arrow_button_pressed():
 def right_arrow_button_pressed():
     frame_navigator.go_forward()
 def launch_customtkinter(*args):
+    logger.info('launching customtkinter window')
     global preferences, station_id_active, station_frame_active, map_active, fav_active, all_station_active, settings_active, wind_sorted_btn_activated, wind_speed_coef, LOCATION, LOCATION_COORDINATES, LATEST_VERSION, LATEST_VERSION_INFO, h1_font, h2_font, p_font, station_dict, abreviation_list, station_list, button1, button2, button3, button4, last_frames_closed, last_frames_closed_txt, retrieve_frame_index, star_dark_full_img, star_dark_empty_img, star_light_full_img, star_light_empty_img
     # station_frame_active = map_active = fav_active = all_station_active = settings_active = False
     wind_sorted_btn_activated = False
@@ -1816,6 +1847,7 @@ def launch_customtkinter(*args):
     get_csv()
     button1_pressed()
     if first_boot:
+        logger.info('first boot')
         preferences = winfo_import_json_preferences.start_importation_toplevel(window)
         create_shortcut_top_level()
     if start_version_top_level:
