@@ -5,6 +5,7 @@ from tkinter import filedialog
 from PIL import Image
 from winfo_constants import *
 from winfo_import import *
+from winfo_classes import logger
 
 def dump_preferences():
     global preferences
@@ -37,6 +38,7 @@ def start_importation_toplevel(window):
             
         if 'preferences.json' in os.listdir(folder):
             importable_directories.append(f"{language_dict['Preferences_importation']['selected_folder'][lang_index]} | {folder}")
+            logger.info(f'import_json_preferences : {language_dict["Preferences_importation"]["selected_folder"][lang_index]} | {folder}')
             option_list.configure(values=importable_directories)
             option_list.set(f"{language_dict['Preferences_importation']['selected_folder'][lang_index]} | {folder}")
             return
@@ -56,9 +58,9 @@ def start_importation_toplevel(window):
                 # print(preferences)
                 top_level.destroy()
                 main_top_level.destroy()
-                print('importation successful, toplevel destroyed')
+                logger.info('import_json_preferences : importation successful, toplevel destroyed')
         except Exception as e:
-            print(f"Error importing preferences: {e}")
+            logger.error(f"import_json_preferences : Error importing preferences: {e}")
     def cancel_importation():
         top_level.destroy()
         main_top_level.destroy()
@@ -71,7 +73,7 @@ def start_importation_toplevel(window):
         importable_directories = []
         find_sibling_app_version()
         # print(language_dict["Preferences_importation"]["window_title"][lang_index])
-        print(language_dict["Preferences_importation"]["window_title"][lang_index])
+        logger.info(f'import_json_preferences : {language_dict["Preferences_importation"]["window_title"][lang_index]}')
 
         top_level = CTkToplevel(main_top_level)
         top_level.title(language_dict["Preferences_importation"]["window_title"][lang_index])
@@ -110,7 +112,7 @@ def start_importation_toplevel(window):
     
     # main_top_level.mainloop()
     main_top_level.wait_window()
-    print('exiting importation_toplevel')
+    logger.info('import_json_preferences : exiting importation_toplevel')
 
     main_top_level.destroy()
     # for window in CTk.CTkTk.winfo_children(CTk.CTkTk()): # Get all children of the root window
