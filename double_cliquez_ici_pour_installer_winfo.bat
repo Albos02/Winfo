@@ -22,4 +22,4 @@ cd "%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\
 
 
 start /MIN "winfo_startup.bat" "winfo_startup.bat"
-start "Winfo" "Winfo.py"
+start "winfo" "winfo.py"
